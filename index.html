@@ -321,6 +321,23 @@
             filter: blur(4px);
         }
 
+        /* خطوط تقسيم الأقسام على شريط التقدم */
+        .section-markers {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+        }
+        .section-marker {
+            width: 2px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 1px;
+            opacity: 0.6;
+        }
+
         /* ============ FILTERS ============ */
         .filter-bar {
             display: flex;
@@ -399,15 +416,22 @@
         }
 
         .section-days {
-            display: none;
+            display: grid;
             grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
             gap: 6px;
-            padding: 10px 14px 14px;
-            border-top: 1px solid var(--border);
+            padding: 0 14px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, padding 0.3s ease;
+            border-top: 1px solid transparent;
+            border-color: transparent;
         }
 
         .section-group.open .section-days {
-            display: grid;
+            max-height: 800px; /* قيمة كافية لأي عدد من الأيام */
+            padding: 10px 14px 14px;
+            border-color: var(--border);
+            transition: max-height 0.5s ease, padding 0.3s ease, border-color 0.2s;
         }
 
         /* ============ DAY CELL ============ */
@@ -470,6 +494,22 @@
             }
         }
 
+        /* تأثير وميض إضافي عند القفز لليوم الحالي */
+        .day-cell.current.blink-highlight {
+            animation: blink-strong 0.6s ease 3;
+        }
+
+        @keyframes blink-strong {
+            0%,
+            100% {
+                box-shadow: 0 0 8px rgba(108, 92, 231, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 28px rgba(108, 92, 231, 0.9);
+                transform: scale(1.05);
+            }
+        }
+
         .day-cell.locked {
             opacity: 0.35;
             cursor: not-allowed;
@@ -494,6 +534,10 @@
         .day-cell.project-day.completed {
             background: rgba(255, 107, 107, 0.2);
             border-color: var(--project-badge);
+        }
+
+        .hidden-by-filter {
+            display: none !important;
         }
 
         /* ============ MODAL ============ */
@@ -580,12 +624,28 @@
             font-size: 0.8rem;
             color: var(--text-secondary);
         }
+        .modal .modal-resources ul {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 4px;
+        }
+        .modal .modal-resources li {
+            margin-bottom: 3px;
+        }
         .modal .modal-resources a {
             color: var(--accent-glow);
             text-decoration: none;
         }
         .modal .modal-resources a:hover {
             text-decoration: underline;
+        }
+        .modal .lock-reason {
+            color: var(--warning);
+            font-size: 0.85rem;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
         .modal-actions {
             display: flex;
@@ -693,7 +753,6 @@
             .section-days {
                 grid-template-columns: repeat(auto-fill, minmax(34px, 1fr));
                 gap: 4px;
-                padding: 8px 10px 10px;
             }
             .day-cell {
                 font-size: 0.7rem;
@@ -820,7 +879,9 @@
                 <span id="progressPercent">0%</span>
             </div>
             <div class="progress-bar-outer">
-                <div class="progress-bar-inner" id="progressBar" style="width: 0%;"></div>
+                <div class="progress-bar-inner" id="progressBar" style="width: 0%;">
+                    <div class="section-markers" id="sectionMarkers"></div>
+                </div>
             </div>
         </div>
 
@@ -854,14 +915,16 @@
 
     <script>
         // =============================================
-        // FULL 180-DAY ROADMAP DATA
+        // FULL 180-DAY ROADMAP DATA with Resources
         // =============================================
         const roadmap = [
             // HTML (1–10)
             { day: 1, title: 'Intro to Web Development', section: 'HTML', type: 'learning',
-                desc: 'Understand how the web works: clients, servers, HTTP, browsers, and the role of HTML, CSS, and JavaScript. Set up your development environment with VS Code and a browser.' },
+                desc: 'Understand how the web works: clients, servers, HTTP, browsers, and the role of HTML, CSS, and JavaScript. Set up your development environment with VS Code and a browser.',
+                resources: ['https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web'] },
             { day: 2, title: 'HTML Document Structure', section: 'HTML', type: 'learning',
-                desc: 'Learn the basic HTML document structure: <!DOCTYPE>, <html>, <head>, <body>. Understand meta tags, title, and linking external files.' },
+                desc: 'Learn the basic HTML document structure: <!DOCTYPE>, <html>, <head>, <body>. Understand meta tags, title, and linking external files.',
+                resources: ['https://www.w3schools.com/html/html_intro.asp'] },
             { day: 3, title: 'Text Elements & Headings', section: 'HTML', type: 'learning',
                 desc: 'Master headings (h1–h6), paragraphs, spans, line breaks, horizontal rules, and text formatting tags like strong, em, mark, and small.' },
             { day: 4, title: 'Links & Images', section: 'HTML', type: 'learning',
@@ -877,7 +940,8 @@
             { day: 9, title: 'Accessibility Basics', section: 'HTML', type: 'learning',
                 desc: 'Learn ARIA labels, alt text, tabindex, role attributes, skip navigation, and using screen-reader-friendly markup. Make the web inclusive.' },
             { day: 10, title: '🔥 Project: HTML Portfolio Page', section: 'HTML', type: 'project',
-                desc: 'Build a complete personal portfolio page using only HTML. Include a header, about section, skills list, project table, contact form, and footer. Focus on semantic structure and accessibility.' },
+                desc: 'Build a complete personal portfolio page using only HTML. Include a header, about section, skills list, project table, contact form, and footer. Focus on semantic structure and accessibility.',
+                resources: ['https://www.freecodecamp.org/news/how-to-build-a-developer-portfolio-website/'] },
 
             // CSS (11–25)
             { day: 11, title: 'CSS Syntax & Selectors', section: 'CSS', type: 'learning',
@@ -909,8 +973,10 @@
             { day: 24, title: 'CSS Best Practices', section: 'CSS', type: 'learning',
                 desc: 'Learn BEM naming, organizing stylesheets, avoiding specificity wars, using CSS resets, and performance tips like avoiding expensive properties.' },
             { day: 25, title: '🔥 Project: Responsive Landing Page', section: 'CSS', type: 'project',
-                desc: 'Design and build a fully responsive landing page. Include a hero section, features grid, pricing table, testimonials, and a footer. Use Flexbox, Grid, and media queries.' },
+                desc: 'Design and build a fully responsive landing page. Include a hero section, features grid, pricing table, testimonials, and a footer. Use Flexbox, Grid, and media queries.',
+                resources: ['https://www.frontendmentor.io/challenges'] },
 
+            // ... (بقية الأيام بنفس الهيكل، سنضيف موارد لبعض الأيام المهمة فقط للحفاظ على الإيجاز)
             // JavaScript Basics (26–37)
             { day: 26, title: 'JavaScript Introduction & Setup', section: 'JavaScript Basics', type: 'learning',
                 desc: 'Learn what JavaScript is, how to include it in HTML (inline, internal, external). Set up the browser console and write your first console.log().' },
@@ -1251,7 +1317,7 @@
         ];
 
         // =============================================
-        // APP STATE
+        // APP STATE & SYNC LOGIC
         // =============================================
         const STORAGE_KEY_COMPLETED = 'devpath180_completedDays';
         const STORAGE_KEY_CURRENT = 'devpath180_currentDay';
@@ -1260,7 +1326,7 @@
 
         function loadState() {
             const completed = JSON.parse(localStorage.getItem(STORAGE_KEY_COMPLETED) || '[]');
-            const current = parseInt(localStorage.getItem(STORAGE_KEY_CURRENT) || '1');
+            let current = parseInt(localStorage.getItem(STORAGE_KEY_CURRENT) || '1');
             return { completedDays: completed, currentDay: Math.max(1, Math.min(TOTAL_DAYS, current)) };
         }
 
@@ -1272,7 +1338,26 @@
             localStorage.setItem(STORAGE_KEY_CURRENT, String(day));
         }
 
+        // مزامنة currentDay مع completedDays لضمان عدم وجود تناقض
+        function syncCurrentDayWithProgress() {
+            const sorted = [...appState.completedDays].sort((a, b) => a - b);
+            let expectedDay = 1;
+            for (let day of sorted) {
+                if (day === expectedDay) {
+                    expectedDay++;
+                } else if (day > expectedDay) {
+                    break;
+                }
+            }
+            if (expectedDay > TOTAL_DAYS) expectedDay = TOTAL_DAYS;
+            if (appState.currentDay !== expectedDay) {
+                appState.currentDay = expectedDay;
+                saveCurrentDay(appState.currentDay);
+            }
+        }
+
         let appState = loadState();
+        syncCurrentDayWithProgress(); // تأكيد الاتساق بعد التحميل
 
         // =============================================
         // RENDER SECTIONS
@@ -1288,7 +1373,6 @@
                 if (!groups[day.section]) groups[day.section] = [];
                 groups[day.section].push(day);
             });
-            // Return in defined order
             return sectionOrder.filter(s => groups[s]).map(s => ({ section: s, days: groups[s] }));
         }
 
@@ -1296,6 +1380,9 @@
             const container = document.getElementById('sectionsContainer');
             const sectionGroups = getSectionGroups();
             let html = '';
+            const sectionMarkersHtml = sectionGroups.map(() => '<span class="section-marker"></span>').join('');
+            // تحديث علامات شريط التقدم
+            document.getElementById('sectionMarkers').innerHTML = sectionMarkersHtml;
 
             sectionGroups.forEach(group => {
                 const sectionId = 'section-' + group.section.replace(/[^a-zA-Z0-9]/g, '-');
@@ -1303,8 +1390,21 @@
                 const endDay = group.days[group.days.length - 1].day;
                 const completedInSection = group.days.filter(d => appState.completedDays.includes(d.day)).length;
                 const totalInSection = group.days.length;
-                const isOpen = group.days.some(d => d.day === appState.currentDay) ||
+
+                // تحديد ما إذا كان القسم مفتوحاً (مبدئياً إذا كان يحتوي اليوم الحالي، أو بعض الأيام مكتملة)
+                let isOpen = group.days.some(d => d.day === appState.currentDay) ||
                     (completedInSection > 0 && completedInSection < totalInSection);
+
+                // عند تطبيق فلتر، نفتح القسم إذا كان يحتوي على أي يوم مرئي
+                if (filter !== 'all') {
+                    const hasVisibleDay = group.days.some(d => {
+                        const isCompleted = appState.completedDays.includes(d.day);
+                        if (filter === 'completed') return isCompleted;
+                        if (filter === 'pending') return !isCompleted;
+                        return true;
+                    });
+                    if (hasVisibleDay) isOpen = true;
+                }
 
                 html += `<div class="section-group ${isOpen ? 'open' : ''}" id="${sectionId}">`;
                 html += `<div class="section-header" data-section="${group.section}">`;
@@ -1322,14 +1422,12 @@
                     if (day.day === appState.currentDay && !appState.completedDays.includes(day.day))
                         cellClass += ' current';
                     if (day.type === 'project') cellClass += ' project-day';
-                    // Lock if not completed and not current and previous day not completed
                     const isLocked = day.day > 1 &&
                         !appState.completedDays.includes(day.day - 1) &&
                         day.day !== appState.currentDay &&
                         !appState.completedDays.includes(day.day);
                     if (isLocked && day.day !== 1) cellClass += ' locked';
 
-                    // Filter logic
                     const isCompleted = appState.completedDays.includes(day.day);
                     if (filter === 'completed' && !isCompleted) cellClass += ' hidden-by-filter';
                     if (filter === 'pending' && isCompleted) cellClass += ' hidden-by-filter';
@@ -1342,16 +1440,6 @@
             });
 
             container.innerHTML = html;
-
-            // Add filter hidden style dynamically
-            if (!document.getElementById('filterStyle')) {
-                const styleEl = document.createElement('style');
-                styleEl.id = 'filterStyle';
-                styleEl.textContent = '.hidden-by-filter { display: none !important; }';
-                document.head.appendChild(styleEl);
-            }
-
-            // Attach click handlers
             attachDayClickHandlers();
             attachSectionToggleHandlers();
             attachSidebarSectionLinks();
@@ -1364,7 +1452,6 @@
                     openDayModal(dayNum);
                 });
             });
-            // Also allow clicking locked cells to show info but not complete
             document.querySelectorAll('.day-cell.locked').forEach(cell => {
                 cell.addEventListener('click', () => {
                     const dayNum = parseInt(cell.dataset.day);
@@ -1393,19 +1480,21 @@
                         sectionEl.classList.add('open');
                         sectionEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }
-                    // Close mobile sidebar
                     closeSidebar();
                 });
             });
         }
 
         // =============================================
-        // MODAL
+        // MODAL (مع سبب القفل والتنقل بالأسهم)
         // =============================================
+        let currentModalDay = null;
+
         function openDayModal(dayNum, locked = false) {
             const day = roadmap.find(d => d.day === dayNum);
             if (!day) return;
 
+            currentModalDay = dayNum;
             const overlay = document.getElementById('modalOverlay');
             const titleEl = document.getElementById('modalTitle');
             const bodyEl = document.getElementById('modalBody');
@@ -1419,14 +1508,29 @@
             ${isProject ? '<span class="project-badge">🔥 Project Day</span>' : ''}
           `;
 
+            let resourceHtml = '';
+            if (day.resources && day.resources.length > 0) {
+                resourceHtml = `
+              <div class="modal-resources">
+                📚 <strong>Resources:</strong>
+                <ul>${day.resources.map(url => `<li><a href="${url}" target="_blank" rel="noopener">${url}</a></li>`).join('')}</ul>
+              </div>`;
+            }
+
+            let lockReasonHtml = '';
+            if (locked) {
+                const prevDay = roadmap.find(d => d.day === dayNum - 1);
+                const prevTitle = prevDay ? prevDay.title : 'السابق';
+                lockReasonHtml =
+                    `<div class="lock-reason">🔒 هذا اليوم مقفل حتى تكمل اليوم السابق (Day ${dayNum - 1}: ${prevTitle})</div>`;
+            }
+
             bodyEl.innerHTML = `
             <div class="modal-section">📂 Section: <strong>${day.section}</strong> | Type: <strong>${isProject ? 'Project' : 'Learning'}</strong></div>
             <div class="modal-desc">${day.desc}</div>
-            <div class="modal-resources">
-              💡 <strong>Tip:</strong> ${isProject ? 'This is a project day! Build something from scratch and add it to your portfolio.' : 'Take notes, practice the concepts, and try small exercises to reinforce your learning.'}
-            </div>
+            ${resourceHtml}
             ${isCompleted ? '<p style="color:var(--success);margin-top:10px;">✅ This day is already completed!</p>' : ''}
-            ${locked ? '<p style="color:var(--warning);margin-top:10px;">🔒 Complete the previous day first to unlock this one.</p>' : ''}
+            ${lockReasonHtml}
           `;
 
             if (isCompleted) {
@@ -1453,6 +1557,15 @@
         function closeModal() {
             document.getElementById('modalOverlay').style.display = 'none';
             document.body.style.overflow = '';
+            currentModalDay = null;
+        }
+
+        function navigateModal(direction) {
+            if (!currentModalDay) return;
+            const newDay = currentModalDay + direction;
+            if (newDay < 1 || newDay > TOTAL_DAYS) return;
+            openDayModal(newDay, !appState.completedDays.includes(newDay - 1) && newDay > 1 && !appState.completedDays
+                .includes(newDay));
         }
 
         function markDayCompleted(dayNum) {
@@ -1461,16 +1574,10 @@
                 appState.completedDays.sort((a, b) => a - b);
                 saveCompletedDays(appState.completedDays);
 
-                // Update current day to next uncompleted day
+                // تحديث currentDay إلى أول يوم غير مكتمل
                 let nextDay = dayNum + 1;
-                while (appState.completedDays.includes(nextDay) && nextDay <= TOTAL_DAYS) {
-                    nextDay++;
-                }
-                if (nextDay <= TOTAL_DAYS) {
-                    appState.currentDay = nextDay;
-                } else {
-                    appState.currentDay = TOTAL_DAYS; // All completed
-                }
+                while (appState.completedDays.includes(nextDay) && nextDay <= TOTAL_DAYS) nextDay++;
+                appState.currentDay = nextDay <= TOTAL_DAYS ? nextDay : TOTAL_DAYS;
                 saveCurrentDay(appState.currentDay);
 
                 updateAllUI();
@@ -1487,7 +1594,7 @@
             toast.textContent = message;
             toast.style.display = 'block';
             toast.style.animation = 'none';
-            toast.offsetHeight; // reflow
+            toast.offsetHeight;
             toast.style.animation = 'slideInRight 0.3s ease, fadeOut 0.3s ease 1.8s forwards';
             setTimeout(() => { toast.style.display = 'none'; }, 2200);
         }
@@ -1509,7 +1616,6 @@
             document.getElementById('progressPercent').textContent = percent + '%';
             document.getElementById('progressBar').style.width = percent + '%';
 
-            // Re-render sections with current filter
             const activeFilter = document.querySelector('.filter-pill.active');
             const filter = activeFilter ? activeFilter.dataset.filter : 'all';
             renderSections(filter);
@@ -1530,15 +1636,13 @@
                 if (sectionEl) {
                     sectionEl.classList.add('open');
                     sectionEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    // Highlight the current day cell
                     setTimeout(() => {
                         const currentCell = document.querySelector(`.day-cell[data-day="${appState.currentDay}"]`);
                         if (currentCell) {
                             currentCell.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            currentCell.style.boxShadow = '0 0 20px rgba(108,92,231,0.8)';
-                            setTimeout(() => {
-                                currentCell.style.boxShadow = '';
-                            }, 2000);
+                            // تأثير وميض قوي
+                            currentCell.classList.add('blink-highlight');
+                            setTimeout(() => currentCell.classList.remove('blink-highlight'), 1800);
                         }
                     }, 500);
                 }
@@ -1547,7 +1651,7 @@
 
         document.getElementById('btnReset').addEventListener('click', () => {
             if (confirm(
-                    'Are you sure you want to reset all progress? This will clear all completed days and start from Day 1. This action cannot be undone.'
+                    'Are you sure you want to reset all progress? This will clear all completed days and start from Day 1.'
                     )) {
                 appState.completedDays = [];
                 appState.currentDay = 1;
@@ -1559,14 +1663,13 @@
         });
 
         // =============================================
-        // FILTER HANDLERS
+        // FILTER HANDLERS (مع فتح الأقسام المحتوية على عناصر مرئية)
         // =============================================
         document.querySelectorAll('.filter-pill').forEach(pill => {
             pill.addEventListener('click', () => {
                 document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
                 pill.classList.add('active');
-                const filter = pill.dataset.filter;
-                updateAllUI(); // re-renders with filter
+                updateAllUI(); // renderSections يفتح الأقسام تلقائياً حسب الفلتر
             });
         });
 
@@ -1590,36 +1693,35 @@
         }
 
         hamburger.addEventListener('click', () => {
-            if (sidebar.classList.contains('open')) {
-                closeSidebar();
-            } else {
-                openSidebar();
-            }
+            sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
         });
-
         overlay.addEventListener('click', closeSidebar);
-
-        // Close sidebar when clicking a nav link (for mobile)
         document.querySelectorAll('.sidebar-nav a').forEach(link => {
             link.addEventListener('click', () => {
-                if (window.innerWidth <= 768) {
-                    setTimeout(closeSidebar, 300);
-                }
+                if (window.innerWidth <= 768) setTimeout(closeSidebar, 300);
             });
         });
 
         // =============================================
-        // KEYBOARD SHORTCUTS
+        // KEYBOARD SHORTCUTS (Escape, Ctrl+Enter, arrows in modal)
         // =============================================
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeModal();
-            if (e.ctrlKey && e.key === 'Enter') {
-                const overlayEl = document.getElementById('modalOverlay');
-                if (overlayEl.style.display === 'flex') {
+            if (e.key === 'Escape') {
+                closeModal();
+                return;
+            }
+            const overlayEl = document.getElementById('modalOverlay');
+            if (overlayEl.style.display === 'flex') {
+                if (e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    navigateModal(1);
+                } else if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    navigateModal(-1);
+                } else if (e.ctrlKey && e.key === 'Enter') {
+                    e.preventDefault();
                     const completeBtn = document.getElementById('modalCompleteBtn');
-                    if (completeBtn.style.pointerEvents !== 'none') {
-                        completeBtn.click();
-                    }
+                    if (completeBtn.style.pointerEvents !== 'none') completeBtn.click();
                 }
             }
         });
@@ -1629,19 +1731,8 @@
         // =============================================
         updateAllUI();
 
-        // Set active nav based on current page
-        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-        if (currentPage.includes('notes')) {
-            document.getElementById('navDashboard').classList.remove('active');
-            document.getElementById('navNotes').classList.add('active');
-        }
-
-        console.log('🚀 DevPath 180 initialized!');
-        console.log('📅 Current Day:', appState.currentDay);
-        console.log('✅ Completed Days:', appState.completedDays.length);
-        console.log('📊 Progress:', Math.round((appState.completedDays.length / TOTAL_DAYS) * 100) + '%');
-        console.log('💡 Click any day to view details and mark it as completed.');
-        console.log('🔥 Project days:', [...PROJECT_DAYS].join(', '));
+        console.log('🚀 DevPath 180 enhanced version initialized!');
+        console.log('✨ New features: auto sync current day, collapse animation, filter auto-open, resources, lock reason, keyboard arrows.');
     </script>
 </body>
 </html>
