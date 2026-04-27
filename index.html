@@ -1,1 +1,1647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevPath 180 - Learning Tracker</title>
+    <style>
+        :root {
+            --bg: #0f0f14;
+            --surface: #1a1a24;
+            --surface-hover: #22222f;
+            --border: #2a2a3a;
+            --text: #e0e0e0;
+            --text-secondary: #a0a0b8;
+            --accent: #6c5ce7;
+            --accent-glow: #8b7cf0;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --project-badge: #ff6b6b;
+            --project-bg: rgba(255, 107, 107, 0.08);
+            --project-border: rgba(255, 107, 107, 0.3);
+            --sidebar-width: 260px;
+            --radius: 10px;
+            --radius-sm: 6px;
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+            display: flex;
+            overflow-x: hidden;
+        }
+
+        /* ============ SIDEBAR ============ */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            transition: transform var(--transition);
+            overflow-y: auto;
+            padding-bottom: 20px;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .sidebar-logo {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--accent-glow);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .sidebar-logo .icon {
+            width: 36px;
+            height: 36px;
+            background: var(--accent);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 12px 0;
+            overflow-y: auto;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all var(--transition);
+            border-left: 3px solid transparent;
+            font-weight: 500;
+        }
+
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            color: var(--text);
+            background: var(--surface-hover);
+            border-left-color: var(--accent);
+        }
+
+        .sidebar-nav a .nav-icon {
+            font-size: 1.1rem;
+            width: 22px;
+            text-align: center;
+        }
+
+        .sidebar-section-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-secondary);
+            padding: 16px 20px 6px;
+            font-weight: 600;
+            opacity: 0.7;
+        }
+
+        /* ============ MAIN CONTENT ============ */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            min-height: 100vh;
+            padding: 24px 28px;
+            max-width: 1100px;
+            width: 100%;
+        }
+
+        /* ============ TOP BAR ============ */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* ============ BUTTONS ============ */
+        .btn {
+            padding: 10px 18px;
+            border-radius: var(--radius-sm);
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: var(--accent-glow);
+            box-shadow: 0 4px 16px rgba(108, 92, 231, 0.35);
+            transform: translateY(-1px);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--border);
+            color: var(--text);
+        }
+        .btn-outline:hover {
+            border-color: var(--accent);
+            color: var(--accent-glow);
+            background: rgba(108, 92, 231, 0.06);
+        }
+        .btn-danger {
+            background: transparent;
+            border: 1.5px solid var(--danger);
+            color: var(--danger);
+        }
+        .btn-danger:hover {
+            background: rgba(231, 76, 60, 0.1);
+        }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.78rem;
+            border-radius: 4px;
+        }
+
+        /* ============ STATS CARDS ============ */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: all var(--transition);
+        }
+
+        .stat-card:hover {
+            border-color: var(--accent);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .stat-icon.purple {
+            background: rgba(108, 92, 231, 0.2);
+        }
+        .stat-icon.green {
+            background: rgba(46, 204, 113, 0.2);
+        }
+        .stat-icon.orange {
+            background: rgba(243, 156, 18, 0.2);
+        }
+        .stat-icon.red {
+            background: rgba(255, 107, 107, 0.2);
+        }
+
+        .stat-info .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1;
+        }
+        .stat-info .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 3px;
+        }
+
+        /* ============ PROGRESS BAR ============ */
+        .progress-container {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            margin-bottom: 22px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .progress-bar-outer {
+            height: 12px;
+            background: #1e1e2e;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar-inner {
+            height: 100%;
+            border-radius: 20px;
+            background: linear-gradient(90deg, #6c5ce7, #8b7cf0);
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .progress-bar-inner::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 20px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            filter: blur(4px);
+        }
+
+        /* ============ FILTERS ============ */
+        .filter-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .filter-pill {
+            padding: 7px 16px;
+            border-radius: 20px;
+            border: 1.5px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all var(--transition);
+        }
+
+        .filter-pill:hover,
+        .filter-pill.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        /* ============ SECTION COLLAPSIBLE ============ */
+        .section-group {
+            margin-bottom: 10px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--surface);
+            overflow: hidden;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px;
+            cursor: pointer;
+            user-select: none;
+            transition: background var(--transition);
+            font-weight: 600;
+            font-size: 0.9rem;
+            gap: 10px;
+        }
+
+        .section-header:hover {
+            background: var(--surface-hover);
+        }
+
+        .section-header .section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .section-header .section-range {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        .section-arrow {
+            transition: transform var(--transition);
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        .section-group.open .section-arrow {
+            transform: rotate(180deg);
+            color: var(--accent-glow);
+        }
+
+        .section-days {
+            display: none;
+            grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+            gap: 6px;
+            padding: 10px 14px 14px;
+            border-top: 1px solid var(--border);
+        }
+
+        .section-group.open .section-days {
+            display: grid;
+        }
+
+        /* ============ DAY CELL ============ */
+        .day-cell {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: 1.5px solid var(--border);
+            background: var(--bg);
+            color: var(--text-secondary);
+            transition: all var(--transition);
+            position: relative;
+            min-width: 38px;
+        }
+
+        .day-cell:hover {
+            border-color: var(--accent);
+            color: var(--text);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 2;
+        }
+
+        .day-cell.completed {
+            background: rgba(46, 204, 113, 0.15);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .day-cell.completed::after {
+            content: '✓';
+            position: absolute;
+            top: 2px;
+            right: 4px;
+            font-size: 0.5rem;
+            color: var(--success);
+        }
+
+        .day-cell.current {
+            border-color: var(--accent-glow);
+            box-shadow: 0 0 14px rgba(108, 92, 231, 0.4);
+            color: #fff;
+            animation: pulse-current 2s infinite;
+            z-index: 3;
+        }
+
+        @keyframes pulse-current {
+            0%,
+            100% {
+                box-shadow: 0 0 8px rgba(108, 92, 231, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 22px rgba(108, 92, 231, 0.6);
+            }
+        }
+
+        .day-cell.locked {
+            opacity: 0.35;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .day-cell.project-day {
+            border-color: var(--project-border);
+            background: var(--project-bg);
+            color: var(--project-badge);
+            font-weight: 700;
+        }
+
+        .day-cell.project-day::before {
+            content: '🔥';
+            position: absolute;
+            top: 1px;
+            left: 3px;
+            font-size: 0.5rem;
+        }
+
+        .day-cell.project-day.completed {
+            background: rgba(255, 107, 107, 0.2);
+            border-color: var(--project-badge);
+        }
+
+        /* ============ MODAL ============ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            max-width: 520px;
+            width: 90%;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.25s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal h3 {
+            font-size: 1.2rem;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal .project-badge {
+            display: inline-block;
+            background: var(--project-badge);
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .modal .day-number {
+            color: var(--accent-glow);
+            font-weight: 700;
+        }
+        .modal .modal-section {
+            color: var(--text-secondary);
+            font-size: 0.78rem;
+            margin-bottom: 10px;
+        }
+        .modal .modal-desc {
+            margin: 12px 0;
+            line-height: 1.7;
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+        .modal .modal-resources {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        .modal .modal-resources a {
+            color: var(--accent-glow);
+            text-decoration: none;
+        }
+        .modal .modal-resources a:hover {
+            text-decoration: underline;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 18px;
+            flex-wrap: wrap;
+        }
+
+        /* ============ TOAST ============ */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--surface);
+            border: 1px solid var(--success);
+            color: var(--success);
+            padding: 12px 20px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 0.85rem;
+            z-index: 300;
+            animation: slideInRight 0.3s ease, fadeOut 0.3s ease 1.8s forwards;
+            box-shadow: var(--shadow-lg);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(120px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+        }
+
+        /* ============ MOBILE HAMBURGER ============ */
+        .hamburger {
+            display: none;
+            position: fixed;
+            top: 14px;
+            left: 14px;
+            z-index: 250;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 1.3rem;
+            color: var(--text);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 99;
+        }
+
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .sidebar-overlay.show {
+                display: block;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+                padding-top: 60px;
+            }
+            .hamburger {
+                display: flex;
+            }
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            .stat-card {
+                padding: 12px;
+                gap: 8px;
+            }
+            .stat-icon {
+                width: 34px;
+                height: 34px;
+                font-size: 1rem;
+            }
+            .stat-info .stat-value {
+                font-size: 1.2rem;
+            }
+            .section-days {
+                grid-template-columns: repeat(auto-fill, minmax(34px, 1fr));
+                gap: 4px;
+                padding: 8px 10px 10px;
+            }
+            .day-cell {
+                font-size: 0.7rem;
+                min-width: 30px;
+            }
+            .top-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .btn {
+                padding: 8px 14px;
+                font-size: 0.78rem;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .stats-row {
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
+            }
+            .stat-card {
+                padding: 10px;
+                gap: 6px;
+            }
+            .day-cell {
+                font-size: 0.65rem;
+                min-width: 26px;
+            }
+            .section-days {
+                grid-template-columns: repeat(auto-fill, minmax(28px, 1fr));
+                gap: 3px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Hamburger for mobile -->
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu">☰</button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="index.html" class="sidebar-logo">
+                <span class="icon">🛤️</span> DevPath 180
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="index.html" class="active" id="navDashboard">
+                <span class="nav-icon">📊</span> Dashboard
+            </a>
+            <a href="notes.html" id="navNotes">
+                <span class="nav-icon">📝</span> Notes
+            </a>
+            <div class="sidebar-section-title">Sections</div>
+            <a href="#section-HTML" class="sidebar-section-link" data-section="HTML">📄 HTML (1–10)</a>
+            <a href="#section-CSS" class="sidebar-section-link" data-section="CSS">🎨 CSS (11–25)</a>
+            <a href="#section-JavaScript Basics" class="sidebar-section-link" data-section="JavaScript Basics">📜 JS Basics (26–37)</a>
+            <a href="#section-Practice" class="sidebar-section-link" data-section="Practice">🛠️ Practice (38–45)</a>
+            <a href="#section-Advanced JS" class="sidebar-section-link" data-section="Advanced JS">⚡ Advanced JS (46–55)</a>
+            <a href="#section-Mini Apps" class="sidebar-section-link" data-section="Mini Apps">🧩 Mini Apps (56–65)</a>
+            <a href="#section-Tools + Git" class="sidebar-section-link" data-section="Tools + Git">🔧 Tools+Git (66–70)</a>
+            <a href="#section-React" class="sidebar-section-link" data-section="React">⚛️ React (71–83)</a>
+            <a href="#section-React Practice" class="sidebar-section-link" data-section="React Practice">💪 React Prac (84–100)</a>
+            <a href="#section-Backend" class="sidebar-section-link" data-section="Backend">🖥️ Backend (101–110)</a>
+            <a href="#section-API Practice" class="sidebar-section-link" data-section="API Practice">🔌 API Prac (111–130)</a>
+            <a href="#section-Database" class="sidebar-section-link" data-section="Database">🗄️ Database (131–136)</a>
+            <a href="#section-DB Integration" class="sidebar-section-link" data-section="DB Integration">🔗 DB Integr (137–150)</a>
+            <a href="#section-Full Stack" class="sidebar-section-link" data-section="Full Stack">🌐 Full Stack (151–155)</a>
+            <a href="#section-Full Project" class="sidebar-section-link" data-section="Full Project">🚀 Full Proj (156–170)</a>
+            <a href="#section-Deployment" class="sidebar-section-link" data-section="Deployment">☁️ Deploy (171–180)</a>
+        </nav>
+    </aside>
+
+    <!-- ============ MAIN CONTENT ============ -->
+    <main class="main-content" id="mainContent">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <h1 class="page-title">📊 Learning Dashboard</h1>
+            <div class="top-actions">
+                <button class="btn btn-primary" id="btnContinue">▶ Continue Learning</button>
+                <button class="btn btn-outline" id="btnJumpCurrent">📍 Jump to Current Day</button>
+                <button class="btn btn-danger" id="btnReset">🔄 Reset Progress</button>
+            </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon purple">📅</div>
+                <div class="stat-info">
+                    <div class="stat-value" id="statCurrentDay">1</div>
+                    <div class="stat-label">Current Day</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green">✅</div>
+                <div class="stat-info">
+                    <div class="stat-value" id="statCompleted">0</div>
+                    <div class="stat-label">Days Completed</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon orange">📈</div>
+                <div class="stat-info">
+                    <div class="stat-value" id="statPercent">0%</div>
+                    <div class="stat-label">Progress</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon red">🔥</div>
+                <div class="stat-info">
+                    <div class="stat-value" id="statProjects">0</div>
+                    <div class="stat-label">Projects Done</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-header">
+                <span>Overall Progress</span>
+                <span id="progressPercent">0%</span>
+            </div>
+            <div class="progress-bar-outer">
+                <div class="progress-bar-inner" id="progressBar" style="width: 0%;"></div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-bar">
+            <button class="filter-pill active" data-filter="all">📋 All Days</button>
+            <button class="filter-pill" data-filter="completed">✅ Completed</button>
+            <button class="filter-pill" data-filter="pending">⏳ Pending</button>
+        </div>
+
+        <!-- Sections Container -->
+        <div id="sectionsContainer">
+            <!-- Dynamically rendered -->
+        </div>
+    </main>
+
+    <!-- Modal Overlay -->
+    <div class="modal-overlay" id="modalOverlay" style="display:none;">
+        <div class="modal" id="modal">
+            <h3 id="modalTitle"></h3>
+            <div id="modalBody"></div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" id="modalCompleteBtn">✅ Mark as Completed</button>
+                <button class="btn btn-outline" id="modalCloseBtn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast" style="display:none;"></div>
+
+    <script>
+        // =============================================
+        // FULL 180-DAY ROADMAP DATA
+        // =============================================
+        const roadmap = [
+            // HTML (1–10)
+            { day: 1, title: 'Intro to Web Development', section: 'HTML', type: 'learning',
+                desc: 'Understand how the web works: clients, servers, HTTP, browsers, and the role of HTML, CSS, and JavaScript. Set up your development environment with VS Code and a browser.' },
+            { day: 2, title: 'HTML Document Structure', section: 'HTML', type: 'learning',
+                desc: 'Learn the basic HTML document structure: <!DOCTYPE>, <html>, <head>, <body>. Understand meta tags, title, and linking external files.' },
+            { day: 3, title: 'Text Elements & Headings', section: 'HTML', type: 'learning',
+                desc: 'Master headings (h1–h6), paragraphs, spans, line breaks, horizontal rules, and text formatting tags like strong, em, mark, and small.' },
+            { day: 4, title: 'Links & Images', section: 'HTML', type: 'learning',
+                desc: 'Create hyperlinks with <a> tags (absolute vs relative paths, target="_blank"). Embed images with <img>, understand src, alt, and responsive images.' },
+            { day: 5, title: 'Lists & Tables', section: 'HTML', type: 'learning',
+                desc: 'Build ordered and unordered lists, nested lists. Create tables with <table>, <thead>, <tbody>, <tr>, <th>, <td>, and learn colspan/rowspan.' },
+            { day: 6, title: 'Forms & Input Elements', section: 'HTML', type: 'learning',
+                desc: 'Build forms with <form>, various input types (text, email, password, number, date), textarea, select, radio, checkbox, and the submit button.' },
+            { day: 7, title: 'Semantic HTML', section: 'HTML', type: 'learning',
+                desc: 'Use semantic elements: header, nav, main, article, section, aside, footer. Understand why semantics matter for SEO and accessibility.' },
+            { day: 8, title: 'HTML5 Features', section: 'HTML', type: 'learning',
+                desc: 'Explore HTML5 features: audio, video, canvas, details/summary, progress, datalist, and the output element. Learn browser support considerations.' },
+            { day: 9, title: 'Accessibility Basics', section: 'HTML', type: 'learning',
+                desc: 'Learn ARIA labels, alt text, tabindex, role attributes, skip navigation, and using screen-reader-friendly markup. Make the web inclusive.' },
+            { day: 10, title: '🔥 Project: HTML Portfolio Page', section: 'HTML', type: 'project',
+                desc: 'Build a complete personal portfolio page using only HTML. Include a header, about section, skills list, project table, contact form, and footer. Focus on semantic structure and accessibility.' },
+
+            // CSS (11–25)
+            { day: 11, title: 'CSS Syntax & Selectors', section: 'CSS', type: 'learning',
+                desc: 'Learn CSS syntax: properties, values, and rules. Master basic selectors (element, class, ID), combinator selectors (descendant, child, sibling), and specificity.' },
+            { day: 12, title: 'Colors & Backgrounds', section: 'CSS', type: 'learning',
+                desc: 'Work with color formats (hex, rgb, hsl), gradients (linear, radial), background images, background-size, background-position, and multiple backgrounds.' },
+            { day: 13, title: 'The Box Model', section: 'CSS', type: 'learning',
+                desc: 'Deep dive into margin, border, padding, and content. Understand box-sizing: border-box vs content-box, and how to control element dimensions.' },
+            { day: 14, title: 'Typography & Fonts', section: 'CSS', type: 'learning',
+                desc: 'Style text with font-family, font-size, font-weight, line-height, letter-spacing, text-align, text-transform, and import Google Fonts.' },
+            { day: 15, title: 'Display & Positioning', section: 'CSS', type: 'learning',
+                desc: 'Master display (block, inline, inline-block, none) and positioning (static, relative, absolute, fixed, sticky). Understand z-index and stacking contexts.' },
+            { day: 16, title: 'Flexbox Basics', section: 'CSS', type: 'learning',
+                desc: 'Learn flex container properties: display:flex, flex-direction, justify-content, align-items, flex-wrap, and gap. Build responsive layouts easily.' },
+            { day: 17, title: 'Flexbox Advanced', section: 'CSS', type: 'learning',
+                desc: 'Explore flex item properties: flex-grow, flex-shrink, flex-basis, align-self, and order. Create complex flexible layouts with nested flex containers.' },
+            { day: 18, title: 'CSS Grid Basics', section: 'CSS', type: 'learning',
+                desc: 'Set up grid containers with display:grid, grid-template-columns, grid-template-rows, gap, and place items using grid-column and grid-row.' },
+            { day: 19, title: 'CSS Grid Advanced', section: 'CSS', type: 'learning',
+                desc: 'Use grid areas, auto-fit/auto-fill, minmax(), and create complex magazine-style layouts. Combine Grid with Flexbox for ultimate layout control.' },
+            { day: 20, title: 'Responsive Design & Media Queries', section: 'CSS', type: 'learning',
+                desc: 'Write media queries for mobile-first design. Use breakpoints, responsive units (vw, vh, %, em, rem), and make layouts adapt to all screen sizes.' },
+            { day: 21, title: 'Transitions & Animations', section: 'CSS', type: 'learning',
+                desc: 'Create smooth transitions with transition-property, duration, timing-function. Build keyframe animations with @keyframes and animation properties.' },
+            { day: 22, title: 'CSS Variables & Custom Properties', section: 'CSS', type: 'learning',
+                desc: 'Define and use CSS custom properties (--var). Learn scope, inheritance, and dynamic theming. Build a simple light/dark theme switcher.' },
+            { day: 23, title: 'Pseudo-classes & Pseudo-elements', section: 'CSS', type: 'learning',
+                desc: 'Use :hover, :active, :focus, :nth-child(), :not(), ::before, ::after. Create tooltips, custom checkboxes, and decorative elements.' },
+            { day: 24, title: 'CSS Best Practices', section: 'CSS', type: 'learning',
+                desc: 'Learn BEM naming, organizing stylesheets, avoiding specificity wars, using CSS resets, and performance tips like avoiding expensive properties.' },
+            { day: 25, title: '🔥 Project: Responsive Landing Page', section: 'CSS', type: 'project',
+                desc: 'Design and build a fully responsive landing page. Include a hero section, features grid, pricing table, testimonials, and a footer. Use Flexbox, Grid, and media queries.' },
+
+            // JavaScript Basics (26–37)
+            { day: 26, title: 'JavaScript Introduction & Setup', section: 'JavaScript Basics', type: 'learning',
+                desc: 'Learn what JavaScript is, how to include it in HTML (inline, internal, external). Set up the browser console and write your first console.log().' },
+            { day: 27, title: 'Variables & Data Types', section: 'JavaScript Basics', type: 'learning',
+                desc: 'Declare variables with var, let, const. Explore primitive data types: string, number, boolean, null, undefined, symbol. Learn type coercion basics.' },
+            { day: 28, title: 'Operators & Expressions', section: 'JavaScript Basics', type: 'learning',
+                desc: 'Master arithmetic, assignment, comparison, logical, and ternary operators. Understand operator precedence and short-circuit evaluation.' },
+            { day: 29, title: 'Conditionals (if/else/switch)', section: 'JavaScript Basics', type: 'learning',
+                desc: 'Write conditional logic with if, else if, else, and switch statements. Learn truthy/falsy values and best practices for clean conditionals.' },
+            { day: 30, title: 'Loops (for/while)', section: 'JavaScript Basics', type: 'learning',
+                desc: 'Iterate with for, while, do...while, and for...of loops. Learn break, continue, and when to use each loop type.' },
+            { day: 31, title: 'Functions Basics', section: 'JavaScript Basics', type: 'learning',
+                desc: 'Declare and invoke functions. Understand parameters, arguments, return values, and the difference between function declarations and expressions.' },
+            { day: 32, title: 'Functions Advanced', section: 'JavaScript Basics', type: 'learning',
+                desc: 'Explore default parameters, rest parameters, callback functions, and the concept of higher-order functions. Introduction to scope and closures.' },
+            { day: 33, title: 'Arrays Basics', section: 'JavaScript Basics', type: 'learning',
+                desc: 'Create and manipulate arrays. Access elements by index, use .length, add/remove with push, pop, shift, unshift, and splice.' },
+            { day: 34, title: 'Array Methods', section: 'JavaScript Basics', type: 'learning',
+                desc: 'Master .map(), .filter(), .reduce(), .forEach(), .find(), .some(), .every(). These are essential for modern JavaScript development.' },
+            { day: 35, title: 'Objects Basics', section: 'JavaScript Basics', type: 'learning',
+                desc: 'Create objects with properties and methods. Access values with dot and bracket notation. Learn to add, update, and delete object properties.' },
+            { day: 36, title: 'Object Methods & "this"', section: 'JavaScript Basics', type: 'learning',
+                desc: 'Understand the "this" keyword in different contexts. Learn Object.keys(), Object.values(), Object.entries(), and object destructuring.' },
+            { day: 37, title: 'DOM Manipulation Basics', section: 'JavaScript Basics', type: 'learning',
+                desc: 'Select elements with querySelector and querySelectorAll. Change text, HTML, styles, and attributes. Create and append new elements dynamically.' },
+
+            // Practice (38–45)
+            { day: 38, title: 'DOM Events', section: 'Practice', type: 'learning',
+                desc: 'Handle click, submit, input, change, keydown, and other events. Use addEventListener and understand event bubbling and delegation.' },
+            { day: 39, title: 'Form Validation', section: 'Practice', type: 'learning',
+                desc: 'Validate form inputs with JavaScript. Check for empty fields, email format, password strength. Display custom error messages and style invalid inputs.' },
+            { day: 40, title: 'Local Storage Intro', section: 'Practice', type: 'learning',
+                desc: 'Use localStorage.setItem(), getItem(), removeItem(). Store and retrieve user preferences. Understand JSON.stringify and JSON.parse for objects.' },
+            { day: 41, title: 'Build a Counter App', section: 'Practice', type: 'learning',
+                desc: 'Create a simple counter with increment, decrement, and reset buttons. Display the count and practice event handling and DOM updates.' },
+            { day: 42, title: 'Build a To-Do List App', section: 'Practice', type: 'learning',
+                desc: 'Build a full to-do list: add tasks, mark as complete, delete tasks, and persist data in localStorage. Practice CRUD operations.' },
+            { day: 43, title: 'Build a Quiz App', section: 'Practice', type: 'learning',
+                desc: 'Create a multiple-choice quiz. Track score, show results at the end, and allow retaking. Practice arrays, objects, and conditional rendering.' },
+            { day: 44, title: 'Build a Calculator', section: 'Practice', type: 'learning',
+                desc: 'Build a calculator with basic operations (+, -, ×, ÷). Handle decimal points, clear, and chained operations. Practice logic and UI updates.' },
+            { day: 45, title: '🔥 Project: Interactive Web App', section: 'Practice', type: 'project',
+                desc: 'Combine all practice skills to build an interactive web app of your choice (e.g., expense tracker, habit tracker, or note-taking app) with localStorage persistence.' },
+
+            // Advanced JS (46–55)
+            { day: 46, title: 'ES6+ Features Overview', section: 'Advanced JS', type: 'learning',
+                desc: 'Explore modern JavaScript: let/const, arrow functions, template literals, destructuring, spread/rest, and modules. Understand transpilation with Babel.' },
+            { day: 47, title: 'Arrow Functions & Scope', section: 'Advanced JS', type: 'learning',
+                desc: 'Deep dive into arrow functions: syntax, implicit returns, and how they handle "this" differently. Understand lexical scoping.' },
+            { day: 48, title: 'Template Literals', section: 'Advanced JS', type: 'learning',
+                desc: 'Use backticks for string interpolation, multi-line strings, and tagged template literals. Create dynamic HTML templates.' },
+            { day: 49, title: 'Destructuring & Spread/Rest', section: 'Advanced JS', type: 'learning',
+                desc: 'Destructure arrays and objects for cleaner code. Use spread (...) to copy/merge arrays and objects, and rest parameters in functions.' },
+            { day: 50, title: 'Promises & Async/Await', section: 'Advanced JS', type: 'learning',
+                desc: 'Understand asynchronous JavaScript. Create and consume Promises, chain .then()/.catch(), and write cleaner async code with async/await.' },
+            { day: 51, title: 'Fetch API', section: 'Advanced JS', type: 'learning',
+                desc: 'Make HTTP requests with fetch(). Handle GET, POST, PUT, DELETE. Parse JSON responses and handle errors gracefully.' },
+            { day: 52, title: 'Error Handling', section: 'Advanced JS', type: 'learning',
+                desc: 'Use try...catch...finally for error handling. Create custom error classes. Learn defensive programming patterns.' },
+            { day: 53, title: 'Closures Deep Dive', section: 'Advanced JS', type: 'learning',
+                desc: 'Understand closures, lexical environment, and how they enable data privacy. See practical examples like memoization and partial application.' },
+            { day: 54, title: 'Prototypes & Classes', section: 'Advanced JS', type: 'learning',
+                desc: 'Learn prototypal inheritance and the class syntax (constructor, methods, extends, super). Compare with factory functions.' },
+            { day: 55, title: 'Modules & Import/Export', section: 'Advanced JS', type: 'learning',
+                desc: 'Organize code with ES modules. Use named and default exports/imports. Understand module scope and benefits over global scripts.' },
+
+            // Mini Apps (56–65)
+            { day: 56, title: 'Weather App', section: 'Mini Apps', type: 'learning',
+                desc: 'Build a weather app using a public API (like OpenWeatherMap). Display current weather, temperature, and conditions for a searched city.' },
+            { day: 57, title: 'Recipe Finder', section: 'Mini Apps', type: 'learning',
+                desc: 'Create a recipe search app with an API. Display ingredients, instructions, and images. Allow searching by ingredient or dish name.' },
+            { day: 58, title: 'Expense Tracker', section: 'Mini Apps', type: 'learning',
+                desc: 'Build an expense tracker with income/expense entries, running balance, and category breakdowns. Store data in localStorage.' },
+            { day: 59, title: 'Pomodoro Timer', section: 'Mini Apps', type: 'learning',
+                desc: 'Create a Pomodoro timer with work/break intervals, notifications, and session tracking. Style it beautifully with CSS.' },
+            { day: 60, title: 'Notes App', section: 'Mini Apps', type: 'learning',
+                desc: 'Build a notes app with create, edit, delete, and search functionality. Use localStorage and add markdown preview if comfortable.' },
+            { day: 61, title: 'Image Gallery', section: 'Mini Apps', type: 'learning',
+                desc: 'Create a responsive image gallery with lightbox, lazy loading, and grid layout. Optionally integrate with an image API.' },
+            { day: 62, title: 'Music Player UI', section: 'Mini Apps', type: 'learning',
+                desc: 'Design a music player interface with play/pause, progress bar, volume control, and playlist. Use the HTML5 Audio API.' },
+            { day: 63, title: 'Chat Interface UI', section: 'Mini Apps', type: 'learning',
+                desc: 'Build a chat UI with message bubbles, input field, typing indicator, and auto-scroll. Prepare for real-time features later.' },
+            { day: 64, title: 'Dashboard UI', section: 'Mini Apps', type: 'learning',
+                desc: 'Create an admin dashboard layout with sidebar, stats cards, charts (using a simple library or CSS), and a data table.' },
+            { day: 65, title: '🔥 Project: Full Mini App Suite', section: 'Mini Apps', type: 'project',
+                desc: 'Combine two or more mini apps into a single cohesive project. Add navigation between them and a shared localStorage system.' },
+
+            // Tools + Git (66–70)
+            { day: 66, title: 'Git Basics & Installation', section: 'Tools + Git', type: 'learning',
+                desc: 'Install Git and understand version control concepts. Learn git init, git status, and the .git folder. Set up your global config.' },
+            { day: 67, title: 'Git Commands & Workflow', section: 'Tools + Git', type: 'learning',
+                desc: 'Master git add, commit, log, diff, branch, checkout, merge, and stash. Understand the staging area and commit history.' },
+            { day: 68, title: 'GitHub & Remote Repos', section: 'Tools + Git', type: 'learning',
+                desc: 'Create repositories on GitHub. Learn git push, pull, clone, fetch, and remote management. Understand pull requests and code review.' },
+            { day: 69, title: 'VS Code Tips & Extensions', section: 'Tools + Git', type: 'learning',
+                desc: 'Supercharge VS Code with essential extensions (Prettier, ESLint, Live Server, GitLens). Learn keyboard shortcuts and settings customization.' },
+            { day: 70, title: 'Terminal & CLI Tools', section: 'Tools + Git', type: 'learning',
+                desc: 'Navigate the terminal confidently. Learn basic shell commands, file operations, package managers (npm/yarn), and useful CLI tools.' },
+
+            // React (71–83)
+            { day: 71, title: 'React Introduction & Setup', section: 'React', type: 'learning',
+                desc: 'Understand what React is and why it\'s used. Set up a project with Vite or Create React App. Explore the project structure.' },
+            { day: 72, title: 'JSX & Components', section: 'React', type: 'learning',
+                desc: 'Write JSX syntax and understand how it compiles. Create functional components, nest them, and use fragments. Learn the rules of JSX.' },
+            { day: 73, title: 'Props & PropTypes', section: 'React', type: 'learning',
+                desc: 'Pass data to components via props. Destructure props, set default values, and validate with PropTypes for robust components.' },
+            { day: 74, title: 'State & useState', section: 'React', type: 'learning',
+                desc: 'Manage component state with the useState hook. Update state correctly, understand batching, and lift state up when needed.' },
+            { day: 75, title: 'Event Handling', section: 'React', type: 'learning',
+                desc: 'Handle events in React (onClick, onChange, onSubmit). Pass arguments to handlers, prevent default behavior, and bind methods.' },
+            { day: 76, title: 'Conditional Rendering', section: 'React', type: 'learning',
+                desc: 'Render UI conditionally with ternary operators, &&, if/else patterns, and switch cases. Show loading, error, and empty states.' },
+            { day: 77, title: 'Lists & Keys', section: 'React', type: 'learning',
+                desc: 'Render lists with .map(). Understand the importance of unique keys for efficient reconciliation. Handle dynamic lists.' },
+            { day: 78, title: 'Forms in React', section: 'React', type: 'learning',
+                desc: 'Build controlled and uncontrolled forms. Manage form state, validate inputs, and handle submission with React patterns.' },
+            { day: 79, title: 'useEffect Hook', section: 'React', type: 'learning',
+                desc: 'Handle side effects with useEffect. Understand dependency arrays, cleanup functions, and common patterns like data fetching.' },
+            { day: 80, title: 'useContext & Custom Hooks', section: 'React', type: 'learning',
+                desc: 'Share state globally with useContext. Build custom hooks to encapsulate reusable logic. Follow naming conventions.' },
+            { day: 81, title: 'React Router', section: 'React', type: 'learning',
+                desc: 'Add routing with React Router. Set up BrowserRouter, Routes, Route, Link, and NavLink. Handle URL parameters and nested routes.' },
+            { day: 82, title: 'State Management Intro', section: 'React', type: 'learning',
+                desc: 'Explore state management options: Context API limitations, Redux basics, Zustand, or Jotai. Choose the right tool for your app.' },
+            { day: 83, title: 'React Best Practices', section: 'React', type: 'learning',
+                desc: 'Learn folder structure, component composition, memoization (React.memo, useMemo, useCallback), and avoiding common pitfalls.' },
+
+            // React Practice (84–100)
+            { day: 84, title: 'Building a Blog', section: 'React Practice', type: 'learning',
+                desc: 'Create a blog with post listing, individual post pages, and a simple CMS-like interface. Use React Router for navigation.' },
+            { day: 85, title: 'E-commerce UI', section: 'React Practice', type: 'learning',
+                desc: 'Build product listing, product detail, shopping cart, and checkout UI. Manage cart state and calculate totals.' },
+            { day: 86, title: 'Authentication UI', section: 'React Practice', type: 'learning',
+                desc: 'Create login, register, and profile pages. Handle form submission, token storage, and protected routes.' },
+            { day: 87, title: 'Dashboard with Charts', section: 'React Practice', type: 'learning',
+                desc: 'Build an analytics dashboard with chart components. Integrate a charting library (Recharts or Chart.js) with React.' },
+            { day: 88, title: 'Social Media Feed', section: 'React Practice', type: 'learning',
+                desc: 'Create an infinite-scrolling social feed with posts, likes, comments UI, and user avatars. Practice list virtualization concepts.' },
+            { day: 89, title: 'File Upload Component', section: 'React Practice', type: 'learning',
+                desc: 'Build a drag-and-drop file upload component with preview, progress bar, and file type validation.' },
+            { day: 90, title: 'Search & Filter System', section: 'React Practice', type: 'learning',
+                desc: 'Implement search with debouncing, multi-criteria filtering, sorting, and URL query parameter syncing.' },
+            { day: 91, title: 'Infinite Scroll', section: 'React Practice', type: 'learning',
+                desc: 'Implement infinite scrolling with Intersection Observer. Load data in chunks and show loading spinners.' },
+            { day: 92, title: 'Real-time Updates', section: 'React Practice', type: 'learning',
+                desc: 'Simulate real-time updates with setInterval or WebSocket connections. Update UI when new data arrives.' },
+            { day: 93, title: 'Animation with Framer Motion', section: 'React Practice', type: 'learning',
+                desc: 'Add smooth animations to React components. Animate page transitions, hover effects, and list items with Framer Motion.' },
+            { day: 94, title: 'Testing React Apps', section: 'React Practice', type: 'learning',
+                desc: 'Write unit tests with Jest and React Testing Library. Test components, user interactions, and async behavior.' },
+            { day: 95, title: 'Performance Optimization', section: 'React Practice', type: 'learning',
+                desc: 'Optimize React apps with code splitting (React.lazy), memoization, virtual DOM understanding, and bundle analysis.' },
+            { day: 96, title: 'Accessibility in React', section: 'React Practice', type: 'learning',
+                desc: 'Build accessible React components. Use ARIA attributes, keyboard navigation, focus management, and screen reader testing.' },
+            { day: 97, title: 'Code Splitting', section: 'React Practice', type: 'learning',
+                desc: 'Implement route-based and component-based code splitting. Use React.lazy and Suspense for better load times.' },
+            { day: 98, title: 'Progressive Web Apps', section: 'React Practice', type: 'learning',
+                desc: 'Turn a React app into a PWA. Add a service worker, manifest.json, offline support, and install prompts.' },
+            { day: 99, title: 'React + TypeScript Intro', section: 'React Practice', type: 'learning',
+                desc: 'Add TypeScript to a React project. Type props, state, events, and hooks. Understand the benefits of static typing.' },
+            { day: 100, title: '🔥 Project: Full React Application', section: 'React Practice', type: 'project',
+                desc: 'Build a complete React application (e.g., task manager, e-commerce store, or social dashboard) with routing, state management, API calls, and polished UI.' },
+
+            // Backend (101–110)
+            { day: 101, title: 'Node.js Introduction', section: 'Backend', type: 'learning',
+                desc: 'Understand Node.js runtime, event loop, and npm. Create a simple server with the http module and run JavaScript outside the browser.' },
+            { day: 102, title: 'Express.js Setup', section: 'Backend', type: 'learning',
+                desc: 'Set up an Express.js server. Learn app.get(), app.listen(), and basic routing. Understand middleware concept.' },
+            { day: 103, title: 'Routing & Middleware', section: 'Backend', type: 'learning',
+                desc: 'Organize routes with Express Router. Use built-in and custom middleware (morgan, cors, body-parser). Chain middleware functions.' },
+            { day: 104, title: 'Request & Response', section: 'Backend', type: 'learning',
+                desc: 'Handle request params, query strings, and body data. Send JSON responses, set status codes, and handle headers.' },
+            { day: 105, title: 'REST API Design', section: 'Backend', type: 'learning',
+                desc: 'Design RESTful endpoints following best practices. Use proper HTTP methods (GET, POST, PUT, PATCH, DELETE) and meaningful URLs.' },
+            { day: 106, title: 'Authentication (JWT)', section: 'Backend', type: 'learning',
+                desc: 'Implement JWT-based authentication. Create login/register endpoints, hash passwords with bcrypt, and protect routes with middleware.' },
+            { day: 107, title: 'File Uploads', section: 'Backend', type: 'learning',
+                desc: 'Handle file uploads with multer. Store files locally or in cloud storage. Validate file types and sizes.' },
+            { day: 108, title: 'Error Handling Middleware', section: 'Backend', type: 'learning',
+                desc: 'Create global error handling middleware. Use try/catch in async routes. Return consistent error responses.' },
+            { day: 109, title: 'Security Best Practices', section: 'Backend', type: 'learning',
+                desc: 'Protect against common vulnerabilities: XSS, CSRF, SQL injection, and rate limiting. Use helmet, cors properly, and input sanitization.' },
+            { day: 110, title: 'Testing APIs', section: 'Backend', type: 'learning',
+                desc: 'Test APIs with Jest and Supertest. Write unit and integration tests for endpoints. Understand test-driven development (TDD).' },
+
+            // API Practice (111–130)
+            { day: 111, title: 'Building RESTful Routes', section: 'API Practice', type: 'learning',
+                desc: 'Implement a full set of REST routes for a resource (e.g., /api/posts). Follow naming conventions and status code standards.' },
+            { day: 112, title: 'CRUD Operations', section: 'API Practice', type: 'learning',
+                desc: 'Build complete Create, Read, Update, Delete operations. Handle edge cases, validation, and return appropriate responses.' },
+            { day: 113, title: 'Query Parameters', section: 'API Practice', type: 'learning',
+                desc: 'Accept and parse query parameters for filtering, searching, and field selection. Document available query options.' },
+            { day: 114, title: 'Pagination', section: 'API Practice', type: 'learning',
+                desc: 'Implement cursor-based or offset pagination. Return pagination metadata (total, page, limit) in API responses.' },
+            { day: 115, title: 'Sorting & Filtering', section: 'API Practice', type: 'learning',
+                desc: 'Allow API consumers to sort results and apply multiple filters. Build flexible query parameter handling.' },
+            { day: 116, title: 'API Versioning', section: 'API Practice', type: 'learning',
+                desc: 'Version your API (e.g., /api/v1/). Understand URL versioning vs header versioning. Plan for breaking changes.' },
+            { day: 117, title: 'Rate Limiting', section: 'API Practice', type: 'learning',
+                desc: 'Implement rate limiting with express-rate-limit. Protect your API from abuse and set appropriate limits per endpoint.' },
+            { day: 118, title: 'CORS & Security', section: 'API Practice', type: 'learning',
+                desc: 'Configure CORS properly for your API. Understand preflight requests and how to allow specific origins.' },
+            { day: 119, title: 'API Documentation', section: 'API Practice', type: 'learning',
+                desc: 'Document your API with Swagger/OpenAPI. Create clear endpoint descriptions, parameter specs, and example responses.' },
+            { day: 120, title: 'WebSockets Intro', section: 'API Practice', type: 'learning',
+                desc: 'Set up a WebSocket server with Socket.io. Understand real-time bidirectional communication between client and server.' },
+            { day: 121, title: 'Building a Chat API', section: 'API Practice', type: 'learning',
+                desc: 'Build a real-time chat backend with rooms, message history, and user presence indicators. Combine REST and WebSockets.' },
+            { day: 122, title: 'Email Service Integration', section: 'API Practice', type: 'learning',
+                desc: 'Send emails from your API using Nodemailer or SendGrid. Build password reset and email verification flows.' },
+            { day: 123, title: 'Payment Integration', section: 'API Practice', type: 'learning',
+                desc: 'Integrate Stripe or PayPal for payment processing. Handle webhooks, checkout sessions, and confirm payment status.' },
+            { day: 124, title: 'Image Processing API', section: 'API Practice', type: 'learning',
+                desc: 'Build endpoints for image upload, resize, crop, and format conversion. Use Sharp or similar libraries.' },
+            { day: 125, title: 'PDF Generation', section: 'API Practice', type: 'learning',
+                desc: 'Generate PDF documents server-side (invoices, reports). Use Puppeteer or PDFKit to create and serve PDFs.' },
+            { day: 126, title: 'Caching Strategies', section: 'API Practice', type: 'learning',
+                desc: 'Implement caching with Redis or in-memory stores. Cache frequent queries and invalidate cache on data changes.' },
+            { day: 127, title: 'Logging & Monitoring', section: 'API Practice', type: 'learning',
+                desc: 'Add structured logging (Winston/Pino) and basic monitoring. Track request times, error rates, and server health.' },
+            { day: 128, title: 'API Testing with Postman', section: 'API Practice', type: 'learning',
+                desc: 'Create Postman collections, environments, and automated test scripts. Organize and share API test suites.' },
+            { day: 129, title: 'GraphQL Intro', section: 'API Practice', type: 'learning',
+                desc: 'Set up a GraphQL server with Apollo. Define schemas, resolvers, and query/mutation types. Compare with REST.' },
+            { day: 130, title: '🔥 Project: Complete REST API', section: 'API Practice', type: 'project',
+                desc: 'Build a production-ready REST API with authentication, CRUD, pagination, file uploads, and full documentation. Deploy and test thoroughly.' },
+
+            // Database (131–136)
+            { day: 131, title: 'Database Concepts', section: 'Database', type: 'learning',
+                desc: 'Understand relational vs non-relational databases, ACID properties, CAP theorem, and when to choose each type.' },
+            { day: 132, title: 'MongoDB Setup', section: 'Database', type: 'learning',
+                desc: 'Set up MongoDB locally and on Atlas. Learn the MongoDB shell, basic commands, and Compass GUI.' },
+            { day: 133, title: 'CRUD with MongoDB', section: 'Database', type: 'learning',
+                desc: 'Perform insertOne, find, updateOne, deleteOne operations. Understand BSON, ObjectId, and query operators ($gt, $in, etc.).' },
+            { day: 134, title: 'Mongoose ODM', section: 'Database', type: 'learning',
+                desc: 'Define schemas and models with Mongoose. Perform CRUD operations, use middleware (pre/post hooks), and handle validation.' },
+            { day: 135, title: 'SQL Basics', section: 'Database', type: 'learning',
+                desc: 'Learn SQL fundamentals: SELECT, INSERT, UPDATE, DELETE, JOIN, GROUP BY. Practice with SQLite or PostgreSQL.' },
+            { day: 136, title: 'PostgreSQL Setup', section: 'Database', type: 'learning',
+                desc: 'Set up PostgreSQL locally. Learn psql commands, create databases and tables, and explore pgAdmin.' },
+
+            // DB Integration (137–150)
+            { day: 137, title: 'Connecting DB to API', section: 'DB Integration', type: 'learning',
+                desc: 'Connect your Express API to MongoDB/PostgreSQL. Use connection strings, environment variables, and handle connection errors.' },
+            { day: 138, title: 'User Model & Schema', section: 'DB Integration', type: 'learning',
+                desc: 'Design a user schema with fields like name, email, password (hashed), timestamps, and roles. Add validation rules.' },
+            { day: 139, title: 'Relationships & References', section: 'DB Integration', type: 'learning',
+                desc: 'Model one-to-one, one-to-many, and many-to-many relationships. Use ObjectId references in MongoDB or foreign keys in SQL.' },
+            { day: 140, title: 'Aggregation Pipelines', section: 'DB Integration', type: 'learning',
+                desc: 'Build MongoDB aggregation pipelines: $match, $group, $sort, $project, $lookup. Create complex data queries.' },
+            { day: 141, title: 'Indexing & Performance', section: 'DB Integration', type: 'learning',
+                desc: 'Create indexes to speed up queries. Understand compound indexes, explain plans, and avoid slow operations.' },
+            { day: 142, title: 'Transactions', section: 'DB Integration', type: 'learning',
+                desc: 'Implement database transactions for atomic operations. Handle rollback scenarios and ensure data consistency.' },
+            { day: 143, title: 'Data Validation', section: 'DB Integration', type: 'learning',
+                desc: 'Add comprehensive validation at the database level. Use Mongoose validators or SQL constraints to ensure data integrity.' },
+            { day: 144, title: 'Backup & Restore', section: 'DB Integration', type: 'learning',
+                desc: 'Set up automated database backups. Learn restore procedures. Use mongodump/mongorestore or pg_dump/pg_restore.' },
+            { day: 145, title: 'Migrations', section: 'DB Integration', type: 'learning',
+                desc: 'Manage database schema changes with migrations. Use tools like Knex.js or Mongoose migration plugins.' },
+            { day: 146, title: 'Advanced Queries', section: 'DB Integration', type: 'learning',
+                desc: 'Write complex queries with subqueries, window functions (SQL), or advanced aggregation. Optimize for performance.' },
+            { day: 147, title: 'Full-Text Search', section: 'DB Integration', type: 'learning',
+                desc: 'Implement full-text search in MongoDB ($text) or PostgreSQL (tsvector). Build a search endpoint for your API.' },
+            { day: 148, title: 'Data Seeding', section: 'DB Integration', type: 'learning',
+                desc: 'Create seed scripts to populate your database with initial/demo data. Make development and testing easier.' },
+            { day: 149, title: 'Database Security', section: 'DB Integration', type: 'learning',
+                desc: 'Secure your database: enable authentication, use TLS, restrict IP access, and follow the principle of least privilege.' },
+            { day: 150, title: '🔥 Project: Full DB-Backed API', section: 'DB Integration', type: 'project',
+                desc: 'Build a complete API with database integration. Include user auth, related data models, aggregation endpoints, and proper indexing.' },
+
+            // Full Stack (151–155)
+            { day: 151, title: 'Connecting Frontend to Backend', section: 'Full Stack', type: 'learning',
+                desc: 'Connect your React app to the Express API. Use fetch/axios, handle CORS, and manage API base URLs with environment variables.' },
+            { day: 152, title: 'State Management for API Data', section: 'Full Stack', type: 'learning',
+                desc: 'Manage server state effectively. Explore React Query or SWR for caching, refetching, and optimistic updates.' },
+            { day: 153, title: 'Authentication Flow', section: 'Full Stack', type: 'learning',
+                desc: 'Build the full auth flow: login, register, token storage, auto-login, and logout. Protect frontend routes based on auth state.' },
+            { day: 154, title: 'File Upload Flow', section: 'Full Stack', type: 'learning',
+                desc: 'Create end-to-end file upload: frontend form with preview, backend handling with multer, and serving uploaded files.' },
+            { day: 155, title: 'Real-time Features', section: 'Full Stack', type: 'learning',
+                desc: 'Add real-time functionality with Socket.io on both client and server. Build live notifications or a chat feature.' },
+
+            // Full Project (156–170)
+            { day: 156, title: 'Project Planning', section: 'Full Project', type: 'learning',
+                desc: 'Plan your capstone project. Define features, create wireframes, design the database schema, and set up a project board.' },
+            { day: 157, title: 'Setting Up Monorepo', section: 'Full Project', type: 'learning',
+                desc: 'Structure your full-stack project. Set up client and server folders, shared types, and a root package.json with scripts.' },
+            { day: 158, title: 'User Authentication System', section: 'Full Project', type: 'learning',
+                desc: 'Implement complete auth: registration, email verification, login, password reset, and session management.' },
+            { day: 159, title: 'Dashboard & Analytics', section: 'Full Project', type: 'learning',
+                desc: 'Build the main dashboard with user-specific data, charts, and summary cards. Fetch and display analytics from the API.' },
+            { day: 160, title: 'CRUD Features', section: 'Full Project', type: 'learning',
+                desc: 'Implement all CRUD operations for your main resource. Build forms, tables, and detail views with full API integration.' },
+            { day: 161, title: 'Search & Filters', section: 'Full Project', type: 'learning',
+                desc: 'Add advanced search with debouncing, multi-field filtering, and URL-based filter state. Connect to backend search endpoints.' },
+            { day: 162, title: 'Notifications System', section: 'Full Project', type: 'learning',
+                desc: 'Build a notification system (in-app and optional email). Create notification bell, unread count, and real-time updates.' },
+            { day: 163, title: 'Admin Panel', section: 'Full Project', type: 'learning',
+                desc: 'Create an admin-only area for user management, content moderation, and system settings. Implement role-based access control.' },
+            { day: 164, title: 'User Settings', section: 'Full Project', type: 'learning',
+                desc: 'Build user profile and settings pages. Allow updating avatar, password, preferences, and notification settings.' },
+            { day: 165, title: 'Social Features', section: 'Full Project', type: 'learning',
+                desc: 'Add comments, likes, or sharing features. Implement real-time updates and user interaction tracking.' },
+            { day: 166, title: 'Payment Integration', section: 'Full Project', type: 'learning',
+                desc: 'Integrate a payment system for premium features. Handle checkout, webhooks, subscription management, and invoicing.' },
+            { day: 167, title: 'Testing & QA', section: 'Full Project', type: 'learning',
+                desc: 'Write comprehensive tests: unit tests, integration tests, and E2E tests. Perform manual QA and fix bugs.' },
+            { day: 168, title: 'Performance Optimization', section: 'Full Project', type: 'learning',
+                desc: 'Optimize load times, bundle size, and API response times. Implement lazy loading, caching, and database query optimization.' },
+            { day: 169, title: 'Security Audit', section: 'Full Project', type: 'learning',
+                desc: 'Audit your application for security vulnerabilities. Check OWASP top 10, fix issues, and implement security headers.' },
+            { day: 170, title: '🔥 Project: Full Stack Application', section: 'Full Project', type: 'project',
+                desc: 'Complete and polish your full-stack capstone project. Ensure all features work, the UI is polished, and the code is clean and documented.' },
+
+            // Deployment (171–180)
+            { day: 171, title: 'Deployment Options Overview', section: 'Deployment', type: 'learning',
+                desc: 'Explore deployment platforms: Vercel, Netlify (frontend), Railway, Render (backend), MongoDB Atlas, Supabase (database). Compare pros and cons.' },
+            { day: 172, title: 'Deploying Frontend', section: 'Deployment', type: 'learning',
+                desc: 'Deploy your React frontend to Vercel or Netlify. Configure build settings, environment variables, and custom domains.' },
+            { day: 173, title: 'Deploying Backend', section: 'Deployment', type: 'learning',
+                desc: 'Deploy your Express API to Railway or Render. Set up environment variables, handle CORS for production, and test endpoints.' },
+            { day: 174, title: 'Database Deployment', section: 'Deployment', type: 'learning',
+                desc: 'Set up MongoDB Atlas or Supabase for production. Configure network access, connection strings, and backup schedules.' },
+            { day: 175, title: 'CI/CD Pipeline Setup', section: 'Deployment', type: 'learning',
+                desc: 'Create a CI/CD pipeline with GitHub Actions. Automate testing, building, and deployment on push to main branch.' },
+            { day: 176, title: 'Domain & SSL Setup', section: 'Deployment', type: 'learning',
+                desc: 'Purchase a custom domain and configure DNS. Set up SSL certificates (usually automatic with modern platforms).' },
+            { day: 177, title: 'Environment Variables & Secrets', section: 'Deployment', type: 'learning',
+                desc: 'Securely manage environment variables and secrets in production. Never commit sensitive data. Use platform secret managers.' },
+            { day: 178, title: 'Monitoring & Analytics', section: 'Deployment', type: 'learning',
+                desc: 'Set up monitoring (Sentry, LogRocket) and analytics (Google Analytics, Plausible). Track errors, performance, and user behavior.' },
+            { day: 179, title: 'Launch Checklist', section: 'Deployment', type: 'learning',
+                desc: 'Complete a pre-launch checklist: SEO meta tags, favicon, social preview images, error pages, legal pages, and performance audit.' },
+            { day: 180, title: '🔥 Project: Live Production App', section: 'Deployment', type: 'project',
+                desc: '🎉 Launch your fully deployed, production-ready application! Share your achievement, write a case study, and add it to your portfolio.' },
+        ];
+
+        // =============================================
+        // APP STATE
+        // =============================================
+        const STORAGE_KEY_COMPLETED = 'devpath180_completedDays';
+        const STORAGE_KEY_CURRENT = 'devpath180_currentDay';
+        const TOTAL_DAYS = 180;
+        const PROJECT_DAYS = new Set([10, 25, 45, 65, 100, 130, 150, 170, 180]);
+
+        function loadState() {
+            const completed = JSON.parse(localStorage.getItem(STORAGE_KEY_COMPLETED) || '[]');
+            const current = parseInt(localStorage.getItem(STORAGE_KEY_CURRENT) || '1');
+            return { completedDays: completed, currentDay: Math.max(1, Math.min(TOTAL_DAYS, current)) };
+        }
+
+        function saveCompletedDays(days) {
+            localStorage.setItem(STORAGE_KEY_COMPLETED, JSON.stringify(days));
+        }
+
+        function saveCurrentDay(day) {
+            localStorage.setItem(STORAGE_KEY_CURRENT, String(day));
+        }
+
+        let appState = loadState();
+
+        // =============================================
+        // RENDER SECTIONS
+        // =============================================
+        function getSectionGroups() {
+            const sectionOrder = [
+                'HTML', 'CSS', 'JavaScript Basics', 'Practice', 'Advanced JS', 'Mini Apps',
+                'Tools + Git', 'React', 'React Practice', 'Backend', 'API Practice',
+                'Database', 'DB Integration', 'Full Stack', 'Full Project', 'Deployment'
+            ];
+            const groups = {};
+            roadmap.forEach(day => {
+                if (!groups[day.section]) groups[day.section] = [];
+                groups[day.section].push(day);
+            });
+            // Return in defined order
+            return sectionOrder.filter(s => groups[s]).map(s => ({ section: s, days: groups[s] }));
+        }
+
+        function renderSections(filter = 'all') {
+            const container = document.getElementById('sectionsContainer');
+            const sectionGroups = getSectionGroups();
+            let html = '';
+
+            sectionGroups.forEach(group => {
+                const sectionId = 'section-' + group.section.replace(/[^a-zA-Z0-9]/g, '-');
+                const startDay = group.days[0].day;
+                const endDay = group.days[group.days.length - 1].day;
+                const completedInSection = group.days.filter(d => appState.completedDays.includes(d.day)).length;
+                const totalInSection = group.days.length;
+                const isOpen = group.days.some(d => d.day === appState.currentDay) ||
+                    (completedInSection > 0 && completedInSection < totalInSection);
+
+                html += `<div class="section-group ${isOpen ? 'open' : ''}" id="${sectionId}">`;
+                html += `<div class="section-header" data-section="${group.section}">`;
+                html +=
+                    `<span class="section-title">📁 ${group.section} <span class="section-range">(${startDay}–${endDay})</span></span>`;
+                html +=
+                    `<span style="font-size:0.7rem;color:var(--text-secondary);margin-right:8px;">${completedInSection}/${totalInSection}</span>`;
+                html += `<span class="section-arrow">▼</span>`;
+                html += `</div>`;
+                html += `<div class="section-days">`;
+
+                group.days.forEach(day => {
+                    let cellClass = 'day-cell';
+                    if (appState.completedDays.includes(day.day)) cellClass += ' completed';
+                    if (day.day === appState.currentDay && !appState.completedDays.includes(day.day))
+                        cellClass += ' current';
+                    if (day.type === 'project') cellClass += ' project-day';
+                    // Lock if not completed and not current and previous day not completed
+                    const isLocked = day.day > 1 &&
+                        !appState.completedDays.includes(day.day - 1) &&
+                        day.day !== appState.currentDay &&
+                        !appState.completedDays.includes(day.day);
+                    if (isLocked && day.day !== 1) cellClass += ' locked';
+
+                    // Filter logic
+                    const isCompleted = appState.completedDays.includes(day.day);
+                    if (filter === 'completed' && !isCompleted) cellClass += ' hidden-by-filter';
+                    if (filter === 'pending' && isCompleted) cellClass += ' hidden-by-filter';
+
+                    html +=
+                        `<div class="${cellClass}" data-day="${day.day}" title="Day ${day.day}: ${day.title}">${day.day}</div>`;
+                });
+
+                html += `</div></div>`;
+            });
+
+            container.innerHTML = html;
+
+            // Add filter hidden style dynamically
+            if (!document.getElementById('filterStyle')) {
+                const styleEl = document.createElement('style');
+                styleEl.id = 'filterStyle';
+                styleEl.textContent = '.hidden-by-filter { display: none !important; }';
+                document.head.appendChild(styleEl);
+            }
+
+            // Attach click handlers
+            attachDayClickHandlers();
+            attachSectionToggleHandlers();
+            attachSidebarSectionLinks();
+        }
+
+        function attachDayClickHandlers() {
+            document.querySelectorAll('.day-cell:not(.locked)').forEach(cell => {
+                cell.addEventListener('click', () => {
+                    const dayNum = parseInt(cell.dataset.day);
+                    openDayModal(dayNum);
+                });
+            });
+            // Also allow clicking locked cells to show info but not complete
+            document.querySelectorAll('.day-cell.locked').forEach(cell => {
+                cell.addEventListener('click', () => {
+                    const dayNum = parseInt(cell.dataset.day);
+                    openDayModal(dayNum, true);
+                });
+            });
+        }
+
+        function attachSectionToggleHandlers() {
+            document.querySelectorAll('.section-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    const sectionGroup = header.parentElement;
+                    sectionGroup.classList.toggle('open');
+                });
+            });
+        }
+
+        function attachSidebarSectionLinks() {
+            document.querySelectorAll('.sidebar-section-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const sectionName = link.dataset.section;
+                    const sectionId = 'section-' + sectionName.replace(/[^a-zA-Z0-9]/g, '-');
+                    const sectionEl = document.getElementById(sectionId);
+                    if (sectionEl) {
+                        sectionEl.classList.add('open');
+                        sectionEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                    // Close mobile sidebar
+                    closeSidebar();
+                });
+            });
+        }
+
+        // =============================================
+        // MODAL
+        // =============================================
+        function openDayModal(dayNum, locked = false) {
+            const day = roadmap.find(d => d.day === dayNum);
+            if (!day) return;
+
+            const overlay = document.getElementById('modalOverlay');
+            const titleEl = document.getElementById('modalTitle');
+            const bodyEl = document.getElementById('modalBody');
+            const completeBtn = document.getElementById('modalCompleteBtn');
+
+            const isProject = day.type === 'project';
+            const isCompleted = appState.completedDays.includes(dayNum);
+
+            titleEl.innerHTML = `
+            <span class="day-number">Day ${day.day}</span>: ${day.title}
+            ${isProject ? '<span class="project-badge">🔥 Project Day</span>' : ''}
+          `;
+
+            bodyEl.innerHTML = `
+            <div class="modal-section">📂 Section: <strong>${day.section}</strong> | Type: <strong>${isProject ? 'Project' : 'Learning'}</strong></div>
+            <div class="modal-desc">${day.desc}</div>
+            <div class="modal-resources">
+              💡 <strong>Tip:</strong> ${isProject ? 'This is a project day! Build something from scratch and add it to your portfolio.' : 'Take notes, practice the concepts, and try small exercises to reinforce your learning.'}
+            </div>
+            ${isCompleted ? '<p style="color:var(--success);margin-top:10px;">✅ This day is already completed!</p>' : ''}
+            ${locked ? '<p style="color:var(--warning);margin-top:10px;">🔒 Complete the previous day first to unlock this one.</p>' : ''}
+          `;
+
+            if (isCompleted) {
+                completeBtn.textContent = '✅ Already Completed';
+                completeBtn.style.opacity = '0.6';
+                completeBtn.style.pointerEvents = 'none';
+            } else if (locked) {
+                completeBtn.textContent = '🔒 Locked';
+                completeBtn.style.opacity = '0.5';
+                completeBtn.style.pointerEvents = 'none';
+            } else {
+                completeBtn.textContent = '✅ Mark as Completed';
+                completeBtn.style.opacity = '1';
+                completeBtn.style.pointerEvents = 'auto';
+                completeBtn.onclick = () => markDayCompleted(dayNum);
+            }
+
+            document.getElementById('modalCloseBtn').onclick = closeModal;
+            overlay.onclick = (e) => { if (e.target === overlay) closeModal(); };
+            overlay.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        function markDayCompleted(dayNum) {
+            if (!appState.completedDays.includes(dayNum)) {
+                appState.completedDays.push(dayNum);
+                appState.completedDays.sort((a, b) => a - b);
+                saveCompletedDays(appState.completedDays);
+
+                // Update current day to next uncompleted day
+                let nextDay = dayNum + 1;
+                while (appState.completedDays.includes(nextDay) && nextDay <= TOTAL_DAYS) {
+                    nextDay++;
+                }
+                if (nextDay <= TOTAL_DAYS) {
+                    appState.currentDay = nextDay;
+                } else {
+                    appState.currentDay = TOTAL_DAYS; // All completed
+                }
+                saveCurrentDay(appState.currentDay);
+
+                updateAllUI();
+                closeModal();
+                showToast('✅ Day ' + dayNum + ' marked as completed!');
+            }
+        }
+
+        // =============================================
+        // TOAST
+        // =============================================
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            toast.style.animation = 'none';
+            toast.offsetHeight; // reflow
+            toast.style.animation = 'slideInRight 0.3s ease, fadeOut 0.3s ease 1.8s forwards';
+            setTimeout(() => { toast.style.display = 'none'; }, 2200);
+        }
+
+        // =============================================
+        // UPDATE UI
+        // =============================================
+        function updateAllUI() {
+            const completedCount = appState.completedDays.length;
+            const percent = Math.round((completedCount / TOTAL_DAYS) * 100);
+            const projectCompleted = roadmap.filter(d => d.type === 'project' && appState.completedDays.includes(d
+                .day)).length;
+            const totalProjects = PROJECT_DAYS.size;
+
+            document.getElementById('statCurrentDay').textContent = appState.currentDay;
+            document.getElementById('statCompleted').textContent = completedCount;
+            document.getElementById('statPercent').textContent = percent + '%';
+            document.getElementById('statProjects').textContent = projectCompleted + '/' + totalProjects;
+            document.getElementById('progressPercent').textContent = percent + '%';
+            document.getElementById('progressBar').style.width = percent + '%';
+
+            // Re-render sections with current filter
+            const activeFilter = document.querySelector('.filter-pill.active');
+            const filter = activeFilter ? activeFilter.dataset.filter : 'all';
+            renderSections(filter);
+        }
+
+        // =============================================
+        // BUTTON HANDLERS
+        // =============================================
+        document.getElementById('btnContinue').addEventListener('click', () => {
+            openDayModal(appState.currentDay);
+        });
+
+        document.getElementById('btnJumpCurrent').addEventListener('click', () => {
+            const sectionOfCurrent = roadmap.find(d => d.day === appState.currentDay);
+            if (sectionOfCurrent) {
+                const sectionId = 'section-' + sectionOfCurrent.section.replace(/[^a-zA-Z0-9]/g, '-');
+                const sectionEl = document.getElementById(sectionId);
+                if (sectionEl) {
+                    sectionEl.classList.add('open');
+                    sectionEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Highlight the current day cell
+                    setTimeout(() => {
+                        const currentCell = document.querySelector(`.day-cell[data-day="${appState.currentDay}"]`);
+                        if (currentCell) {
+                            currentCell.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            currentCell.style.boxShadow = '0 0 20px rgba(108,92,231,0.8)';
+                            setTimeout(() => {
+                                currentCell.style.boxShadow = '';
+                            }, 2000);
+                        }
+                    }, 500);
+                }
+            }
+        });
+
+        document.getElementById('btnReset').addEventListener('click', () => {
+            if (confirm(
+                    'Are you sure you want to reset all progress? This will clear all completed days and start from Day 1. This action cannot be undone.'
+                    )) {
+                appState.completedDays = [];
+                appState.currentDay = 1;
+                saveCompletedDays([]);
+                saveCurrentDay(1);
+                updateAllUI();
+                showToast('🔄 Progress has been reset.');
+            }
+        });
+
+        // =============================================
+        // FILTER HANDLERS
+        // =============================================
+        document.querySelectorAll('.filter-pill').forEach(pill => {
+            pill.addEventListener('click', () => {
+                document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                const filter = pill.dataset.filter;
+                updateAllUI(); // re-renders with filter
+            });
+        });
+
+        // =============================================
+        // SIDEBAR MOBILE TOGGLE
+        // =============================================
+        const hamburger = document.getElementById('hamburger');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+
+        function openSidebar() {
+            sidebar.classList.add('open');
+            overlay.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        hamburger.addEventListener('click', () => {
+            if (sidebar.classList.contains('open')) {
+                closeSidebar();
+            } else {
+                openSidebar();
+            }
+        });
+
+        overlay.addEventListener('click', closeSidebar);
+
+        // Close sidebar when clicking a nav link (for mobile)
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    setTimeout(closeSidebar, 300);
+                }
+            });
+        });
+
+        // =============================================
+        // KEYBOARD SHORTCUTS
+        // =============================================
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+            if (e.ctrlKey && e.key === 'Enter') {
+                const overlayEl = document.getElementById('modalOverlay');
+                if (overlayEl.style.display === 'flex') {
+                    const completeBtn = document.getElementById('modalCompleteBtn');
+                    if (completeBtn.style.pointerEvents !== 'none') {
+                        completeBtn.click();
+                    }
+                }
+            }
+        });
+
+        // =============================================
+        // INITIAL RENDER
+        // =============================================
+        updateAllUI();
+
+        // Set active nav based on current page
+        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+        if (currentPage.includes('notes')) {
+            document.getElementById('navDashboard').classList.remove('active');
+            document.getElementById('navNotes').classList.add('active');
+        }
+
+        console.log('🚀 DevPath 180 initialized!');
+        console.log('📅 Current Day:', appState.currentDay);
+        console.log('✅ Completed Days:', appState.completedDays.length);
+        console.log('📊 Progress:', Math.round((appState.completedDays.length / TOTAL_DAYS) * 100) + '%');
+        console.log('💡 Click any day to view details and mark it as completed.');
+        console.log('🔥 Project days:', [...PROJECT_DAYS].join(', '));
+    </script>
+</body>
+</html>
