@@ -252,7 +252,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script>
 (function(){
-  const STORE = 'dpn_v17';
+  const STORE = 'dpn_v18';
   let notes = JSON.parse(localStorage.getItem(STORE)||'[]');
   let currentId = null;
   let filterLang = 'all';
@@ -334,7 +334,6 @@
     refreshHighlight();
     updateStats();
     drawLineNumbers();
-    // إعادة تعيين تاريخ undo/redo عند فتح ملاحظة جديدة
     $('codeTextarea').focus();
     updateUndoRedoButtons();
   }
@@ -382,37 +381,34 @@
     toast('Deleted');
   }
 
-  // ══════ UNDO / REDO ══════
+  // ══════ UNDO / REDO (إخفاء لوحة المفاتيح بعد التنفيذ) ══════
   function performUndo() {
-    document.execCommand('undo');
     $('codeTextarea').focus();
+    document.execCommand('undo');
     refreshHighlight();
     updateStats();
     drawLineNumbers();
     updateUndoRedoButtons();
+    // إخفاء لوحة المفاتيح بعد تنفيذ الأمر
+    setTimeout(() => $('codeTextarea').blur(), 50);
   }
 
   function performRedo() {
-    document.execCommand('redo');
     $('codeTextarea').focus();
+    document.execCommand('redo');
     refreshHighlight();
     updateStats();
     drawLineNumbers();
     updateUndoRedoButtons();
+    setTimeout(() => $('codeTextarea').blur(), 50);
   }
 
   function updateUndoRedoButtons() {
-    // لا يمكن التحقق بشكل موثوق من وجود تاريخ undo/redo في كل المتصفحات،
-    // ولكننا نعطل الأزرار فقط عندما يكون textarea فارغاً ولم يحدث أي تغيير.
-    const ta = $('codeTextarea');
-    if (!ta) return;
-    // نفترض أنه إذا كان هناك محتوى أو تم التعديل، فالتاريخ موجود.
-    // نعطل فقط عند أول فتح للملاحظة بدون أي تغيير.
-    // لا يمكننا تتبع التاريخ بدقة دون استخدام MutationObserver أو أحداث مخصصة.
-    // سنقوم بتمكين الأزرار دائماً طالما أن textarea موجود.
-    // لأن document.execCommand('undo') لن يفعل شيئاً إذا لم يكن هناك شيء للتراجع عنه.
-    undoBtn.disabled = false;
-    redoBtn.disabled = false;
+    // نفعل الأزرار طالما أن textarea موجود (قد لا نتمكن من تتبع التاريخ بدقة)
+    if ($('codeTextarea')) {
+      undoBtn.disabled = false;
+      redoBtn.disabled = false;
+    }
   }
 
   // ══════ PREVIEW ══════
@@ -628,7 +624,6 @@
     if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); saveCurrent(); }
     if ((e.ctrlKey || e.metaKey) && e.key === 'n') { e.preventDefault(); openNewNote(); }
     if ((e.ctrlKey || e.metaKey) && e.key === 'p') { e.preventDefault(); isPreview ? switchToCode() : switchToPreview(); }
-    // دعم اختصارات undo/redo بلوحة المفاتيح (تبقى نشطة أيضاً)
     if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); performUndo(); }
     if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.shiftKey && e.key === 'z'))) { e.preventDefault(); performRedo(); }
   });
