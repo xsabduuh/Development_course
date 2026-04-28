@@ -21,26 +21,35 @@
       --red: #ff453a;
       --orange: #ff9f0a;
       --radius: 14px;
-      --radius-lg: 22px;
       --font: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
       --mono: 'SF Mono', 'JetBrains Mono', 'Fira Code', monospace;
       --shadow: 0 2px 20px rgba(0,0,0,0.5);
     }
     *{margin:0;padding:0;box-sizing:border-box}
-    html, body {
+    html {
       height: 100%;
       overflow: hidden;
-      overscroll-behavior-y: auto; /* يسمح بالسحب للتحديث */
     }
-    body{
-      font-family:var(--font);
-      background:var(--bg);
-      color:var(--text);
-      display:flex;
-      -webkit-font-smoothing:antialiased;
-      -webkit-user-select:none;user-select:none;
-      -webkit-tap-highlight-color:transparent;
-      position: relative;
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      height: 100%;
+      display: flex;
+      overflow: auto;                     /* السماح بالتمرير على مستوى body */
+      -webkit-overflow-scrolling: touch;  /* تمرير سلس على iOS */
+      overscroll-behavior-y: auto;        /* تمكين السحب للتحديث */
+      -webkit-font-smoothing: antialiased;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* الحاوية الرئيسية تمنع تمرير المحتوى الداخلي */
+    .app-container {
+      display: flex;
+      flex: 1;
+      height: 100dvh;
+      overflow: hidden;
     }
     ::-webkit-scrollbar{width:3px}
     ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
@@ -146,8 +155,6 @@
     /* ===== MAIN ===== */
     .main{
       flex:1;display:flex;flex-direction:column;min-width:0;
-      /* يسمح بتمرير الجسم بأكمله عند الحاجة */
-      max-height: 100vh;
     }
 
     .navbar{
@@ -282,85 +289,86 @@
   </style>
 </head>
 <body>
+  <div class="app-container">
+    <div class="sheet-overlay" id="sheetOverlay"></div>
+    <aside class="sheet" id="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <span class="sheet-title">Notes</span>
+        <button class="sheet-new-btn" id="sheetNewBtn">+</button>
+      </div>
+      <div class="sheet-list" id="sheetList"></div>
+      <div class="sheet-footer">
+        <a href="index.html" class="sheet-back-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          Dashboard
+        </a>
+        <span id="noteCount">0 notes</span>
+      </div>
+    </aside>
 
-<div class="sheet-overlay" id="sheetOverlay"></div>
-<aside class="sheet" id="sheet">
-  <div class="sheet-handle"></div>
-  <div class="sheet-header">
-    <span class="sheet-title">Notes</span>
-    <button class="sheet-new-btn" id="sheetNewBtn">+</button>
+    <main class="main">
+      <div class="navbar">
+        <button class="menu-btn" id="menuBtn">☰</button>
+        <input type="text" class="nav-title-input" id="noteTitle" placeholder="Note title">
+        <a href="index.html" class="dashboard-fab">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          Dashboard
+        </a>
+      </div>
+
+      <div class="editor-container">
+        <div class="empty-view" id="emptyView">
+          <div class="empty-view-icon">📄</div>
+          <p>Select or create a note</p>
+        </div>
+
+        <div class="code-stage" id="codeStage" style="display:none">
+          <div class="line-numbers" id="lineNums">1</div>
+          <textarea class="code-layer code-textarea" id="codeTextarea" placeholder="Write code…" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
+          <pre class="code-layer code-preview"><code class="hljs" id="codeHighlight"></code></pre>
+        </div>
+      </div>
+
+      <div class="bottom-toolbar">
+        <select class="lang-picker" id="langPicker">
+          <option value="html">HTML</option>
+          <option value="css">CSS</option>
+          <option value="javascript">JavaScript</option>
+          <option value="jsx">React JSX</option>
+          <option value="typescript">TypeScript</option>
+          <option value="python">Python</option>
+          <option value="sql">SQL</option>
+          <option value="json">JSON</option>
+          <option value="bash">Bash</option>
+          <option value="plaintext">Plain Text</option>
+        </select>
+        <button class="tool-btn copy" id="copyBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy
+        </button>
+        <button class="tool-btn delete" id="deleteBtn" style="display:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+        </button>
+        <button class="tool-btn save" id="saveBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+          Save
+        </button>
+      </div>
+
+      <div class="status-bar">
+        <span id="lineCount">Ln 1</span>
+        <span id="charCount">0 chars</span>
+      </div>
+    </main>
   </div>
-  <div class="sheet-list" id="sheetList"></div>
-  <div class="sheet-footer">
-    <a href="index.html" class="sheet-back-btn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      Dashboard
-    </a>
-    <span id="noteCount">0 notes</span>
-  </div>
-</aside>
 
-<main class="main">
-  <div class="navbar">
-    <button class="menu-btn" id="menuBtn">☰</button>
-    <input type="text" class="nav-title-input" id="noteTitle" placeholder="Note title">
-    <a href="index.html" class="dashboard-fab">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      Dashboard
-    </a>
-  </div>
-
-  <div class="editor-container">
-    <div class="empty-view" id="emptyView">
-      <div class="empty-view-icon">📄</div>
-      <p>Select or create a note</p>
-    </div>
-
-    <div class="code-stage" id="codeStage" style="display:none">
-      <div class="line-numbers" id="lineNums">1</div>
-      <textarea class="code-layer code-textarea" id="codeTextarea" placeholder="Write code…" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
-      <pre class="code-layer code-preview"><code class="hljs" id="codeHighlight"></code></pre>
-    </div>
-  </div>
-
-  <div class="bottom-toolbar">
-    <select class="lang-picker" id="langPicker">
-      <option value="html">HTML</option>
-      <option value="css">CSS</option>
-      <option value="javascript">JavaScript</option>
-      <option value="jsx">React JSX</option>
-      <option value="typescript">TypeScript</option>
-      <option value="python">Python</option>
-      <option value="sql">SQL</option>
-      <option value="json">JSON</option>
-      <option value="bash">Bash</option>
-      <option value="plaintext">Plain Text</option>
-    </select>
-    <button class="tool-btn copy" id="copyBtn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-      Copy
-    </button>
-    <button class="tool-btn delete" id="deleteBtn" style="display:none">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
-    </button>
-    <button class="tool-btn save" id="saveBtn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
-      Save
-    </button>
-  </div>
-
-  <div class="status-bar">
-    <span id="lineCount">Ln 1</span>
-    <span id="charCount">0 chars</span>
-  </div>
-</main>
-
-<div class="toast-panel" id="toastPanel"></div>
+  <div class="toast-panel" id="toastPanel"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script>
 (function(){
-  const STORE = 'dpn_v7';
+  const STORE = 'dpn_v8';
   let notes = JSON.parse(localStorage.getItem(STORE)||'[]');
   let currentId = null;
   let autoTimer = null;
