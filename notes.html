@@ -3,378 +3,534 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>DevPath 180 • Notes</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
   <style>
     :root {
-      --bg: #080812;
-      --surface: #101018;
-      --border: #202030;
-      --text: #d0d0e0;
-      --muted: #707090;
-      --accent: #5565ff;
-      --accent-hover: #7788ff;
-      --green: #2dd4bf;
-      --red: #f87171;
-      --radius: 10px;
-      --font: system-ui, -apple-system, sans-serif;
-      --mono: 'JetBrains Mono', 'Fira Code', monospace;
+      --bg: #000;
+      --sheet: #111118;
+      --card: #1a1a24;
+      --border: #2a2a36;
+      --text: #f5f5f7;
+      --secondary: #8e8e93;
+      --accent: #0a84ff;
+      --accent2: #409cff;
+      --green: #30d158;
+      --red: #ff453a;
+      --orange: #ff9f0a;
+      --radius: 14px;
+      --radius-lg: 22px;
+      --font: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+      --mono: 'SF Mono', 'JetBrains Mono', 'Fira Code', monospace;
+      --shadow: 0 2px 20px rgba(0,0,0,0.5);
     }
     *{margin:0;padding:0;box-sizing:border-box}
     body{
       font-family:var(--font);
       background:var(--bg);
       color:var(--text);
-      display:flex;
-      height:100dvh;
-      overflow:hidden;
-      user-select:none;
-      -webkit-user-select:none;
+      height:100dvh;display:flex;overflow:hidden;
+      -webkit-font-smoothing:antialiased;
+      -webkit-user-select:none;user-select:none;
+      -webkit-tap-highlight-color:transparent;
     }
-    a{text-decoration:none;color:inherit}
-    button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
-    input,select,textarea{font-family:inherit;color:inherit}
-    ::-webkit-scrollbar{width:5px;height:5px}
-    ::-webkit-scrollbar-thumb{background:#303050;border-radius:10px}
+    ::-webkit-scrollbar{width:3px}
+    ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 
-    /* sidebar */
-    .sidebar{
-      width:260px;min-width:260px;
-      background:var(--surface);
-      border-right:1px solid var(--border);
+    /* ===== SHEET (القائمة الجانبية) ===== */
+    .sheet-overlay{
+      position:fixed;inset:0;background:rgba(0,0,0,0.5);
+      z-index:50;opacity:0;pointer-events:none;
+      transition:opacity 0.35s;
+      backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+    }
+    .sheet-overlay.show{opacity:1;pointer-events:auto}
+
+    .sheet{
+      position:fixed;top:0;left:0;bottom:0;
+      width:88vw;max-width:360px;
+      background:var(--sheet);z-index:60;
+      transform:translateX(-100%);
+      transition:transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
       display:flex;flex-direction:column;
-      transition:width 0.25s ease, min-width 0.25s ease;
-      overflow:hidden;
+      border-right:1px solid var(--border);
     }
-    .sidebar.collapsed{width:0;min-width:0;border-right:none}
-    .sidebar-head{
-      padding:16px;
-      border-bottom:1px solid var(--border);
-      display:flex;align-items:center;gap:8px;
+    .sheet.show{transform:translateX(0)}
+
+    .sheet-handle{
+      display:none;width:36px;height:5px;
+      background:var(--border);border-radius:3px;
+      margin:12px auto 8px;
     }
-    .back-link{
+    @media(max-width:768px){.sheet-handle{display:block}}
+
+    .sheet-header{
+      padding:20px 20px 16px;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .sheet-title{
+      font-weight:700;font-size:1.2rem;
+      letter-spacing:-0.3px;
+    }
+    .sheet-new-btn{
+      width:36px;height:36px;border-radius:50%;
+      background:var(--accent);color:#fff;
+      display:flex;align-items:center;justify-content:center;
+      font-size:1.4rem;font-weight:300;
+      border:none;cursor:pointer;
+      transition:background 0.2s, transform 0.2s;
+    }
+    .sheet-new-btn:active{transform:scale(0.92);background:var(--accent2)}
+
+    .sheet-list{
+      flex:1;overflow-y:auto;padding:0 12px 12px;
+      -webkit-overflow-scrolling:touch;
+    }
+
+    .note-card{
+      padding:14px 16px;margin:4px 0;
+      border-radius:var(--radius);
+      cursor:pointer;transition:background 0.2s;
+      position:relative;border:1px solid transparent;
+    }
+    .note-card:active{background:var(--card)}
+    .note-card.selected{
+      background:var(--card);border-color:var(--accent);
+    }
+    .note-card-title{
+      font-weight:600;font-size:0.95rem;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .note-card-meta{
+      display:flex;align-items:center;gap:8px;margin-top:4px;
+    }
+    .note-card-lang{
+      font-size:0.65rem;font-weight:600;text-transform:uppercase;
+      color:var(--accent);background:rgba(10,132,255,0.12);
+      padding:2px 8px;border-radius:4px;letter-spacing:0.5px;
+    }
+    .note-card-date{
+      font-size:0.7rem;color:var(--secondary);
+    }
+    .note-card-delete{
+      position:absolute;right:12px;top:50%;transform:translateY(-50%);
+      width:28px;height:28px;border-radius:50%;
+      background:rgba(255,69,58,0.12);color:var(--red);
+      display:flex;align-items:center;justify-content:center;
+      font-size:0.8rem;opacity:0;transition:opacity 0.2s;
+      border:none;cursor:pointer;
+    }
+    .note-card:hover .note-card-delete,
+    .note-card:active .note-card-delete{opacity:1}
+
+    .sheet-footer{
+      padding:14px 20px;border-top:1px solid var(--border);
+      display:flex;align-items:center;justify-content:space-between;
+      font-size:0.75rem;color:var(--secondary);
+    }
+    .sheet-back-btn{
       display:flex;align-items:center;gap:6px;
-      font-size:0.8rem;color:var(--muted);
-      padding:6px 10px;border-radius:6px;
-      border:1px solid var(--border);
-      white-space:nowrap;
+      color:var(--accent);text-decoration:none;
+      font-weight:500;font-size:0.85rem;
     }
-    .back-link:hover{color:#fff;border-color:#555}
-    .collapse-btn{
-      margin-left:auto;
-      width:32px;height:32px;
-      border-radius:6px;
-      border:1px solid var(--border);
-      display:flex;align-items:center;justify-content:center;
-      font-size:1rem;color:var(--muted);
-    }
-    .collapse-btn:hover{color:#fff;background:rgba(255,255,255,0.04)}
-    .new-btn{
-      margin:12px;
-      padding:10px;
-      background:var(--accent);
-      color:#fff;
-      border-radius:var(--radius);
-      font-weight:600;
-      display:flex;align-items:center;justify-content:center;
-      gap:6px;
-      transition:background 0.2s;
-    }
-    .new-btn:hover{background:var(--accent-hover)}
-    .notes-list{
-      flex:1;overflow-y:auto;padding:6px;
-    }
-    .note-pill{
-      padding:12px;margin:2px 0;
-      border-radius:var(--radius);
-      cursor:pointer;border:1px solid transparent;
-    }
-    .note-pill:hover{background:rgba(255,255,255,0.02);border-color:var(--border)}
-    .note-pill.active{background:rgba(85,101,255,0.08);border-color:rgba(85,101,255,0.3)}
-    .note-pill-title{font-weight:600;font-size:0.85rem}
-    .note-pill-lang{font-size:0.65rem;color:var(--accent);margin-top:4px}
-    .note-pill-delete{float:right;opacity:0;color:var(--red)}
-    .note-pill:hover .note-pill-delete{opacity:1}
+    .sheet-back-btn svg{width:16px;height:16px}
 
-    /* main */
+    /* ===== MAIN ===== */
     .main{
-      flex:1;display:flex;flex-direction:column;
-      min-width:0;
+      flex:1;display:flex;flex-direction:column;min-width:0;
     }
-    .toolbar{
-      padding:12px 16px;border-bottom:1px solid var(--border);
-      display:flex;align-items:center;gap:10px;flex-wrap:wrap;
-    }
-    .title-input{
-      flex:1;min-width:140px;
-      background:transparent;border:none;
-      font-size:1.1rem;font-weight:600;outline:none;
-      color:#fff;
-    }
-    .title-input::placeholder{color:var(--muted)}
-    .lang-select{
-      background:var(--surface);border:1px solid var(--border);
-      padding:6px 10px;border-radius:6px;font-size:0.8rem;outline:none;
-    }
-    .btn-action{
-      padding:7px 14px;border-radius:6px;
-      border:1px solid var(--border);
-      font-size:0.8rem;font-weight:600;
-      display:flex;align-items:center;gap:5px;
-      background:var(--surface);color:var(--text);
-    }
-    .btn-action:hover{background:#1a1a2a;border-color:#555}
-    .btn-save{background:var(--accent);color:#fff;border-color:var(--accent)}
-    .btn-save:hover{background:var(--accent-hover)}
-    .btn-copy{color:var(--green);border-color:rgba(45,212,191,0.3)}
-    .btn-copy:hover{background:rgba(45,212,191,0.1)}
-    .btn-copy.copied{background:rgba(45,212,191,0.2);border-color:var(--green)}
 
-    .editor-area{
+    .navbar{
+      padding:14px 20px;display:flex;align-items:center;
+      gap:12px;border-bottom:1px solid var(--border);
+      min-height:56px;
+    }
+    .menu-btn{
+      width:36px;height:36px;border-radius:50%;
+      background:var(--card);border:1px solid var(--border);
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;font-size:1.1rem;flex-shrink:0;
+    }
+    .nav-title-input{
+      flex:1;background:transparent;border:none;
+      font-size:1.15rem;font-weight:600;color:var(--text);
+      outline:none;min-width:0;
+    }
+    .nav-title-input::placeholder{color:var(--secondary)}
+
+    .editor-container{
+      flex:1;display:flex;flex-direction:column;
+      position:relative;
+    }
+    .empty-view{
+      flex:1;display:flex;align-items:center;justify-content:center;
+      flex-direction:column;color:var(--secondary);gap:16px;
+    }
+    .empty-view-icon{
+      width:64px;height:64px;border-radius:50%;
+      background:var(--card);display:flex;
+      align-items:center;justify-content:center;
+      font-size:2rem;
+    }
+
+    .code-stage{
       flex:1;position:relative;display:flex;overflow:hidden;
     }
-    .code-mirror{
-      flex:1;position:relative;
+    .code-layer{
+      position:absolute;inset:16px 16px 16px 56px;
+      font-family:var(--mono);font-size:0.88rem;
+      line-height:1.75;white-space:pre-wrap;
+      overflow:auto;border:none;outline:none;
+      background:transparent;
     }
-    .code-text{
-      width:100%;height:100%;
-      background:transparent;border:none;
-      padding:16px;
-      font-family:var(--mono);font-size:0.9rem;
-      line-height:1.7;resize:none;outline:none;
-      color:transparent;caret-color:#fff;
-      position:relative;z-index:2;
-      white-space:pre-wrap;overflow:auto;
-      tab-size:2;
+    .code-textarea{
+      color:transparent;caret-color:var(--accent);
+      resize:none;z-index:2;
     }
-    .code-highlight{
-      position:absolute;top:0;left:0;right:0;bottom:0;
-      padding:16px;font-family:var(--mono);
-      font-size:0.9rem;line-height:1.7;
-      white-space:pre-wrap;pointer-events:none;z-index:1;
-      overflow:hidden;
+    .code-textarea::selection{background:rgba(10,132,255,0.3)}
+    .code-preview{
+      pointer-events:none;z-index:1;
     }
-    .code-highlight code{background:transparent!important}
-    .empty-state{
-      flex:1;display:flex;align-items:center;justify-content:center;
-      flex-direction:column;color:var(--muted);
+    .code-preview code{background:transparent!important;padding:0!important}
+    .line-numbers{
+      position:absolute;top:16px;left:8px;bottom:16px;
+      width:40px;font-family:var(--mono);font-size:0.78rem;
+      color:var(--secondary);text-align:right;
+      overflow:hidden;z-index:3;pointer-events:none;
+      line-height:1.75;padding-right:8px;
     }
-    .toast-box{
-      position:fixed;bottom:20px;right:20px;z-index:999;
-      display:flex;flex-direction:column;gap:6px;
+    .line-numbers span{display:block}
+
+    .toolbar-row{
+      display:flex;align-items:center;gap:8px;
+      padding:8px 16px;border-top:1px solid var(--border);
+      flex-wrap:wrap;
+    }
+    .lang-picker{
+      background:var(--card);border:1px solid var(--border);
+      color:var(--text);padding:7px 12px;border-radius:8px;
+      font-size:0.8rem;outline:none;cursor:pointer;
+    }
+    .tool-btn{
+      padding:8px 14px;border-radius:20px;
+      border:1px solid var(--border);
+      background:var(--card);color:var(--text);
+      font-size:0.8rem;font-weight:500;cursor:pointer;
+      display:flex;align-items:center;gap:5px;
+      transition:all 0.2s;
+    }
+    .tool-btn:active{transform:scale(0.95)}
+    .tool-btn.copy{color:var(--green);border-color:rgba(48,209,88,0.3)}
+    .tool-btn.copy:active{background:rgba(48,209,88,0.1)}
+    .tool-btn.copy.copied{background:rgba(48,209,88,0.2);border-color:var(--green)}
+    .tool-btn.save{background:var(--accent);color:#fff;border-color:var(--accent)}
+    .tool-btn.save:active{background:var(--accent2)}
+    .tool-btn.delete{color:var(--red);border-color:rgba(255,69,58,0.3)}
+    .tool-btn svg{width:16px;height:16px}
+
+    .status-bar{
+      padding:6px 20px;display:flex;justify-content:space-between;
+      font-size:0.7rem;color:var(--secondary);font-family:var(--mono);
+    }
+
+    .toast-panel{
+      position:fixed;top:16px;left:50%;transform:translateX(-50%);
+      z-index:200;display:flex;flex-direction:column;gap:6px;
+      pointer-events:none;
     }
     .toast{
-      background:#111;border:1px solid var(--green);
-      color:var(--green);padding:10px 18px;
-      border-radius:8px;font-weight:600;
-      animation:slideUp 0.3s;
+      background:var(--card);border:1px solid var(--border);
+      padding:10px 20px;border-radius:20px;
+      font-weight:500;font-size:0.85rem;
+      box-shadow:var(--shadow);text-align:center;
+      animation:toastIn 0.4s ease;
+      pointer-events:auto;
     }
-    @keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-    .toggle-sidebar-mobile{
-      display:none;position:fixed;top:10px;left:10px;
-      z-index:60;background:var(--surface);border:1px solid var(--border);
-      width:38px;height:38px;border-radius:8px;align-items:center;justify-content:center;
+    @keyframes toastIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
+
+    /* swipe hint */
+    .swipe-hint{
+      position:absolute;left:8px;top:50%;transform:translateY(-50%);
+      color:var(--accent);font-size:1.2rem;opacity:0;
+      animation:hintPulse 2s ease-out;
+      pointer-events:none;z-index:5;
     }
-    @media(max-width:700px){
-      .sidebar{position:fixed;z-index:50;height:100dvh;width:280px;min-width:280px}
-      .sidebar.collapsed{width:0;min-width:0}
-      .toggle-sidebar-mobile{display:flex}
-      .toolbar{padding:10px 12px}
+    @keyframes hintPulse{
+      0%{opacity:0.8;transform:translateY(-50%) translateX(0)}
+      100%{opacity:0;transform:translateY(-50%) translateX(20px)}
+    }
+
+    @media(min-width:769px){
+      .sheet{position:relative;transform:none;z-index:1}
+      .sheet-overlay{display:none}
+      .menu-btn{display:none}
     }
   </style>
 </head>
 <body>
-<button class="toggle-sidebar-mobile" id="toggleSidebarMobile">☰</button>
-<div class="sidebar" id="sidebar">
-  <div class="sidebar-head">
-    <a href="index.html" class="back-link">← Dashboard</a>
-    <button class="collapse-btn" id="collapseBtn" title="collapse sidebar">◁</button>
+
+<!-- ===== SHEET ===== -->
+<div class="sheet-overlay" id="sheetOverlay"></div>
+<aside class="sheet" id="sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <span class="sheet-title">Notes</span>
+    <button class="sheet-new-btn" id="sheetNewBtn">+</button>
   </div>
-  <button class="new-btn" id="newNoteBtn">+ New Note</button>
-  <div class="notes-list" id="notesList"></div>
-  <div style="padding:12px;border-top:1px solid var(--border);font-size:0.7rem;color:var(--muted);text-align:center">
+  <div class="sheet-list" id="sheetList"></div>
+  <div class="sheet-footer">
+    <a href="index.html" class="sheet-back-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      Dashboard
+    </a>
     <span id="noteCount">0 notes</span>
   </div>
-</div>
+</aside>
 
+<!-- ===== MAIN ===== -->
 <main class="main">
-  <div class="toolbar">
-    <input type="text" class="title-input" id="editorTitle" placeholder="Untitled note">
-    <select class="lang-select" id="editorLang">
+  <div class="navbar">
+    <button class="menu-btn" id="menuBtn">☰</button>
+    <input type="text" class="nav-title-input" id="noteTitle" placeholder="Note title">
+  </div>
+
+  <div class="editor-container">
+    <div class="empty-view" id="emptyView">
+      <div class="empty-view-icon">📄</div>
+      <p>Select or create a note</p>
+    </div>
+
+    <div class="code-stage" id="codeStage" style="display:none">
+      <div class="line-numbers" id="lineNums">1</div>
+      <textarea class="code-layer code-textarea" id="codeTextarea" placeholder="Write code…" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
+      <pre class="code-layer code-preview"><code class="hljs" id="codeHighlight"></code></pre>
+      <div class="swipe-hint" id="swipeHint">←</div>
+    </div>
+  </div>
+
+  <div class="toolbar-row">
+    <select class="lang-picker" id="langPicker">
       <option value="html">HTML</option>
       <option value="css">CSS</option>
       <option value="javascript">JavaScript</option>
       <option value="jsx">React JSX</option>
+      <option value="typescript">TypeScript</option>
       <option value="python">Python</option>
       <option value="sql">SQL</option>
       <option value="json">JSON</option>
       <option value="bash">Bash</option>
       <option value="plaintext">Plain Text</option>
     </select>
-    <button class="btn-action btn-copy" id="copyBtn">Copy Code</button>
-    <button class="btn-action btn-save" id="saveBtn">Save</button>
+    <button class="tool-btn copy" id="copyBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+      Copy
+    </button>
+    <button class="tool-btn delete" id="deleteBtn" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+    </button>
+    <button class="tool-btn save" id="saveBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+      Save
+    </button>
   </div>
-  <div class="editor-area" id="editorArea">
-    <div class="empty-state" id="emptyState">
-      <p>← Select or create a note</p>
-    </div>
-    <div class="code-mirror" id="codeMirror" style="display:none">
-      <textarea class="code-text" id="codeTextarea" placeholder="// write code..." spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
-      <div class="code-highlight"><pre><code class="hljs" id="codeHighlight"></code></pre></div>
-    </div>
+
+  <div class="status-bar">
+    <span id="lineCount">Ln 1</span>
+    <span id="charCount">0 chars</span>
   </div>
 </main>
-<div class="toast-box" id="toastBox"></div>
+
+<div class="toast-panel" id="toastPanel"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script>
 (function(){
-  const STORE = 'dp_notes_v4';
-  const $ = id => document.getElementById(id);
+  const STORE = 'dpn_v5';
   let notes = JSON.parse(localStorage.getItem(STORE)||'[]');
   let currentId = null;
-  let saveTimer = null;
+  let autoTimer = null;
 
-  const save = () => localStorage.setItem(STORE, JSON.stringify(notes));
+  const $ = id => document.getElementById(id);
+  const sheet = $('sheet');
+  const overlay = $('sheetOverlay');
 
-  function renderList(){
-    let html = '';
-    notes.sort((a,b)=>b.updated - a.updated).forEach(n=>{
-      const active = n.id===currentId?' active':'';
-      html += `<div class="note-pill${active}" data-id="${n.id}">
-        <span class="note-pill-delete" data-del="${n.id}">✕</span>
-        <div class="note-pill-title">${esc(n.title||'Untitled')}</div>
-        <div class="note-pill-lang">${n.lang||'text'}</div>
-      </div>`;
-    });
-    $('notesList').innerHTML = html || '<div style="padding:20px;color:var(--muted);text-align:center">No notes yet</div>';
+  function persist(){localStorage.setItem(STORE,JSON.stringify(notes))}
+
+  // ===== SHEET RENDER =====
+  function renderSheet(){
+    const sorted = [...notes].sort((a,b)=>b.updated-a.updated);
+    $('sheetList').innerHTML = sorted.map(n=>`
+      <div class="note-card${n.id===currentId?' selected':''}" data-id="${n.id}">
+        <div class="note-card-title">${esc(n.title||'Untitled')}</div>
+        <div class="note-card-meta">
+          <span class="note-card-lang">${n.lang||'txt'}</span>
+          <span class="note-card-date">${fmt(n.updated)}</span>
+        </div>
+        <button class="note-card-delete" data-del="${n.id}">✕</button>
+      </div>
+    `).join('') || '<div style="padding:30px;color:var(--secondary);text-align:center">Empty</div>';
     $('noteCount').textContent = notes.length+' note'+(notes.length!==1?'s':'');
-    document.querySelectorAll('.note-pill').forEach(el=>{
-      el.addEventListener('click',e=>{
-        if(e.target.closest('[data-del]')) return;
-        openNote(el.dataset.id);
+
+    $('sheetList').querySelectorAll('.note-card').forEach(card=>{
+      card.addEventListener('click',e=>{
+        if(e.target.closest('[data-del]'))return;
+        openNote(card.dataset.id);
+        closeSheet();
       });
     });
-    document.querySelectorAll('[data-del]').forEach(btn=>{
+    $('sheetList').querySelectorAll('[data-del]').forEach(btn=>{
       btn.addEventListener('click',e=>{
         e.stopPropagation();
-        if(confirm('Delete note?')) deleteNote(btn.dataset.del);
+        if(confirm('Delete this note?')) removeNote(btn.dataset.del);
       });
     });
   }
 
+  // ===== SHEET TOGGLE =====
+  function openSheet(){sheet.classList.add('show');overlay.classList.add('show')}
+  function closeSheet(){sheet.classList.remove('show');overlay.classList.remove('show')}
+
+  // ===== NOTE OPS =====
   function openNote(id){
     saveCurrent(true);
     const note = notes.find(n=>n.id===id);
     if(!note)return;
     currentId=id;
-    $('editorTitle').value=note.title||'';
+    $('noteTitle').value=note.title||'';
     $('codeTextarea').value=note.content||'';
-    $('editorLang').value=note.lang||'plaintext';
-    $('emptyState').style.display='none';
-    $('codeMirror').style.display='flex';
-    highlight();
-    renderList();
+    $('langPicker').value=note.lang||'plaintext';
+    $('emptyView').style.display='none';
+    $('codeStage').style.display='flex';
+    $('deleteBtn').style.display='flex';
+    refreshHighlight();
+    updateStats();
+    renderSheet();
   }
 
   function newNote(){
     saveCurrent(true);
-    const note = {
-      id: Date.now().toString(36)+Math.random().toString(36).substr(2,7),
-      title:'', content:'', lang:'html', updated: Date.now()
+    const note={
+      id:Date.now().toString(36)+Math.random().toString(36).substr(2,7),
+      title:'',content:'',lang:'html',updated:Date.now()
     };
-    notes.unshift(note);
-    save();
+    notes.unshift(note);persist();
     openNote(note.id);
-    toast('✨ New note');
+    toast('+ New note');
   }
 
-  function deleteNote(id){
-    notes=notes.filter(n=>n.id!==id);
-    save();
+  function removeNote(id){
+    notes=notes.filter(n=>n.id!==id);persist();
     if(currentId===id){currentId=null;clearEditor();}
-    renderList();
-    toast('🗑 Deleted');
+    renderSheet();
+    toast('Deleted');
   }
 
   function clearEditor(){
-    $('editorTitle').value='';
+    $('noteTitle').value='';
     $('codeTextarea').value='';
     $('codeHighlight').textContent='';
     currentId=null;
-    $('emptyState').style.display='flex';
-    $('codeMirror').style.display='none';
+    $('emptyView').style.display='flex';
+    $('codeStage').style.display='none';
+    $('deleteBtn').style.display='none';
+    updateStats();
   }
 
   function saveCurrent(silent){
     if(!currentId)return;
     const note=notes.find(n=>n.id===currentId);
     if(!note)return;
-    note.title=$('editorTitle').value.trim();
+    note.title=$('noteTitle').value.trim();
     note.content=$('codeTextarea').value;
-    note.lang=$('editorLang').value;
+    note.lang=$('langPicker').value;
     note.updated=Date.now();
-    save();
-    if(!silent)toast('💾 Saved');
-    renderList();
+    persist();
+    if(!silent)toast('Saved');
+    renderSheet();
   }
 
   function autoSave(){
-    clearTimeout(saveTimer);
-    saveTimer=setTimeout(()=>{if(currentId)saveCurrent(true);},1500);
+    clearTimeout(autoTimer);
+    autoTimer=setTimeout(()=>{if(currentId)saveCurrent(true)},2000);
   }
 
-  function highlight(){
+  // ===== SYNTAX =====
+  function refreshHighlight(){
     const code=$('codeTextarea').value;
-    const lang=$('editorLang').value;
-    let out='';
+    const lang=$('langPicker').value;
+    let out;
     try{
-      if(lang==='plaintext')out=esc(code);
-      else out=hljs.highlight(code,{language:lang,ignoreIllegals:true}).value;
+      out=lang==='plaintext'?esc(code):hljs.highlight(code,{language:lang,ignoreIllegals:true}).value;
     }catch(e){out=esc(code)}
     $('codeHighlight').innerHTML=out;
-    $('codeHighlight').parentElement.scrollTop=$('codeTextarea').scrollTop;
+    syncScroll();
+    drawLineNumbers();
   }
 
-  async function copyCode(){
+  function syncScroll(){
+    const pre=$('codeHighlight').parentElement;
+    pre.scrollTop=$('codeTextarea').scrollTop;
+    pre.scrollLeft=$('codeTextarea').scrollLeft;
+  }
+
+  function drawLineNumbers(){
+    const lines=$('codeTextarea').value.split('\n');
+    $('lineNums').innerHTML=lines.map((_,i)=>`<span>${i+1}</span>`).join('');
+    $('lineNums').scrollTop=$('codeTextarea').scrollTop;
+  }
+
+  // ===== COPY =====
+  async function copyAll(){
     const code=$('codeTextarea').value;
     if(!code.trim()){toast('Nothing to copy');return}
     try{
       await navigator.clipboard.writeText(code);
       const btn=$('copyBtn');
       btn.classList.add('copied');
-      btn.textContent='Copied!';
-      setTimeout(()=>{btn.classList.remove('copied');btn.textContent='Copy Code';},2000);
-      toast('📋 Copied');
+      btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+      setTimeout(()=>{
+        btn.classList.remove('copied');
+        btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy';
+      },2000);
+      toast('Copied to clipboard');
     }catch(e){toast('Copy failed')}
   }
 
+  // ===== STATS =====
+  function updateStats(){
+    const code=$('codeTextarea').value;
+    $('charCount').textContent=code.length+' chars';
+    $('lineCount').textContent='Ln '+code.split('\n').length;
+  }
+
+  // ===== HELPERS =====
   function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
-  function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;$('toastBox').appendChild(t);setTimeout(()=>t.remove(),2500)}
+  function fmt(ts){return new Date(ts).toLocaleDateString('en-US',{month:'short',day:'numeric'})}
+  function toast(msg){
+    const t=document.createElement('div');t.className='toast';t.textContent=msg;
+    $('toastPanel').appendChild(t);
+    setTimeout(()=>t.remove(),2200);
+  }
 
-  // events
-  $('newNoteBtn').addEventListener('click',newNote);
+  // ===== EVENTS =====
+  $('sheetNewBtn').addEventListener('click',newNote);
+  $('menuBtn').addEventListener('click',openSheet);
+  overlay.addEventListener('click',closeSheet);
   $('saveBtn').addEventListener('click',()=>saveCurrent());
-  $('copyBtn').addEventListener('click',copyCode);
-  $('editorTitle').addEventListener('input',autoSave);
-  $('codeTextarea').addEventListener('input',()=>{highlight();autoSave();});
-  $('codeTextarea').addEventListener('scroll',()=>{$('codeHighlight').parentElement.scrollTop=$('codeTextarea').scrollTop});
-  $('editorLang').addEventListener('change',()=>{highlight();autoSave()});
+  $('deleteBtn').addEventListener('click',()=>{if(currentId)removeNote(currentId)});
+  $('copyBtn').addEventListener('click',copyAll);
 
-  // sidebar collapse
-  $('collapseBtn').addEventListener('click',()=>{
-    $('sidebar').classList.toggle('collapsed');
-  });
-  // mobile toggle
-  $('toggleSidebarMobile').addEventListener('click',()=>{
-    $('sidebar').classList.toggle('collapsed');
-  });
+  $('noteTitle').addEventListener('input',autoSave);
+  $('langPicker').addEventListener('change',()=>{refreshHighlight();autoSave()});
 
-  document.addEventListener('keydown',e=>{
-    if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();saveCurrent();}
-    if((e.ctrlKey||e.metaKey)&&e.key==='n'){e.preventDefault();newNote();}
+  $('codeTextarea').addEventListener('input',()=>{
+    refreshHighlight();updateStats();autoSave();
   });
+  $('codeTextarea').addEventListener('scroll',()=>{syncScroll();drawLineNumbers()});
 
+  // Tab key
   $('codeTextarea').addEventListener('keydown',e=>{
     if(e.key==='Tab'){
       e.preventDefault();
@@ -382,11 +538,37 @@
       const s=ta.selectionStart;
       ta.value=ta.value.substring(0,s)+'  '+ta.value.substring(ta.selectionEnd);
       ta.selectionStart=ta.selectionEnd=s+2;
-      highlight();
+      refreshHighlight();updateStats();
     }
   });
 
-  renderList();
+  // Shortcuts
+  document.addEventListener('keydown',e=>{
+    if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();saveCurrent()}
+    if((e.ctrlKey||e.metaKey)&&e.key==='n'){e.preventDefault();newNote()}
+    if((e.ctrlKey||e.metaKey)&&e.shiftKey&&e.key==='C'){e.preventDefault();copyAll()}
+  });
+
+  // Swipe hint on mobile
+  let touchStart=0;
+  document.addEventListener('touchstart',e=>{touchStart=e.touches[0].clientX});
+  document.addEventListener('touchend',e=>{
+    const diff=touchStart-e.changedTouches[0].clientX;
+    if(diff<-60&&touchStart<30){openSheet();$('swipeHint').style.display='none'}
+    if(diff>60&&sheet.classList.contains('show'))closeSheet();
+  });
+
+  // Show swipe hint once
+  setTimeout(()=>{
+    if(window.innerWidth<769&&!sheet.classList.contains('show')){
+      $('swipeHint').style.animation='none';
+      $('swipeHint').offsetHeight;
+      $('swipeHint').style.animation='hintPulse 2s ease-out';
+    }
+  },1500);
+
+  // ===== INIT =====
+  renderSheet();
   if(notes.length>0)openNote(notes[0].id);
 })();
 </script>
