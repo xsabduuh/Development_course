@@ -3,9 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>DevPath 180 • Notes Pro</title>
+  <title>DevPath 180 • Notes</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
   <style>
     :root {
@@ -18,12 +16,12 @@
       --accent2: #409cff;
       --green: #30d158;
       --red: #ff453a;
+      --orange: #ff9f0a;
       --radius: 14px;
       --font: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
       --mono: 'SF Mono', 'JetBrains Mono', 'Fira Code', monospace;
-      --shadow: 0 2px 20px rgba(0,0,0,0.5);
     }
-    *{margin:0;padding:0;box-sizing:border-box}
+    * { margin:0; padding:0; box-sizing:border-box; }
     html { height: 100%; overflow: hidden; }
     body {
       font-family: var(--font);
@@ -45,7 +43,29 @@
     /* ── HOME (قائمة الملاحظات) ── */
     .home-view { display: flex; flex-direction: column; flex: 1; padding: 16px; }
     .home-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-    .home-title { font-size: 1.7rem; font-weight: 700; letter-spacing: -0.5px; }
+    /* أيقونة + نص العنوان */
+    .home-title-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .home-title-icon {
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .home-title-icon svg {
+      width: 100%; height: 100%;
+      stroke: var(--accent);
+    }
+    .home-title-text {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, var(--accent), var(--green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
     .home-new-btn {
       width: 42px; height: 42px; border-radius: 50%;
       background: var(--accent); color: #fff; border: none;
@@ -53,143 +73,55 @@
       cursor: pointer; transition: background 0.2s;
     }
     .home-new-btn:hover { background: var(--accent2); }
+    /* rest of home styles unchanged */
     .home-tools { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-    .search-input {
-      flex: 1; min-width: 150px;
-      background: var(--card); border: 1px solid var(--border);
-      color: var(--text); padding: 10px 14px; border-radius: 10px;
-      font-size: 0.9rem; outline: none;
-    }
-    .search-input::placeholder { color: var(--secondary); }
-    .filter-chip {
-      padding: 8px 14px; border-radius: 20px;
-      border: 1px solid var(--border); background: var(--card);
-      color: var(--secondary); cursor: pointer; font-size: 0.8rem;
-      font-weight: 600; white-space: nowrap;
-    }
-    .filter-chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .notes-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 12px;
-    }
-    .note-card-home {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 16px;
-      cursor: pointer; transition: all 0.2s;
-    }
-    .note-card-home:active { background: #222; }
-    .note-card-home .title { font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; }
-    .note-card-home .lang {
-      font-size: 0.65rem; text-transform: uppercase;
-      color: var(--accent); background: rgba(10,132,255,0.15);
-      padding: 2px 8px; border-radius: 4px;
-    }
-    .note-card-home .delete-btn {
-      margin-top: 8px; background: none; border: none;
-      color: var(--secondary); cursor: pointer; font-size: 0.8rem;
-    }
-    .note-card-home .delete-btn:hover { color: var(--red); }
-    .empty-notes {
-      grid-column: 1 / -1; text-align: center;
-      padding: 60px 20px; color: var(--secondary);
-    }
-    .dashboard-link {
-      display: inline-flex; align-items: center; gap: 6px;
-      color: var(--accent); text-decoration: none; font-weight: 500;
-      margin-top: 16px; align-self: flex-start;
-    }
+    .search-input { flex:1; min-width:150px; background:var(--card); border:1px solid var(--border); color:var(--text); padding:10px 14px; border-radius:10px; font-size:0.9rem; outline:none; }
+    .search-input::placeholder{color:var(--secondary)}
+    .filter-chip{ padding:8px 14px; border-radius:20px; border:1px solid var(--border); background:var(--card); color:var(--secondary); cursor:pointer; font-size:0.8rem; font-weight:600; white-space:nowrap; }
+    .filter-chip.active{ background:var(--accent); color:#fff; border-color:var(--accent); }
+    .notes-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px; }
+    .note-card-home{ background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:16px; cursor:pointer; transition:all 0.2s; }
+    .note-card-home:active{ background:#222; }
+    .note-card-home .title{ font-weight:600; font-size:0.9rem; margin-bottom:6px; }
+    .note-card-home .lang{ font-size:0.65rem; text-transform:uppercase; color:var(--accent); background:rgba(10,132,255,0.15); padding:2px 8px; border-radius:4px; }
+    .note-card-home .delete-btn{ margin-top:8px; background:none; border:none; color:var(--secondary); cursor:pointer; font-size:0.8rem; }
+    .note-card-home .delete-btn:hover{ color:var(--red); }
+    .empty-notes{ grid-column:1/-1; text-align:center; padding:60px 20px; color:var(--secondary); }
+    .dashboard-link{ display:inline-flex; align-items:center; gap:6px; color:var(--accent); text-decoration:none; font-weight:500; margin-top:16px; align-self:flex-start; }
 
     /* ── EDITOR (مشهد المحرر) ── */
-    .editor-view { display: none; flex-direction: column; flex: 1; }
-    .editor-view.active { display: flex; }
-    .navbar {
-      padding: 12px 16px; display: flex; align-items: center;
-      gap: 10px; border-bottom: 1px solid var(--border);
-      min-height: 52px;
-    }
-    .back-btn {
-      background: none; border: none; color: var(--accent);
-      font-size: 1rem; cursor: pointer; display: flex; align-items: center; gap: 4px;
-    }
-    .nav-title-input {
-      flex: 1; background: transparent; border: none;
-      font-size: 1.1rem; font-weight: 600; color: var(--text);
-      outline: none; min-width: 0;
-    }
-    .nav-title-input::placeholder { color: var(--secondary); }
-    .editor-container { flex: 1; display: flex; flex-direction: column; min-height: 0; }
-    .code-stage {
-      flex: 1; position: relative; display: flex; overflow: hidden;
-    }
-    .code-layer {
-      position: absolute; inset: 12px 12px 12px 50px;
-      font-family: var(--mono); font-size: 0.88rem;
-      line-height: 1.75; white-space: pre-wrap;
-      overflow: auto; border: none; outline: none; background: transparent;
-    }
-    .code-textarea {
-      color: transparent; caret-color: var(--accent);
-      resize: none; z-index: 2;
-    }
-    .code-textarea::selection { background: rgba(10,132,255,0.3); }
-    .code-preview { pointer-events: none; z-index: 1; }
-    .code-preview code { background: transparent !important; padding: 0 !important; }
-    .line-numbers {
-      position: absolute; top: 12px; left: 4px; bottom: 12px;
-      width: 40px; font-family: var(--mono); font-size: 0.78rem;
-      color: var(--secondary); text-align: right;
-      overflow: hidden; z-index: 3; pointer-events: none;
-      line-height: 1.75; padding-right: 6px;
-    }
-    .line-numbers span { display: block; }
-    .bottom-toolbar {
-      display: flex; align-items: center; gap: 8px;
-      padding: 10px 14px; border-top: 1px solid var(--border);
-      background: var(--bg); flex-wrap: wrap;
-    }
-    .lang-picker {
-      background: var(--card); border: 1px solid var(--border);
-      color: var(--text); padding: 7px 12px; border-radius: 20px;
-      font-size: 0.8rem; outline: none; cursor: pointer;
-    }
-    .tool-btn {
-      padding: 8px 14px; border-radius: 20px;
-      border: 1px solid var(--border); background: var(--card);
-      color: var(--text); font-size: 0.8rem; font-weight: 500;
-      cursor: pointer; display: flex; align-items: center; gap: 5px;
-      transition: all 0.2s;
-    }
-    .tool-btn:active { transform: scale(0.95); }
-    .tool-btn.copy { color: var(--green); border-color: rgba(48,209,88,0.3); }
-    .tool-btn.copy.copied { background: rgba(48,209,88,0.2); border-color: var(--green); }
-    .tool-btn.save { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .tool-btn.save:active { background: var(--accent2); }
-    .tool-btn.delete { color: var(--red); border-color: rgba(255,69,58,0.3); }
-    .tool-btn svg { width: 16px; height: 16px; }
-    .status-bar {
-      padding: 4px 16px; display: flex; justify-content: space-between;
-      font-size: 0.7rem; color: var(--secondary); font-family: var(--mono);
-    }
+    .editor-view{ display:none; flex-direction:column; flex:1; }
+    .editor-view.active{ display:flex; }
+    .navbar{ padding:12px 16px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--border); min-height:52px; }
+    .back-btn{ background:none; border:none; color:var(--accent); font-size:1rem; cursor:pointer; display:flex; align-items:center; gap:4px; }
+    .nav-title-input{ flex:1; background:transparent; border:none; font-size:1.1rem; font-weight:600; color:var(--text); outline:none; min-width:0; }
+    .nav-title-input::placeholder{ color:var(--secondary); }
+    .editor-container{ flex:1; display:flex; flex-direction:column; min-height:0; }
+    .code-stage{ flex:1; position:relative; display:flex; overflow:hidden; }
+    .code-layer{ position:absolute; inset:12px 12px 12px 50px; font-family:var(--mono); font-size:0.88rem; line-height:1.75; white-space:pre-wrap; overflow:auto; border:none; outline:none; background:transparent; }
+    .code-textarea{ color:transparent; caret-color:var(--accent); resize:none; z-index:2; }
+    .code-textarea::selection{ background:rgba(10,132,255,0.3); }
+    .code-preview{ pointer-events:none; z-index:1; }
+    .code-preview code{ background:transparent!important; padding:0!important; }
+    .line-numbers{ position:absolute; top:12px; left:4px; bottom:12px; width:40px; font-family:var(--mono); font-size:0.78rem; color:var(--secondary); text-align:right; overflow:hidden; z-index:3; pointer-events:none; line-height:1.75; padding-right:6px; }
+    .line-numbers span{ display:block; }
+    .bottom-toolbar{ display:flex; align-items:center; gap:8px; padding:10px 14px; border-top:1px solid var(--border); background:var(--bg); flex-wrap:wrap; }
+    .lang-picker{ background:var(--card); border:1px solid var(--border); color:var(--text); padding:7px 12px; border-radius:20px; font-size:0.8rem; outline:none; cursor:pointer; }
+    .tool-btn{ padding:8px 14px; border-radius:20px; border:1px solid var(--border); background:var(--card); color:var(--text); font-size:0.8rem; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:5px; transition:all 0.2s; }
+    .tool-btn:active{ transform:scale(0.95); }
+    .tool-btn.copy{ color:var(--green); border-color:rgba(48,209,88,0.3); }
+    .tool-btn.copy.copied{ background:rgba(48,209,88,0.2); border-color:var(--green); }
+    .tool-btn.save{ background:var(--accent); color:#fff; border-color:var(--accent); }
+    .tool-btn.save:active{ background:var(--accent2); }
+    .tool-btn.delete{ color:var(--red); border-color:rgba(255,69,58,0.4); }
+    .tool-btn svg{ width:16px; height:16px; }
+    .status-bar{ padding:4px 16px; display:flex; justify-content:space-between; font-size:0.7rem; color:var(--secondary); font-family:var(--mono); }
 
-    /* Toast */
-    .toast-panel {
-      position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
-      z-index: 200; display: flex; flex-direction: column; gap: 6px;
-      pointer-events: none;
-    }
-    .toast {
-      background: var(--card); border: 1px solid var(--border);
-      padding: 10px 20px; border-radius: 20px;
-      font-weight: 500; font-size: 0.85rem;
-      box-shadow: var(--shadow); text-align: center;
-      animation: toastIn 0.4s ease; pointer-events: auto;
-    }
-    @keyframes toastIn { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: none; } }
+    .toast-panel{ position:fixed; top:16px; left:50%; transform:translateX(-50%); z-index:200; display:flex; flex-direction:column; gap:6px; pointer-events:none; }
+    .toast{ background:var(--card); border:1px solid var(--border); padding:10px 20px; border-radius:20px; font-weight:500; font-size:0.85rem; box-shadow:0 2px 20px rgba(0,0,0,0.5); text-align:center; animation:toastIn 0.4s ease; pointer-events:auto; }
+    @keyframes toastIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
 
-    @media (max-width: 480px) {
-      .notes-grid { grid-template-columns: 1fr; }
-    }
+    @media(max-width:480px){ .notes-grid{ grid-template-columns:1fr; } }
   </style>
 </head>
 <body>
@@ -197,7 +129,19 @@
   <!-- ════ HOME VIEW ════ -->
   <div class="home-view" id="homeView">
     <div class="home-header">
-      <span class="home-title">📝 Notes</span>
+      <div class="home-title-wrapper">
+        <!-- أيقونة SVG لدفتر الملاحظات -->
+        <span class="home-title-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+            <polyline points="10 9 9 9 8 9"/>
+          </svg>
+        </span>
+        <span class="home-title-text">Notes</span>
+      </div>
       <button class="home-new-btn" id="homeNewBtn">+</button>
     </div>
     <div class="home-tools">
@@ -268,7 +212,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script>
 (function(){
-  const STORE = 'dpn_v9';
+  const STORE = 'dpn_v10';
   let notes = JSON.parse(localStorage.getItem(STORE)||'[]');
   let currentId = null;
   let filterLang = 'all';
@@ -457,7 +401,6 @@
   });
 
   $('noteTitle').addEventListener('input', () => {
-    // auto-save on title change
     if (currentId) {
       const note = notes.find(n => n.id === currentId);
       if (note) { note.title = $('noteTitle').value.trim(); note.updated = Date.now(); persist(); }
