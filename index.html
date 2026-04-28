@@ -57,15 +57,8 @@
       font-size: 1.2rem;
       color: var(--neon);
     }
-    .logo-icon {
-      width: 28px;
-      height: 28px;
-    }
-    .top-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+    .logo-icon { width: 28px; height: 28px; }
+    .top-actions { display: flex; align-items: center; gap: 8px; }
     .lang-btn {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -212,13 +205,14 @@
       background: var(--surface); border: 1px solid var(--neon);
       color: var(--neon); padding: 12px 20px; border-radius: 10px; z-index: 100;
     }
+    .modal-content { direction: rtl; text-align: right; }
+    body[dir="ltr"] .modal-content { direction: ltr; text-align: left; }
   </style>
 </head>
 <body>
 <div class="app-container" id="app">
   <div class="top-bar">
     <div class="logo">
-      <!-- أيقونة المسار -->
       <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="4 17 10 11 4 5"></polyline>
         <line x1="8" y1="11" x2="20" y2="11"></line>
@@ -270,7 +264,7 @@
   <div id="sectionsContainer"></div>
 
   <div class="modal-overlay" id="modalOverlay">
-    <div class="modal" id="modalContent"></div>
+    <div class="modal modal-content" id="modalContent"></div>
   </div>
 </div>
 
@@ -283,7 +277,6 @@
     'Database','DB Integration','Full Stack','Full Project','Deployment'
   ];
 
-  // أيقونات SVG لكل قسم
   const SECTION_ICONS = {
     'HTML': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`,
     'CSS': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>`,
@@ -303,7 +296,6 @@
     'Deployment': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>`
   };
 
-  // أيقونات الإحصائيات
   const STAT_ICONS = {
     current: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>`,
     done: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>`,
@@ -311,189 +303,187 @@
     projects: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0016.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 002 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>`
   };
 
-  // البيانات الكاملة (موجودة في النسخة السابقة لكننا نعتمد هنا على الاختصار بسبب التكرار)
   const ROADMAP = [
-    // (هنا نضع نفس مصفوفة الـ 180 عنصر كما في الرد السابق، مختصرة للسهولة)
-    {d:1,t:'مقدمة إلى تطوير الويب',s:'HTML',type:'learning',desc:'فهم كيفية عمل الويب: العملاء، الخوادم، HTTP، المتصفحات. إعداد بيئة التطوير باستخدام VS Code والملحقات.'},
-    {d:2,t:'هيكل مستند HTML',s:'HTML',type:'learning',desc:'تعلم DOCTYPE, html, head, body، الوسوم الوصفية وربط ملفات CSS و JS.'},
-    {d:3,t:'العناصر النصية والعناوين',s:'HTML',type:'learning',desc:'إتقان h1–h6, p, span, br, hr, strong, em, mark, small, code.'},
-    {d:4,t:'الروابط والصور',s:'HTML',type:'learning',desc:'إنشاء ارتباطات تشعبية، img مع src/alt، المسارات المطلقة والنسبية، تنسيقات الصور.'},
-    {d:5,t:'القوائم والجداول',s:'HTML',type:'learning',desc:'بناء ul/ol/li, قوائم متداخلة, table مع thead/tbody/tr/th/td, colspan/rowspan.'},
-    {d:6,t:'النماذج وعناصر الإدخال',s:'HTML',type:'learning',desc:'إنشاء form مع أنواع الإدخال, textarea, select, radio, checkbox, button, submit.'},
-    {d:7,t:'HTML الدلالي',s:'HTML',type:'learning',desc:'استخدام header, nav, main, article, section, aside, footer لتحسين SEO والوصول.'},
-    {d:8,t:'ميزات HTML5',s:'HTML',type:'learning',desc:'audio, video, canvas, details/summary, progress, datalist, template.'},
-    {d:9,t:'أساسيات الوصول',s:'HTML',type:'learning',desc:'تسميات ARIA, النص البديل, tabindex, سمات الدور, تخطي التنقل.'},
-    {d:10,t:'مشروع: صفحة HTML شخصية',s:'HTML',type:'project',desc:'بناء صفحة شخصية كاملة باستخدام HTML الدلالي فقط.'},
-    {d:11,t:'تركيب CSS والمحددات',s:'CSS',type:'learning',desc:'الخصائص، القيم، القواعد، محددات class/id/element، التحيدات، التخصصية.'},
-    {d:12,t:'الألوان والخلفيات',s:'CSS',type:'learning',desc:'تنسيقات hex/rgb/hsl، التدرجات، background-image/size/position، خلفيات متعددة.'},
-    {d:13,t:'نموذج الصندوق',s:'CSS',type:'learning',desc:'Margin, border, padding, content، box-sizing: border-box مقابل content-box.'},
-    {d:14,t:'الخطوط والطباعة',s:'CSS',type:'learning',desc:'font-family، الحجم، الوزن، ارتفاع السطر، تباعد الأحرف، خطوط Google.'},
-    {d:15,t:'العرض والموضع',s:'CSS',type:'learning',desc:'block/inline/inline-block/none، static/relative/absolute/fixed/sticky، z-index.'},
-    {d:16,t:'أساسيات Flexbox',s:'CSS',type:'learning',desc:'display:flex، flex-direction، justify-content، align-items، flex-wrap، gap.'},
-    {d:17,t:'Flexbox متقدم',s:'CSS',type:'learning',desc:'flex-grow/shrink/basis، align-self، order، حاويات flex متداخلة.'},
-    {d:18,t:'أساسيات CSS Grid',s:'CSS',type:'learning',desc:'display:grid، grid-template-columns/rows، gap، grid-column و grid-row.'},
-    {d:19,t:'CSS Grid متقدم',s:'CSS',type:'learning',desc:'مناطق الشبكة المسماة، auto-fit/auto-fill، minmax()، دمج Grid و Flexbox.'},
-    {d:20,t:'التصميم المتجاوب',s:'CSS',type:'learning',desc:'استعلامات الوسائط، mobile-first، نقاط التوقف، vw/vh، em/rem، تخطيطات سائلة.'},
-    {d:21,t:'الانتقالات والحركات',s:'CSS',type:'learning',desc:'transition، @keyframes، animation، دوال التوقيت، تأثيرات سلسة.'},
-    {d:22,t:'متغيرات CSS',s:'CSS',type:'learning',desc:'خصائص مخصصة مع --، نطاق :root، الوراثة، السمات الديناميكية.'},
-    {d:23,t:'الفئات والعناصر الزائفة',s:'CSS',type:'learning',desc:':hover, :focus, :nth-child(), ::before, ::after, تلميحات، واجهة مخصصة.'},
-    {d:24,t:'أفضل ممارسات CSS',s:'CSS',type:'learning',desc:'تسمية BEM، تنظيم الأنماط، إدارة التخصصية، إعادة تعيين CSS، الأداء.'},
-    {d:25,t:'مشروع: صفحة هبوط متجاوبة',s:'CSS',type:'project',desc:'بناء صفحة هبوط متجاوبة بالكامل مع قسم رئيسي ومميزات وأسعار.'},
-    {d:26,t:'مقدمة JavaScript',s:'JavaScript Basics',type:'learning',desc:'ما هي JS، كيفية تضمينها، وحدة تحكم المتصفح، console.log، وسم script.'},
-    {d:27,t:'المتغيرات وأنواع البيانات',s:'JavaScript Basics',type:'learning',desc:'var/let/const، string/number/boolean/null/undefined/symbol، تحويل الأنواع.'},
-    {d:28,t:'المعاملات والتعابير',s:'JavaScript Basics',type:'learning',desc:'حسابية، إسناد، مقارنة، منطقية، ثلاثية، أولويات المعاملات.'},
-    {d:29,t:'الشروط',s:'JavaScript Basics',type:'learning',desc:'if/else if/else، switch، قيم truthy/falsy، تقييم الدائرة القصيرة.'},
-    {d:30,t:'الحلقات',s:'JavaScript Basics',type:'learning',desc:'for, while, do...while, for...of, for...in, break و continue.'},
-    {d:31,t:'أساسيات الدوال',s:'JavaScript Basics',type:'learning',desc:'إعلان، استدعاء، معاملات، وسائط، قيم إرجاع، إعلانات مقابل تعبيرات.'},
-    {d:32,t:'الدوال المتقدمة',s:'JavaScript Basics',type:'learning',desc:'معاملات افتراضية، rest، callbacks، دوال الرتبة الأعلى، مقدمة في النطاق.'},
-    {d:33,t:'أساسيات المصفوفات',s:'JavaScript Basics',type:'learning',desc:'إنشاء، وصول، .length، push/pop، shift/unshift، splice، slice.'},
-    {d:34,t:'طرق المصفوفات',s:'JavaScript Basics',type:'learning',desc:'.map(), .filter(), .reduce(), .forEach(), .find(), .some(), .every().'},
-    {d:35,t:'أساسيات الكائنات',s:'JavaScript Basics',type:'learning',desc:'إنشاء كائنات، ترميز نقطي/أقواس، إضافة/تحديث/حذف، كائنات متداخلة.'},
-    {d:36,t:'طرق الكائن و this',s:'JavaScript Basics',type:'learning',desc:'this، Object.keys/values/entries، spread، تفكيك الكائنات.'},
-    {d:37,t:'معالجة DOM',s:'JavaScript Basics',type:'learning',desc:'querySelector، querySelectorAll، textContent/innerHTML، classList، style.'},
-    {d:38,t:'أحداث DOM',s:'Practice',type:'learning',desc:'click, submit, input, change, addEventListener، كائن الحدث، الفقاعات، التفويض.'},
-    {d:39,t:'التحقق من النماذج',s:'Practice',type:'learning',desc:'التحقق من المدخلات، فحوصات فارغة، تعبير نمطي للبريد الإلكتروني، رسائل خطأ مخصصة.'},
-    {d:40,t:'التخزين المحلي',s:'Practice',type:'learning',desc:'setItem/getItem/removeItem، JSON.stringify/parse للكائنات.'},
-    {d:41,t:'بناء تطبيق عداد',s:'Practice',type:'learning',desc:'زيادة، نقصان، إعادة تعيين عداد مع تحديثات DOM.'},
-    {d:42,t:'بناء قائمة مهام',s:'Practice',type:'learning',desc:'إضافة/إكمال/حذف مهام، استمرارية localStorage، CRUD كامل.'},
-    {d:43,t:'بناء تطبيق اختبار',s:'Practice',type:'learning',desc:'اختيار متعدد، تتبع النتيجة، عرض النتائج، إعادة المحاولة.'},
-    {d:44,t:'بناء آلة حاسبة',s:'Practice',type:'learning',desc:'عمليات حسابية، معالجة العلامة العشرية، مسح، عمليات متسلسلة.'},
-    {d:45,t:'مشروع: تطبيق ويب تفاعلي',s:'Practice',type:'project',desc:'دمج المهارات في تطبيق كامل (متتبع نفقات، متتبع عادات).'},
-    {d:46,t:'نظرة عامة على ES6+',s:'Advanced JS',type:'learning',desc:'let/const، دوال السهم، قوالب النص، التفكيك، spread/rest، وحدات ES.'},
-    {d:47,t:'دوال السهم والنطاق',s:'Advanced JS',type:'learning',desc:'صياغة السهم، الإرجاع الضمني، lexical this، سلسلة النطاق.'},
-    {d:48,t:'قوالب النص',s:'Advanced JS',type:'learning',desc:'سلاسل backtick، ${}، سلاسل متعددة الأسطر، قوالب موسومة.'},
-    {d:49,t:'التفكيك و Spread',s:'Advanced JS',type:'learning',desc:'تفكيك المصفوفات/الكائنات، spread (...)، معاملات rest.'},
-    {d:50,t:'الوعود و Async/Await',s:'Advanced JS',type:'learning',desc:'JS غير متزامن، سلسلة الوعود، .then/.catch، صياغة async/await.'},
-    {d:51,t:'Fetch API',s:'Advanced JS',type:'learning',desc:'fetch() للطلبات، GET/POST، تحليل JSON، معالجة الأخطاء.'},
-    {d:52,t:'معالجة الأخطاء',s:'Advanced JS',type:'learning',desc:'try...catch...finally، أخطاء مخصصة، برمجة دفاعية.'},
-    {d:53,t:'الإغلاقات بعمق',s:'Advanced JS',type:'learning',desc:'بيئة معجمية، حالات استخدام الإغلاق، خصوصية البيانات، memoization.'},
-    {d:54,t:'النماذج الأولية والفئات',s:'Advanced JS',type:'learning',desc:'وراثة النماذج الأولية، صياغة class، constructor، extends، super.'},
-    {d:55,t:'وحدات ES',s:'Advanced JS',type:'learning',desc:'وحدات ES، تصدير/استيراد مسمى وافتراضي، نطاق الوحدة.'},
-    {d:56,t:'تطبيق الطقس',s:'Mini Apps',type:'learning',desc:'بناء تطبيق طقس باستخدام API عام، درجة الحرارة، الحالة، التوقعات.'},
-    {d:57,t:'الباحث عن الوصفات',s:'Mini Apps',type:'learning',desc:'تطبيق بحث وصفات مع API، مكونات، تعليمات، صور.'},
-    {d:58,t:'متتبع النفقات',s:'Mini Apps',type:'learning',desc:'نظام دخل/مصروفات، رصيد جارٍ، فئات، استمرارية localStorage.'},
-    {d:59,t:'مؤقت بومودورو',s:'Mini Apps',type:'learning',desc:'فترات عمل/استراحة، إشعارات، تتبع الجلسات.'},
-    {d:60,t:'تطبيق ملاحظات',s:'Mini Apps',type:'learning',desc:'إنشاء، تعديل، حذف، بحث عن ملاحظات، localStorage، markdown.'},
-    {d:61,t:'معرض صور',s:'Mini Apps',type:'learning',desc:'معرض متجاوب، lightbox، تحميل كسول، تخطيط شبكي.'},
-    {d:62,t:'واجهة مشغل موسيقى',s:'Mini Apps',type:'learning',desc:'تشغيل/إيقاف، شريط تقدم، مستوى صوت، قائمة تشغيل، HTML5 Audio.'},
-    {d:63,t:'واجهة محادثة',s:'Mini Apps',type:'learning',desc:'فقاعات رسائل، إدخال، مؤشر كتابة، تمرير تلقائي.'},
-    {d:64,t:'لوحة تحكم',s:'Mini Apps',type:'learning',desc:'لوحة إدارة، شريط جانبي، بطاقات إحصائيات، رسوم بيانية، جدول بيانات.'},
-    {d:65,t:'مشروع: مجموعة تطبيقات مصغرة',s:'Mini Apps',type:'project',desc:'دمج تطبيقين مصغرين أو أكثر في مشروع واحد متماسك.'},
-    {d:66,t:'أساسيات Git',s:'Tools + Git',type:'learning',desc:'تثبيت Git، init، منطقة التجهيز، git status، إعداد التكوين.'},
-    {d:67,t:'أوامر Git',s:'Tools + Git',type:'learning',desc:'add, commit, log, diff, branch, checkout, merge, stash.'},
-    {d:68,t:'GitHub والمستودعات البعيدة',s:'Tools + Git',type:'learning',desc:'مستودعات GitHub، push/pull/clone/fetch، طلبات السحب.'},
-    {d:69,t:'ملحقات VS Code',s:'Tools + Git',type:'learning',desc:'Prettier, ESLint, Live Server, GitLens، اختصارات، إعدادات.'},
-    {d:70,t:'الطرفية وأدوات CLI',s:'Tools + Git',type:'learning',desc:'أوامر الصدفة، عمليات الملفات، npm/yarn، أدوات CLI.'},
-    {d:71,t:'مقدمة React',s:'React',type:'learning',desc:'ما هي React، إعداد Vite، هيكل المشروع، node_modules.'},
-    {d:72,t:'JSX والمكونات',s:'React',type:'learning',desc:'قواعد JSX، مكونات وظيفية، تداخل، fragments.'},
-    {d:73,t:'Props و PropTypes',s:'React',type:'learning',desc:'تمرير البيانات، تفكيك props، قيم افتراضية، التحقق.'},
-    {d:74,t:'الحالة و useState',s:'React',type:'learning',desc:'useState hook، تحديث الحالة، التجميع، رفع الحالة.'},
-    {d:75,t:'معالجة الأحداث',s:'React',type:'learning',desc:'onClick, onChange, onSubmit، وسائط الحدث، preventDefault.'},
-    {d:76,t:'العرض الشرطي',s:'React',type:'learning',desc:'أنماط ثلاثية، &&، حالات تحميل/خطأ/فارغة.'},
-    {d:77,t:'القوائم والمفاتيح',s:'React',type:'learning',desc:'.map() للقوائم، خاصية key الفريدة، إعادة التسوية.'},
-    {d:78,t:'النماذج في React',s:'React',type:'learning',desc:'محكومة مقابل غير محكومة، حالة النموذج، التحقق.'},
-    {d:79,t:'useEffect Hook',s:'React',type:'learning',desc:'الآثار الجانبية، مصفوفة التبعيات، التنظيف، جلب البيانات.'},
-    {d:80,t:'useContext والخطافات المخصصة',s:'React',type:'learning',desc:'createContext/useContext، بناء خطافات مخصصة.'},
-    {d:81,t:'React Router',s:'React',type:'learning',desc:'BrowserRouter, Routes, Route, Link, NavLink، معاملات URL.'},
-    {d:82,t:'إدارة الحالة',s:'React',type:'learning',desc:'حدود Context API، Redux/Zustand/Jotai.'},
-    {d:83,t:'أفضل ممارسات React',s:'React',type:'learning',desc:'هيكل المجلدات، التركيب، React.memo, useMemo, useCallback.'},
-    {d:84,t:'بناء مدونة',s:'React Practice',type:'learning',desc:'قائمة منشورات، عرض فردي، واجهة CMS، React Router.'},
-    {d:85,t:'واجهة متجر إلكتروني',s:'React Practice',type:'learning',desc:'شبكة منتجات، صفحة تفاصيل، عربة تسوق، إتمام الشراء.'},
-    {d:86,t:'واجهة توثيق',s:'React Practice',type:'learning',desc:'تسجيل دخول/حساب، تخزين رمز، مسارات محمية، ملف شخصي.'},
-    {d:87,t:'لوحة تحكم مع رسوم بيانية',s:'React Practice',type:'learning',desc:'لوحة تحليلات، Recharts/Chart.js.'},
-    {d:88,t:'تغذية وسائل التواصل',s:'React Practice',type:'learning',desc:'تمرير لانهائي، بطاقات منشورات، إعجابات/تعليقات.'},
-    {d:89,t:'مكون رفع ملفات',s:'React Practice',type:'learning',desc:'سحب وإفلات، معاينة، شريط تقدم، تحقق من النوع.'},
-    {d:90,t:'نظام بحث وتصفية',s:'React Practice',type:'learning',desc:'بحث مع debouncing، تصفية متعددة، مزامنة حالة URL.'},
-    {d:91,t:'التمرير اللانهائي',s:'React Practice',type:'learning',desc:'Intersection Observer، تحميل دفعات، دوارات تحميل.'},
-    {d:92,t:'تحديثات الوقت الحقيقي',s:'React Practice',type:'learning',desc:'اقتراع، محاكاة WebSocket، واجهة حية.'},
-    {d:93,t:'حركات بصرية',s:'React Practice',type:'learning',desc:'انتقالات صفحات، تأثيرات hover/tap.'},
-    {d:94,t:'اختبار تطبيقات React',s:'React Practice',type:'learning',desc:'Jest، React Testing Library، اختبارات وحدة/تكامل.'},
-    {d:95,t:'تحسين الأداء',s:'React Practice',type:'learning',desc:'تقسيم الكود، React.lazy، Suspense، memoization.'},
-    {d:96,t:'الوصول في React',s:'React Practice',type:'learning',desc:'ARIA، تنقل بلوحة المفاتيح، إدارة التركيز.'},
-    {d:97,t:'تقسيم الكود',s:'React Practice',type:'learning',desc:'تقسيم قائم على المسار، استيراد ديناميكي، حدود Suspense.'},
-    {d:98,t:'تطبيقات الويب التقدمية',s:'React Practice',type:'learning',desc:'Service worker، manifest، دعم غير متصل، تثبيت.'},
-    {d:99,t:'React + TypeScript',s:'React Practice',type:'learning',desc:'كتابة الأنواع للـ props، state، الأحداث، generics.'},
-    {d:100,t:'مشروع: تطبيق React كامل',s:'React Practice',type:'project',desc:'تطبيق SPA كامل مع توجيه، حالة عامة، API، واجهة مصقولة.'},
-    {d:101,t:'مقدمة Node.js',s:'Backend',type:'learning',desc:'بيئة تشغيل Node، حلقة الأحداث، npm، وحدة http، خادم بسيط.'},
-    {d:102,t:'إعداد Express.js',s:'Backend',type:'learning',desc:'تثبيت Express، إنشاء خادم، app.get()، app.listen()، nodemon.'},
-    {d:103,t:'التوجيه والوسائط',s:'Backend',type:'learning',desc:'Express Router، morgan/cors/body-parser، وسائط مخصصة.'},
-    {d:104,t:'الطلب والاستجابة',s:'Backend',type:'learning',desc:'req.params, req.query, req.body، استجابات JSON، رموز الحالة.'},
-    {d:105,t:'تصميم REST API',s:'Backend',type:'learning',desc:'نقاط نهاية RESTful، طرق HTTP، هيكل URL، الاصطلاحات.'},
-    {d:106,t:'التوثيق (JWT)',s:'Backend',type:'learning',desc:'رموز JWT، تجزئة bcrypt، مسارات محمية، تسجيل دخول/حساب.'},
-    {d:107,t:'رفع الملفات',s:'Backend',type:'learning',desc:'Multer، تخزين محلي/سحابي، تحقق، تقديم ملفات.'},
-    {d:108,t:'معالجة الأخطاء',s:'Backend',type:'learning',desc:'وسيط أخطاء عام، مجمع async، تنسيق استجابة متسق.'},
-    {d:109,t:'أفضل ممارسات الأمان',s:'Backend',type:'learning',desc:'XSS, CSRF, SQL injection, helmet, rate limiting, CORS.'},
-    {d:110,t:'اختبار APIs',s:'Backend',type:'learning',desc:'Jest, Supertest، اختبارات وحدة/تكامل، نهج TDD.'},
-    {d:111,t:'مسارات RESTful',s:'API Practice',type:'learning',desc:'مجموعة مسارات كاملة لمورد، اصطلاحات التسمية.'},
-    {d:112,t:'عمليات CRUD',s:'API Practice',type:'learning',desc:'إنشاء/قراءة/تحديث/حذف، حالات حدية، تحقق.'},
-    {d:113,t:'معاملات الاستعلام',s:'API Practice',type:'learning',desc:'تصفية، اختيار حقول، بحث عبر معاملات الاستعلام.'},
-    {d:114,t:'ترقيم الصفحات',s:'API Practice',type:'learning',desc:'Pagination بالإزاحة/المؤشر، بيانات وصفية.'},
-    {d:115,t:'الفرز والتصفية',s:'API Practice',type:'learning',desc:'فرز متعدد المعايير، تصفية ديناميكية.'},
-    {d:116,t:'تحجيم API',s:'API Practice',type:'learning',desc:'تحجيم URL مقابل الرأس، تغييرات فاصلة، إهمال.'},
-    {d:117,t:'تحديد المعدل',s:'API Practice',type:'learning',desc:'express-rate-limit، حماية من الإساءة.'},
-    {d:118,t:'CORS والأمان',s:'API Practice',type:'learning',desc:'تكوين CORS، طلبات preflight، الأصول المسموحة.'},
-    {d:119,t:'توثيق API',s:'API Practice',type:'learning',desc:'Swagger/OpenAPI، توثيق نقاط النهاية.'},
-    {d:120,t:'مقدمة WebSockets',s:'API Practice',type:'learning',desc:'Socket.io، اتصال ثنائي الاتجاه، غرف، أحداث.'},
-    {d:121,t:'Chat API',s:'API Practice',type:'learning',desc:'غرف محادثة، سجل رسائل، مؤشرات حضور.'},
-    {d:122,t:'خدمة البريد الإلكتروني',s:'API Practice',type:'learning',desc:'Nodemailer/SendGrid، إعادة تعيين كلمة المرور.'},
-    {d:123,t:'دمج الدفع',s:'API Practice',type:'learning',desc:'Stripe/PayPal، webhooks، اشتراكات.'},
-    {d:124,t:'API معالجة الصور',s:'API Practice',type:'learning',desc:'Sharp، رفع، تغيير حجم، قص، تحويل.'},
-    {d:125,t:'توليد PDF',s:'API Practice',type:'learning',desc:'Puppeteer أو PDFKit، فواتير، تقارير.'},
-    {d:126,t:'استراتيجيات التخزين المؤقت',s:'API Practice',type:'learning',desc:'Redis، ذاكرة مخبأة، استراتيجيات إبطال.'},
-    {d:127,t:'التسجيل والمراقبة',s:'API Practice',type:'learning',desc:'Winston/Pino، تتبع الأخطاء، فحوصات الصحة.'},
-    {d:128,t:'اختبار Postman',s:'API Practice',type:'learning',desc:'مجموعات، بيئات، نصوص اختبار، Newman CLI.'},
-    {d:129,t:'مقدمة GraphQL',s:'API Practice',type:'learning',desc:'Apollo Server، مخطط، محللات، queries/mutations.'},
-    {d:130,t:'مشروع: REST API كامل',s:'API Practice',type:'project',desc:'API إنتاجي مع توثيق، CRUD، pagination.'},
-    {d:131,t:'مفاهيم قواعد البيانات',s:'Database',type:'learning',desc:'علائقية مقابل غير علائقية، ACID، مبرهنة CAP.'},
-    {d:132,t:'إعداد MongoDB',s:'Database',type:'learning',desc:'محلي/Atlas، الصدفة، Compass GUI، مستندات BSON.'},
-    {d:133,t:'CRUD مع MongoDB',s:'Database',type:'learning',desc:'insertOne/Many, find, updateOne, deleteOne.'},
-    {d:134,t:'Mongoose ODM',s:'Database',type:'learning',desc:'مخططات، نماذج، خطافات وسيطة، تحقق.'},
-    {d:135,t:'أساسيات SQL',s:'Database',type:'learning',desc:'SELECT, INSERT, UPDATE, DELETE, JOIN, GROUP BY, HAVING.'},
-    {d:136,t:'إعداد PostgreSQL',s:'Database',type:'learning',desc:'إعداد محلي، psql، pgAdmin، إنشاء قواعد بيانات.'},
-    {d:137,t:'ربط DB بـ API',s:'DB Integration',type:'learning',desc:'سلاسل اتصال، متغيرات بيئة، تجميع الاتصالات.'},
-    {d:138,t:'نموذج المستخدم',s:'DB Integration',type:'learning',desc:'مخطط مستخدم: اسم، بريد، كلمة مرور، أدوار.'},
-    {d:139,t:'العلاقات',s:'DB Integration',type:'learning',desc:'واحد-لواحد، واحد-لمتعدد، متعدد-لمتعدد.'},
-    {d:140,t:'خطوط التجميع',s:'DB Integration',type:'learning',desc:'MongoDB $match, $group, $sort, $project, $lookup.'},
-    {d:141,t:'الفهرسة والأداء',s:'DB Integration',type:'learning',desc:'فهارس، فهارس مركبة، خطط شرح، تحسين.'},
-    {d:142,t:'المعاملات',s:'DB Integration',type:'learning',desc:'عمليات ذرية، جلسات MongoDB، تراجع.'},
-    {d:143,t:'التحقق من البيانات',s:'DB Integration',type:'learning',desc:'مدققات Mongoose، قيود SQL، تكامل البيانات.'},
-    {d:144,t:'النسخ الاحتياطي والاستعادة',s:'DB Integration',type:'learning',desc:'mongodump/restore, pg_dump/restore.'},
-    {d:145,t:'الترحيلات',s:'DB Integration',type:'learning',desc:'تغييرات المخطط، Knex.js، إضافات Mongoose.'},
-    {d:146,t:'استعلامات متقدمة',s:'DB Integration',type:'learning',desc:'استعلامات فرعية SQL، دوال النافذة.'},
-    {d:147,t:'البحث النصي الكامل',s:'DB Integration',type:'learning',desc:'MongoDB $text، PostgreSQL tsvector/tsquery.'},
-    {d:148,t:'بذر البيانات',s:'DB Integration',type:'learning',desc:'نصوص بذر، faker.js، أوامر بذر.'},
-    {d:149,t:'أمان قاعدة البيانات',s:'DB Integration',type:'learning',desc:'تكوين المصادقة، TLS، قوائم السماح.'},
-    {d:150,t:'مشروع: API مدعوم بقاعدة بيانات',s:'DB Integration',type:'project',desc:'API كامل مع DB، توثيق، علاقات.'},
-    {d:151,t:'ربط الواجهة بالخلفية',s:'Full Stack',type:'learning',desc:'React إلى Express، fetch/axios، CORS.'},
-    {d:152,t:'حالة بيانات API',s:'Full Stack',type:'learning',desc:'React Query/SWR، تخزين مؤقت، تحديثات متفائلة.'},
-    {d:153,t:'تدفق التوثيق',s:'Full Stack',type:'learning',desc:'تسجيل دخول/حساب، تخزين رمز JWT.'},
-    {d:154,t:'تدفق رفع الملفات',s:'Full Stack',type:'learning',desc:'معاينة أمامية، Multer خلفي، تقديم.'},
-    {d:155,t:'ميزات الوقت الحقيقي',s:'Full Stack',type:'learning',desc:'Socket.io، إشعارات حية، محادثة.'},
-    {d:156,t:'تخطيط المشروع',s:'Full Project',type:'learning',desc:'ميزات، إطارات سلكية، ERD، تصميم API.'},
-    {d:157,t:'إعداد Monorepo',s:'Full Project',type:'learning',desc:'مجلدات عميل وخادم، أنواع مشتركة.'},
-    {d:158,t:'نظام التوثيق',s:'Full Project',type:'learning',desc:'تسجيل، تحقق بريد، تسجيل دخول، إعادة تعيين.'},
-    {d:159,t:'لوحة تحكم وتحليلات',s:'Full Project',type:'learning',desc:'بيانات مستخدم، رسوم بيانية من API.'},
-    {d:160,t:'ميزات CRUD',s:'Full Project',type:'learning',desc:'CRUD كامل للموارد، نماذج، جداول.'},
-    {d:161,t:'بحث وتصفية',s:'Full Project',type:'learning',desc:'بحث مع debouncing، تصفية، حالة URL.'},
-    {d:162,t:'نظام إشعارات',s:'Full Project',type:'learning',desc:'داخل التطبيق/بريد، أيقونة جرس.'},
-    {d:163,t:'لوحة الإدارة',s:'Full Project',type:'learning',desc:'منطقة إدارة، إدارة مستخدمين، RBAC.'},
-    {d:164,t:'إعدادات المستخدم',s:'Full Project',type:'learning',desc:'تعديل ملف شخصي، رفع صورة رمزية.'},
-    {d:165,t:'ميزات اجتماعية',s:'Full Project',type:'learning',desc:'تعليقات، إعجابات، مشاركات، متابعة.'},
-    {d:166,t:'دمج الدفع',s:'Full Project',type:'learning',desc:'Stripe Checkout، webhooks، فواتير.'},
-    {d:167,t:'اختبار وضمان جودة',s:'Full Project',type:'learning',desc:'اختبارات E2E مع Playwright.'},
-    {d:168,t:'تحسين الأداء',s:'Full Project',type:'learning',desc:'Core Web Vitals، حجم الحزمة، CDN.'},
-    {d:169,t:'تدقيق الأمان',s:'Full Project',type:'learning',desc:'OWASP Top 10، رؤوس أمان، فحص.'},
-    {d:170,t:'مشروع: تطبيق Full Stack',s:'Full Project',type:'project',desc:'مشروع تخرج مصقول بكل الميزات.'},
-    {d:171,t:'خيارات النشر',s:'Deployment',type:'learning',desc:'Vercel/Netlify للواجهة، Railway/Render للخلفية.'},
-    {d:172,t:'نشر الواجهة الأمامية',s:'Deployment',type:'learning',desc:'Vercel/Netlify، متغيرات بيئة، نطاق مخصص.'},
-    {d:173,t:'نشر الخلفية',s:'Deployment',type:'learning',desc:'Railway/Render، CORS، نقاط نهاية الصحة.'},
-    {d:174,t:'نشر قاعدة البيانات',s:'Deployment',type:'learning',desc:'MongoDB Atlas، Supabase، نسخ احتياطية.'},
-    {d:175,t:'خط أنابيب CI/CD',s:'Deployment',type:'learning',desc:'GitHub Actions، اختبار/بناء/نشر تلقائي.'},
-    {d:176,t:'النطاق و SSL',s:'Deployment',type:'learning',desc:'نطاق مخصص، DNS، TLS/SSL.'},
-    {d:177,t:'متغيرات البيئة والأسرار',s:'Deployment',type:'learning',desc:'مديري الأسرار، الحماية.'},
-    {d:178,t:'المراقبة',s:'Deployment',type:'learning',desc:'Sentry, LogRocket, Google Analytics.'},
-    {d:179,t:'قائمة تدقيق الإطلاق',s:'Deployment',type:'learning',desc:'SEO meta, favicon, صفحات خطأ.'},
-    {d:180,t:'إطلاق التطبيق!',s:'Deployment',type:'project',desc:'إطلاق تطبيقك الإنتاجي! كتابة دراسة حالة.'}
+    {d:1,t:'مقدمة إلى تطوير الويب',s:'HTML',type:'learning',desc:'فهم كيفية عمل الويب: العملاء، الخوادم، HTTP، المتصفحات. إعداد بيئة التطوير باستخدام VS Code والملحقات.',desc_en:'Understand how the web works: clients, servers, HTTP, browsers. Set up your development environment with VS Code and extensions.'},
+    {d:2,t:'هيكل مستند HTML',s:'HTML',type:'learning',desc:'تعلم DOCTYPE, html, head, body، الوسوم الوصفية وربط ملفات CSS و JS.',desc_en:'Learn DOCTYPE, html, head, body, meta tags, and linking CSS and JS files.'},
+    {d:3,t:'العناصر النصية والعناوين',s:'HTML',type:'learning',desc:'إتقان h1–h6, p, span, br, hr, strong, em, mark, small, code.',desc_en:'Master h1–h6, p, span, br, hr, strong, em, mark, small, code.'},
+    {d:4,t:'الروابط والصور',s:'HTML',type:'learning',desc:'إنشاء ارتباطات تشعبية، img مع src/alt، المسارات المطلقة والنسبية، تنسيقات الصور.',desc_en:'Create hyperlinks, img with src/alt, absolute and relative paths, image formats.'},
+    {d:5,t:'القوائم والجداول',s:'HTML',type:'learning',desc:'بناء ul/ol/li, قوائم متداخلة, table مع thead/tbody/tr/th/td, colspan/rowspan.',desc_en:'Build ul/ol/li, nested lists, table with thead/tbody/tr/th/td, colspan/rowspan.'},
+    {d:6,t:'النماذج وعناصر الإدخال',s:'HTML',type:'learning',desc:'إنشاء form مع أنواع الإدخال, textarea, select, radio, checkbox, button, submit.',desc_en:'Create form with input types, textarea, select, radio, checkbox, button, submit.'},
+    {d:7,t:'HTML الدلالي',s:'HTML',type:'learning',desc:'استخدام header, nav, main, article, section, aside, footer لتحسين SEO والوصول.',desc_en:'Use header, nav, main, article, section, aside, footer for SEO and accessibility.'},
+    {d:8,t:'ميزات HTML5',s:'HTML',type:'learning',desc:'audio, video, canvas, details/summary, progress, datalist, template.',desc_en:'Explore audio, video, canvas, details/summary, progress, datalist, template.'},
+    {d:9,t:'أساسيات الوصول',s:'HTML',type:'learning',desc:'تسميات ARIA, النص البديل, tabindex, سمات الدور, تخطي التنقل.',desc_en:'ARIA labels, alt text, tabindex, role attributes, skip navigation.'},
+    {d:10,t:'مشروع: صفحة HTML شخصية',s:'HTML',type:'project',desc:'بناء صفحة شخصية كاملة باستخدام HTML الدلالي فقط.',desc_en:'Build a complete personal portfolio using only semantic HTML.'},
+    {d:11,t:'تركيب CSS والمحددات',s:'CSS',type:'learning',desc:'الخصائص، القيم، القواعد، محددات class/id/element، التحيدات، التخصصية.',desc_en:'Properties, values, rules, class/id/element selectors, combinators, specificity.'},
+    {d:12,t:'الألوان والخلفيات',s:'CSS',type:'learning',desc:'تنسيقات hex/rgb/hsl، التدرجات، background-image/size/position، خلفيات متعددة.',desc_en:'Hex/rgb/hsl colors, gradients, background-image/size/position, multiple backgrounds.'},
+    {d:13,t:'نموذج الصندوق',s:'CSS',type:'learning',desc:'Margin, border, padding, content، box-sizing: border-box مقابل content-box.',desc_en:'Margin, border, padding, content areas, box-sizing: border-box vs content-box.'},
+    {d:14,t:'الخطوط والطباعة',s:'CSS',type:'learning',desc:'font-family، الحجم، الوزن، ارتفاع السطر، تباعد الأحرف، خطوط Google.',desc_en:'font-family stacks, size, weight, line-height, letter-spacing, Google Fonts.'},
+    {d:15,t:'العرض والموضع',s:'CSS',type:'learning',desc:'block/inline/inline-block/none، static/relative/absolute/fixed/sticky، z-index.',desc_en:'block/inline/inline-block/none, static/relative/absolute/fixed/sticky, z-index.'},
+    {d:16,t:'أساسيات Flexbox',s:'CSS',type:'learning',desc:'display:flex، flex-direction، justify-content، align-items، flex-wrap، gap.',desc_en:'display:flex, flex-direction, justify-content, align-items, flex-wrap, gap.'},
+    {d:17,t:'Flexbox متقدم',s:'CSS',type:'learning',desc:'flex-grow/shrink/basis، align-self، order، حاويات flex متداخلة.',desc_en:'flex-grow/shrink/basis, align-self, order, nested flex containers.'},
+    {d:18,t:'أساسيات CSS Grid',s:'CSS',type:'learning',desc:'display:grid، grid-template-columns/rows، gap، grid-column و grid-row.',desc_en:'display:grid, grid-template-columns/rows, gap, grid-column and grid-row placement.'},
+    {d:19,t:'CSS Grid متقدم',s:'CSS',type:'learning',desc:'مناطق الشبكة المسماة، auto-fit/auto-fill، minmax()، دمج Grid و Flexbox.',desc_en:'Named grid areas, auto-fit/auto-fill, minmax(), combining Grid and Flexbox.'},
+    {d:20,t:'التصميم المتجاوب',s:'CSS',type:'learning',desc:'استعلامات الوسائط، mobile-first، نقاط التوقف، vw/vh، em/rem، تخطيطات سائلة.',desc_en:'Media queries, mobile-first, breakpoints, vw/vh, em/rem, fluid layouts.'},
+    {d:21,t:'الانتقالات والحركات',s:'CSS',type:'learning',desc:'transition، @keyframes، animation، دوال التوقيت، تأثيرات سلسة.',desc_en:'transition, @keyframes, animation shorthand, timing functions, smooth effects.'},
+    {d:22,t:'متغيرات CSS',s:'CSS',type:'learning',desc:'خصائص مخصصة مع --، نطاق :root، الوراثة، السمات الديناميكية.',desc_en:'Custom properties with --, :root scope, inheritance, dynamic theming.'},
+    {d:23,t:'الفئات والعناصر الزائفة',s:'CSS',type:'learning',desc:':hover, :focus, :nth-child(), ::before, ::after, تلميحات، واجهة مخصصة.',desc_en:':hover, :focus, :nth-child(), ::before, ::after, tooltips, custom UI.'},
+    {d:24,t:'أفضل ممارسات CSS',s:'CSS',type:'learning',desc:'تسمية BEM، تنظيم الأنماط، إدارة التخصصية، إعادة تعيين CSS، الأداء.',desc_en:'BEM naming, organizing styles, specificity management, CSS resets, performance.'},
+    {d:25,t:'مشروع: صفحة هبوط متجاوبة',s:'CSS',type:'project',desc:'بناء صفحة هبوط متجاوبة بالكامل مع قسم رئيسي ومميزات وأسعار.',desc_en:'Build a fully responsive landing page with hero, features, pricing, footer.'},
+    {d:26,t:'مقدمة JavaScript',s:'JavaScript Basics',type:'learning',desc:'ما هي JS، كيفية تضمينها، وحدة تحكم المتصفح، console.log، وسم script.',desc_en:'What is JS, how to include it, browser console, console.log, script tag.'},
+    {d:27,t:'المتغيرات وأنواع البيانات',s:'JavaScript Basics',type:'learning',desc:'var/let/const، string/number/boolean/null/undefined/symbol، تحويل الأنواع.',desc_en:'var/let/const, string/number/boolean/null/undefined/symbol, type coercion.'},
+    {d:28,t:'المعاملات والتعابير',s:'JavaScript Basics',type:'learning',desc:'حسابية، إسناد، مقارنة، منطقية، ثلاثية، أولويات المعاملات.',desc_en:'Arithmetic, assignment, comparison, logical, ternary, operator precedence.'},
+    {d:29,t:'الشروط',s:'JavaScript Basics',type:'learning',desc:'if/else if/else، switch، قيم truthy/falsy، تقييم الدائرة القصيرة.',desc_en:'if/else if/else, switch, truthy/falsy, short-circuit evaluation.'},
+    {d:30,t:'الحلقات',s:'JavaScript Basics',type:'learning',desc:'for, while, do...while, for...of, for...in, break و continue.',desc_en:'for, while, do...while, for...of, for...in, break and continue.'},
+    {d:31,t:'أساسيات الدوال',s:'JavaScript Basics',type:'learning',desc:'إعلان، استدعاء، معاملات، وسائط، قيم إرجاع، إعلانات مقابل تعبيرات.',desc_en:'Declare, invoke, parameters, arguments, return values, declarations vs expressions.'},
+    {d:32,t:'الدوال المتقدمة',s:'JavaScript Basics',type:'learning',desc:'معاملات افتراضية، rest، callbacks، دوال الرتبة الأعلى، مقدمة في النطاق.',desc_en:'Default params, rest params, callbacks, higher-order functions, scope intro.'},
+    {d:33,t:'أساسيات المصفوفات',s:'JavaScript Basics',type:'learning',desc:'إنشاء، وصول، .length، push/pop، shift/unshift، splice، slice.',desc_en:'Create, access, .length, push/pop, shift/unshift, splice, slice.'},
+    {d:34,t:'طرق المصفوفات',s:'JavaScript Basics',type:'learning',desc:'.map(), .filter(), .reduce(), .forEach(), .find(), .some(), .every().',desc_en:'.map(), .filter(), .reduce(), .forEach(), .find(), .some(), .every().'},
+    {d:35,t:'أساسيات الكائنات',s:'JavaScript Basics',type:'learning',desc:'إنشاء كائنات، ترميز نقطي/أقواس، إضافة/تحديث/حذف، كائنات متداخلة.',desc_en:'Create objects, dot/bracket notation, add/update/delete, nested objects.'},
+    {d:36,t:'طرق الكائن و this',s:'JavaScript Basics',type:'learning',desc:'this، Object.keys/values/entries، spread، تفكيك الكائنات.',desc_en:'this keyword, Object.keys/values/entries, spread, object destructuring.'},
+    {d:37,t:'معالجة DOM',s:'JavaScript Basics',type:'learning',desc:'querySelector، querySelectorAll، textContent/innerHTML، classList، style.',desc_en:'querySelector, querySelectorAll, textContent/innerHTML, classList, style.'},
+    {d:38,t:'أحداث DOM',s:'Practice',type:'learning',desc:'click, submit, input, change, addEventListener، كائن الحدث، الفقاعات، التفويض.',desc_en:'click, submit, input, change, addEventListener, event object, bubbling, delegation.'},
+    {d:39,t:'التحقق من النماذج',s:'Practice',type:'learning',desc:'التحقق من المدخلات، فحوصات فارغة، تعبير نمطي للبريد الإلكتروني، رسائل خطأ مخصصة.',desc_en:'Validate inputs, empty checks, email regex, custom error messages.'},
+    {d:40,t:'التخزين المحلي',s:'Practice',type:'learning',desc:'setItem/getItem/removeItem، JSON.stringify/parse للكائنات.',desc_en:'setItem/getItem/removeItem, JSON.stringify/parse for objects.'},
+    {d:41,t:'بناء تطبيق عداد',s:'Practice',type:'learning',desc:'زيادة، نقصان، إعادة تعيين عداد مع تحديثات DOM.',desc_en:'Increment, decrement, reset counter with DOM updates.'},
+    {d:42,t:'بناء قائمة مهام',s:'Practice',type:'learning',desc:'إضافة/إكمال/حذف مهام، استمرارية localStorage، CRUD كامل.',desc_en:'Add/complete/delete tasks, localStorage persistence, full CRUD.'},
+    {d:43,t:'بناء تطبيق اختبار',s:'Practice',type:'learning',desc:'اختيار متعدد، تتبع النتيجة، عرض النتائج، إعادة المحاولة.',desc_en:'Multiple-choice, score tracking, results display, retake.'},
+    {d:44,t:'بناء آلة حاسبة',s:'Practice',type:'learning',desc:'عمليات حسابية، معالجة العلامة العشرية، مسح، عمليات متسلسلة.',desc_en:'Arithmetic, decimal handling, clear, chained operations.'},
+    {d:45,t:'مشروع: تطبيق ويب تفاعلي',s:'Practice',type:'project',desc:'دمج المهارات في تطبيق كامل (متتبع نفقات، متتبع عادات).',desc_en:'Combine skills into a full app (expense tracker, habit tracker).'},
+    {d:46,t:'نظرة عامة على ES6+',s:'Advanced JS',type:'learning',desc:'let/const، دوال السهم، قوالب النص، التفكيك، spread/rest، وحدات ES.',desc_en:'let/const, arrow functions, template literals, destructuring, spread/rest, ES modules.'},
+    {d:47,t:'دوال السهم والنطاق',s:'Advanced JS',type:'learning',desc:'صياغة السهم، الإرجاع الضمني، lexical this، سلسلة النطاق.',desc_en:'Arrow syntax, implicit return, lexical this, scope chain.'},
+    {d:48,t:'قوالب النص',s:'Advanced JS',type:'learning',desc:'سلاسل backtick، ${}، سلاسل متعددة الأسطر، قوالب موسومة.',desc_en:'Backtick strings, ${} interpolation, multi-line, tagged templates.'},
+    {d:49,t:'التفكيك و Spread',s:'Advanced JS',type:'learning',desc:'تفكيك المصفوفات/الكائنات، spread (...)، معاملات rest.',desc_en:'Array/object destructuring, spread (...), rest parameters.'},
+    {d:50,t:'الوعود و Async/Await',s:'Advanced JS',type:'learning',desc:'JS غير متزامن، سلسلة الوعود، .then/.catch، صياغة async/await.',desc_en:'Async JS, Promise chain, .then/.catch, async/await syntax.'},
+    {d:51,t:'Fetch API',s:'Advanced JS',type:'learning',desc:'fetch() للطلبات، GET/POST، تحليل JSON، معالجة الأخطاء.',desc_en:'fetch() for HTTP, GET/POST, JSON parsing, error handling.'},
+    {d:52,t:'معالجة الأخطاء',s:'Advanced JS',type:'learning',desc:'try...catch...finally، أخطاء مخصصة، برمجة دفاعية.',desc_en:'try...catch...finally, custom errors, defensive programming.'},
+    {d:53,t:'الإغلاقات بعمق',s:'Advanced JS',type:'learning',desc:'بيئة معجمية، حالات استخدام الإغلاق، خصوصية البيانات، memoization.',desc_en:'Lexical environment, closure use cases, data privacy, memoization.'},
+    {d:54,t:'النماذج الأولية والفئات',s:'Advanced JS',type:'learning',desc:'وراثة النماذج الأولية، صياغة class، constructor، extends، super.',desc_en:'Prototypal inheritance, class syntax, constructor, extends, super.'},
+    {d:55,t:'وحدات ES',s:'Advanced JS',type:'learning',desc:'وحدات ES، تصدير/استيراد مسمى وافتراضي، نطاق الوحدة.',desc_en:'ES modules, named/default exports, imports, module scope.'},
+    {d:56,t:'تطبيق الطقس',s:'Mini Apps',type:'learning',desc:'بناء تطبيق طقس باستخدام API عام، درجة الحرارة، الحالة، التوقعات.',desc_en:'Build a weather app using a public API, temperature, conditions, forecast.'},
+    {d:57,t:'الباحث عن الوصفات',s:'Mini Apps',type:'learning',desc:'تطبيق بحث وصفات مع API، مكونات، تعليمات، صور.',desc_en:'Recipe search app with API, ingredients, instructions, images.'},
+    {d:58,t:'متتبع النفقات',s:'Mini Apps',type:'learning',desc:'نظام دخل/مصروفات، رصيد جارٍ، فئات، استمرارية localStorage.',desc_en:'Income/expense system, running balance, categories, localStorage persistence.'},
+    {d:59,t:'مؤقت بومودورو',s:'Mini Apps',type:'learning',desc:'فترات عمل/استراحة، إشعارات، تتبع الجلسات.',desc_en:'Work/break intervals, notifications, session tracking.'},
+    {d:60,t:'تطبيق ملاحظات',s:'Mini Apps',type:'learning',desc:'إنشاء، تعديل، حذف، بحث عن ملاحظات، localStorage، markdown.',desc_en:'Create, edit, delete, search notes, localStorage, markdown.'},
+    {d:61,t:'معرض صور',s:'Mini Apps',type:'learning',desc:'معرض متجاوب، lightbox، تحميل كسول، تخطيط شبكي.',desc_en:'Responsive gallery, lightbox, lazy loading, grid layout.'},
+    {d:62,t:'واجهة مشغل موسيقى',s:'Mini Apps',type:'learning',desc:'تشغيل/إيقاف، شريط تقدم، مستوى صوت، قائمة تشغيل، HTML5 Audio.',desc_en:'Play/pause, progress bar, volume, playlist, HTML5 Audio.'},
+    {d:63,t:'واجهة محادثة',s:'Mini Apps',type:'learning',desc:'فقاعات رسائل، إدخال، مؤشر كتابة، تمرير تلقائي.',desc_en:'Message bubbles, input, typing indicator, auto-scroll.'},
+    {d:64,t:'لوحة تحكم',s:'Mini Apps',type:'learning',desc:'لوحة إدارة، شريط جانبي، بطاقات إحصائيات، رسوم بيانية، جدول بيانات.',desc_en:'Admin dashboard, sidebar, stat cards, charts, data table.'},
+    {d:65,t:'مشروع: مجموعة تطبيقات مصغرة',s:'Mini Apps',type:'project',desc:'دمج تطبيقين مصغرين أو أكثر في مشروع واحد متماسك.',desc_en:'Combine 2+ mini apps into one cohesive project.'},
+    {d:66,t:'أساسيات Git',s:'Tools + Git',type:'learning',desc:'تثبيت Git، init، منطقة التجهيز، git status، إعداد التكوين.',desc_en:'Install Git, init, staging, git status, config setup.'},
+    {d:67,t:'أوامر Git',s:'Tools + Git',type:'learning',desc:'add, commit, log, diff, branch, checkout, merge, stash.',desc_en:'add, commit, log, diff, branch, checkout, merge, stash.'},
+    {d:68,t:'GitHub والمستودعات البعيدة',s:'Tools + Git',type:'learning',desc:'مستودعات GitHub، push/pull/clone/fetch، طلبات السحب.',desc_en:'GitHub repos, push/pull/clone/fetch, pull requests.'},
+    {d:69,t:'ملحقات VS Code',s:'Tools + Git',type:'learning',desc:'Prettier, ESLint, Live Server, GitLens، اختصارات، إعدادات.',desc_en:'Prettier, ESLint, Live Server, GitLens, shortcuts, settings.'},
+    {d:70,t:'الطرفية وأدوات CLI',s:'Tools + Git',type:'learning',desc:'أوامر الصدفة، عمليات الملفات، npm/yarn، أدوات CLI.',desc_en:'Shell commands, file ops, npm/yarn basics, CLI tools.'},
+    {d:71,t:'مقدمة React',s:'React',type:'learning',desc:'ما هي React، إعداد Vite، هيكل المشروع، node_modules.',desc_en:'What is React, Vite setup, project structure, node_modules.'},
+    {d:72,t:'JSX والمكونات',s:'React',type:'learning',desc:'قواعد JSX، مكونات وظيفية، تداخل، fragments.',desc_en:'JSX syntax, functional components, nesting, fragments.'},
+    {d:73,t:'Props و PropTypes',s:'React',type:'learning',desc:'تمرير البيانات، تفكيك props، قيم افتراضية، التحقق.',desc_en:'Passing data, destructuring props, default values, validation.'},
+    {d:74,t:'الحالة و useState',s:'React',type:'learning',desc:'useState hook، تحديث الحالة، التجميع، رفع الحالة.',desc_en:'useState hook, updating state, batching, lifting state.'},
+    {d:75,t:'معالجة الأحداث',s:'React',type:'learning',desc:'onClick, onChange, onSubmit، وسائط الحدث، preventDefault.',desc_en:'onClick, onChange, onSubmit, event args, preventDefault.'},
+    {d:76,t:'العرض الشرطي',s:'React',type:'learning',desc:'أنماط ثلاثية، &&، حالات تحميل/خطأ/فارغة.',desc_en:'Ternary patterns, &&, loading/error/empty states.'},
+    {d:77,t:'القوائم والمفاتيح',s:'React',type:'learning',desc:'.map() للقوائم، خاصية key الفريدة، إعادة التسوية.',desc_en:'.map() for lists, unique key prop, reconciliation.'},
+    {d:78,t:'النماذج في React',s:'React',type:'learning',desc:'محكومة مقابل غير محكومة، حالة النموذج، التحقق.',desc_en:'Controlled vs uncontrolled, form state, validation.'},
+    {d:79,t:'useEffect Hook',s:'React',type:'learning',desc:'الآثار الجانبية، مصفوفة التبعيات، التنظيف، جلب البيانات.',desc_en:'Side effects, dependency array, cleanup, data fetching.'},
+    {d:80,t:'useContext والخطافات المخصصة',s:'React',type:'learning',desc:'createContext/useContext، بناء خطافات مخصصة.',desc_en:'createContext/useContext, custom hooks for reuse.'},
+    {d:81,t:'React Router',s:'React',type:'learning',desc:'BrowserRouter, Routes, Route, Link, NavLink، معاملات URL.',desc_en:'BrowserRouter, Routes, Route, Link, NavLink, URL params.'},
+    {d:82,t:'إدارة الحالة',s:'React',type:'learning',desc:'حدود Context API، Redux/Zustand/Jotai.',desc_en:'Context API limits, Redux/Zustand/Jotai intro.'},
+    {d:83,t:'أفضل ممارسات React',s:'React',type:'learning',desc:'هيكل المجلدات، التركيب، React.memo, useMemo, useCallback.',desc_en:'Folder structure, composition, React.memo, useMemo, useCallback.'},
+    {d:84,t:'بناء مدونة',s:'React Practice',type:'learning',desc:'قائمة منشورات، عرض فردي، واجهة CMS، React Router.',desc_en:'Post listing, individual view, CMS interface, React Router.'},
+    {d:85,t:'واجهة متجر إلكتروني',s:'React Practice',type:'learning',desc:'شبكة منتجات، صفحة تفاصيل، عربة تسوق، إتمام الشراء.',desc_en:'Product grid, detail page, cart, checkout, state management.'},
+    {d:86,t:'واجهة توثيق',s:'React Practice',type:'learning',desc:'تسجيل دخول/حساب، تخزين رمز، مسارات محمية، ملف شخصي.',desc_en:'Login/register, token storage, protected routes, profile.'},
+    {d:87,t:'لوحة تحكم مع رسوم بيانية',s:'React Practice',type:'learning',desc:'لوحة تحليلات، Recharts/Chart.js.',desc_en:'Analytics dashboard, Recharts/Chart.js integration.'},
+    {d:88,t:'تغذية وسائل التواصل',s:'React Practice',type:'learning',desc:'تمرير لانهائي، بطاقات منشورات، إعجابات/تعليقات.',desc_en:'Infinite scroll, post cards, likes/comments, avatars.'},
+    {d:89,t:'مكون رفع ملفات',s:'React Practice',type:'learning',desc:'سحب وإفلات، معاينة، شريط تقدم، تحقق من النوع.',desc_en:'Drag-and-drop, preview, progress bar, validation.'},
+    {d:90,t:'نظام بحث وتصفية',s:'React Practice',type:'learning',desc:'بحث مع debouncing، تصفية متعددة، مزامنة حالة URL.',desc_en:'Debounced search, multi-criteria, sorting, URL sync.'},
+    {d:91,t:'التمرير اللانهائي',s:'React Practice',type:'learning',desc:'Intersection Observer، تحميل دفعات، دوارات تحميل.',desc_en:'Intersection Observer, pagination, loading spinners.'},
+    {d:92,t:'تحديثات الوقت الحقيقي',s:'React Practice',type:'learning',desc:'اقتراع، محاكاة WebSocket، واجهة حية.',desc_en:'Polling, WebSocket simulation, live UI, optimistic UI.'},
+    {d:93,t:'حركات بصرية',s:'React Practice',type:'learning',desc:'انتقالات صفحات، تأثيرات hover/tap.',desc_en:'Page transitions, hover/tap animations, layout animations.'},
+    {d:94,t:'اختبار تطبيقات React',s:'React Practice',type:'learning',desc:'Jest، React Testing Library، اختبارات وحدة/تكامل.',desc_en:'Jest setup, React Testing Library, unit/integration tests.'},
+    {d:95,t:'تحسين الأداء',s:'React Practice',type:'learning',desc:'تقسيم الكود، React.lazy، Suspense، memoization.',desc_en:'Code splitting, React.lazy, Suspense, memoization, profiler.'},
+    {d:96,t:'الوصول في React',s:'React Practice',type:'learning',desc:'ARIA، تنقل بلوحة المفاتيح، إدارة التركيز.',desc_en:'ARIA, keyboard nav, focus management, screen readers.'},
+    {d:97,t:'تقسيم الكود',s:'React Practice',type:'learning',desc:'تقسيم قائم على المسار، استيراد ديناميكي، حدود Suspense.',desc_en:'Route-based splitting, dynamic imports, Suspense boundaries.'},
+    {d:98,t:'تطبيقات الويب التقدمية',s:'React Practice',type:'learning',desc:'Service worker، manifest، دعم غير متصل، تثبيت.',desc_en:'Service worker, manifest, offline support, install prompt.'},
+    {d:99,t:'React + TypeScript',s:'React Practice',type:'learning',desc:'كتابة الأنواع للـ props، state، الأحداث، generics.',desc_en:'Typing props, state, events, hooks, generics, strict mode.'},
+    {d:100,t:'مشروع: تطبيق React كامل',s:'React Practice',type:'project',desc:'تطبيق SPA كامل مع توجيه، حالة عامة، API، واجهة مصقولة.',desc_en:'Complete React SPA with routing, state, API, polished UI.'},
+    {d:101,t:'مقدمة Node.js',s:'Backend',type:'learning',desc:'بيئة تشغيل Node، حلقة الأحداث، npm، وحدة http، خادم بسيط.',desc_en:'Node.js runtime, event loop, npm, http module, simple server.'},
+    {d:102,t:'إعداد Express.js',s:'Backend',type:'learning',desc:'تثبيت Express، إنشاء خادم، app.get()، app.listen()، nodemon.',desc_en:'Install Express, create server, routes, nodemon.'},
+    {d:103,t:'التوجيه والوسائط',s:'Backend',type:'learning',desc:'Express Router، morgan/cors/body-parser، وسائط مخصصة.',desc_en:'Express Router, morgan/cors/body-parser, custom middleware.'},
+    {d:104,t:'الطلب والاستجابة',s:'Backend',type:'learning',desc:'req.params, req.query, req.body، استجابات JSON، رموز الحالة.',desc_en:'req.params, req.query, req.body, JSON responses, status codes.'},
+    {d:105,t:'تصميم REST API',s:'Backend',type:'learning',desc:'نقاط نهاية RESTful، طرق HTTP، هيكل URL، الاصطلاحات.',desc_en:'RESTful endpoints, HTTP methods, URL structure, conventions.'},
+    {d:106,t:'التوثيق (JWT)',s:'Backend',type:'learning',desc:'رموز JWT، تجزئة bcrypt، مسارات محمية، تسجيل دخول/حساب.',desc_en:'JWT tokens, bcrypt hashing, protected routes, login/register.'},
+    {d:107,t:'رفع الملفات',s:'Backend',type:'learning',desc:'Multer، تخزين محلي/سحابي، تحقق، تقديم ملفات.',desc_en:'Multer middleware, local/cloud storage, validation, serving files.'},
+    {d:108,t:'معالجة الأخطاء',s:'Backend',type:'learning',desc:'وسيط أخطاء عام، مجمع async، تنسيق استجابة متسق.',desc_en:'Global error middleware, async wrapper, consistent responses.'},
+    {d:109,t:'أفضل ممارسات الأمان',s:'Backend',type:'learning',desc:'XSS, CSRF, SQL injection, helmet, rate limiting, CORS.',desc_en:'XSS, CSRF, SQL injection, helmet, rate limiting, CORS.'},
+    {d:110,t:'اختبار APIs',s:'Backend',type:'learning',desc:'Jest, Supertest، اختبارات وحدة/تكامل، نهج TDD.',desc_en:'Jest, Supertest, unit/integration tests, TDD approach.'},
+    {d:111,t:'مسارات RESTful',s:'API Practice',type:'learning',desc:'مجموعة مسارات كاملة لمورد، اصطلاحات التسمية.',desc_en:'Full REST route set, naming conventions, status codes.'},
+    {d:112,t:'عمليات CRUD',s:'API Practice',type:'learning',desc:'إنشاء/قراءة/تحديث/حذف، حالات حدية، تحقق.',desc_en:'Create/Read/Update/Delete, edge cases, validation.'},
+    {d:113,t:'معاملات الاستعلام',s:'API Practice',type:'learning',desc:'تصفية، اختيار حقول، بحث عبر معاملات الاستعلام.',desc_en:'Filtering, field selection, search via query params.'},
+    {d:114,t:'ترقيم الصفحات',s:'API Practice',type:'learning',desc:'Pagination بالإزاحة/المؤشر، بيانات وصفية.',desc_en:'Offset/cursor pagination, metadata, limit/offset.'},
+    {d:115,t:'الفرز والتصفية',s:'API Practice',type:'learning',desc:'فرز متعدد المعايير، تصفية ديناميكية.',desc_en:'Multi-criteria sorting, dynamic filtering.'},
+    {d:116,t:'تحجيم API',s:'API Practice',type:'learning',desc:'تحجيم URL مقابل الرأس، تغييرات فاصلة، إهمال.',desc_en:'URL vs header versioning, breaking changes, deprecation.'},
+    {d:117,t:'تحديد المعدل',s:'API Practice',type:'learning',desc:'express-rate-limit، حماية من الإساءة.',desc_en:'express-rate-limit, abuse protection, per-endpoint limits.'},
+    {d:118,t:'CORS والأمان',s:'API Practice',type:'learning',desc:'تكوين CORS، طلبات preflight، الأصول المسموحة.',desc_en:'CORS config, preflight, allowed origins, credentials.'},
+    {d:119,t:'توثيق API',s:'API Practice',type:'learning',desc:'Swagger/OpenAPI، توثيق نقاط النهاية.',desc_en:'Swagger/OpenAPI, endpoint docs, request/response examples.'},
+    {d:120,t:'مقدمة WebSockets',s:'API Practice',type:'learning',desc:'Socket.io، اتصال ثنائي الاتجاه، غرف، أحداث.',desc_en:'Socket.io setup, real-time bidirectional, rooms, events.'},
+    {d:121,t:'Chat API',s:'API Practice',type:'learning',desc:'غرف محادثة، سجل رسائل، مؤشرات حضور.',desc_en:'Chat rooms, message history, presence, typing events.'},
+    {d:122,t:'خدمة البريد الإلكتروني',s:'API Practice',type:'learning',desc:'Nodemailer/SendGrid، إعادة تعيين كلمة المرور.',desc_en:'Nodemailer/SendGrid, password reset, email verification.'},
+    {d:123,t:'دمج الدفع',s:'API Practice',type:'learning',desc:'Stripe/PayPal، webhooks، اشتراكات.',desc_en:'Stripe/PayPal checkout, webhooks, subscription handling.'},
+    {d:124,t:'API معالجة الصور',s:'API Practice',type:'learning',desc:'Sharp، رفع، تغيير حجم، قص، تحويل.',desc_en:'Sharp, upload, resize, crop, convert, thumbnails.'},
+    {d:125,t:'توليد PDF',s:'API Practice',type:'learning',desc:'Puppeteer أو PDFKit، فواتير، تقارير.',desc_en:'Puppeteer or PDFKit, server-side PDFs, invoices, reports.'},
+    {d:126,t:'استراتيجيات التخزين المؤقت',s:'API Practice',type:'learning',desc:'Redis، ذاكرة مخبأة، استراتيجيات إبطال.',desc_en:'Redis, in-memory cache, invalidation strategies, TTL.'},
+    {d:127,t:'التسجيل والمراقبة',s:'API Practice',type:'learning',desc:'Winston/Pino، تتبع الأخطاء، فحوصات الصحة.',desc_en:'Winston/Pino, request timing, error tracking, health checks.'},
+    {d:128,t:'اختبار Postman',s:'API Practice',type:'learning',desc:'مجموعات، بيئات، نصوص اختبار، Newman CLI.',desc_en:'Collections, environments, automated tests, Newman CLI.'},
+    {d:129,t:'مقدمة GraphQL',s:'API Practice',type:'learning',desc:'Apollo Server، مخطط، محللات، queries/mutations.',desc_en:'Apollo Server, schema, resolvers, queries and mutations.'},
+    {d:130,t:'مشروع: REST API كامل',s:'API Practice',type:'project',desc:'API إنتاجي مع توثيق، CRUD، pagination.',desc_en:'Production API with auth, CRUD, pagination, rate limiting.'},
+    {d:131,t:'مفاهيم قواعد البيانات',s:'Database',type:'learning',desc:'علائقية مقابل غير علائقية، ACID، مبرهنة CAP.',desc_en:'Relational vs non-relational, ACID, CAP theorem, indexes.'},
+    {d:132,t:'إعداد MongoDB',s:'Database',type:'learning',desc:'محلي/Atlas، الصدفة، Compass GUI، مستندات BSON.',desc_en:'Local/Atlas setup, shell, Compass GUI, BSON documents.'},
+    {d:133,t:'CRUD مع MongoDB',s:'Database',type:'learning',desc:'insertOne/Many, find, updateOne, deleteOne.',desc_en:'insertOne/Many, find, updateOne, deleteOne, ObjectId.'},
+    {d:134,t:'Mongoose ODM',s:'Database',type:'learning',desc:'مخططات، نماذج، خطافات وسيطة، تحقق.',desc_en:'Schemas, models, CRUD, middleware hooks, validation.'},
+    {d:135,t:'أساسيات SQL',s:'Database',type:'learning',desc:'SELECT, INSERT, UPDATE, DELETE, JOIN, GROUP BY, HAVING.',desc_en:'SELECT, INSERT, UPDATE, DELETE, JOIN, GROUP BY, HAVING.'},
+    {d:136,t:'إعداد PostgreSQL',s:'Database',type:'learning',desc:'إعداد محلي، psql، pgAdmin، إنشاء قواعد بيانات.',desc_en:'Local setup, psql CLI, pgAdmin, creating databases/tables.'},
+    {d:137,t:'ربط DB بـ API',s:'DB Integration',type:'learning',desc:'سلاسل اتصال، متغيرات بيئة، تجميع الاتصالات.',desc_en:'Connection strings, env variables, connection pooling.'},
+    {d:138,t:'نموذج المستخدم',s:'DB Integration',type:'learning',desc:'مخطط مستخدم: اسم، بريد، كلمة مرور، أدوار.',desc_en:'User schema: name, email, password, timestamps, role.'},
+    {d:139,t:'العلاقات',s:'DB Integration',type:'learning',desc:'واحد-لواحد، واحد-لمتعدد، متعدد-لمتعدد.',desc_en:'One-to-one, one-to-many, many-to-many, ObjectId refs.'},
+    {d:140,t:'خطوط التجميع',s:'DB Integration',type:'learning',desc:'MongoDB $match, $group, $sort, $project, $lookup.',desc_en:'MongoDB $match, $group, $sort, $project, $lookup.'},
+    {d:141,t:'الفهرسة والأداء',s:'DB Integration',type:'learning',desc:'فهارس، فهارس مركبة، خطط شرح، تحسين.',desc_en:'Indexes, compound indexes, explain plans, optimization.'},
+    {d:142,t:'المعاملات',s:'DB Integration',type:'learning',desc:'عمليات ذرية، جلسات MongoDB، تراجع.',desc_en:'Atomic operations, MongoDB sessions, rollback, consistency.'},
+    {d:143,t:'التحقق من البيانات',s:'DB Integration',type:'learning',desc:'مدققات Mongoose، قيود SQL، تكامل البيانات.',desc_en:'Mongoose validators, SQL constraints, data integrity.'},
+    {d:144,t:'النسخ الاحتياطي والاستعادة',s:'DB Integration',type:'learning',desc:'mongodump/restore, pg_dump/restore.',desc_en:'mongodump/restore, pg_dump/restore, automated backups.'},
+    {d:145,t:'الترحيلات',s:'DB Integration',type:'learning',desc:'تغييرات المخطط، Knex.js، إضافات Mongoose.',desc_en:'Schema changes, Knex.js, Mongoose migration plugins.'},
+    {d:146,t:'استعلامات متقدمة',s:'DB Integration',type:'learning',desc:'استعلامات فرعية SQL، دوال النافذة.',desc_en:'SQL subqueries, window functions, complex aggregations.'},
+    {d:147,t:'البحث النصي الكامل',s:'DB Integration',type:'learning',desc:'MongoDB $text، PostgreSQL tsvector/tsquery.',desc_en:'MongoDB $text, PostgreSQL tsvector/tsquery, relevance.'},
+    {d:148,t:'بذر البيانات',s:'DB Integration',type:'learning',desc:'نصوص بذر، faker.js، أوامر بذر.',desc_en:'Seed scripts, faker.js, initial data, seed commands.'},
+    {d:149,t:'أمان قاعدة البيانات',s:'DB Integration',type:'learning',desc:'تكوين المصادقة، TLS، قوائم السماح.',desc_en:'Auth config, TLS, IP allowlists, least privilege.'},
+    {d:150,t:'مشروع: API مدعوم بقاعدة بيانات',s:'DB Integration',type:'project',desc:'API كامل مع DB، توثيق، علاقات.',desc_en:'Complete API with DB, auth, relations, aggregation.'},
+    {d:151,t:'ربط الواجهة بالخلفية',s:'Full Stack',type:'learning',desc:'React إلى Express، fetch/axios، CORS.',desc_en:'React to Express, fetch/axios, CORS, env variables.'},
+    {d:152,t:'حالة بيانات API',s:'Full Stack',type:'learning',desc:'React Query/SWR، تخزين مؤقت، تحديثات متفائلة.',desc_en:'React Query/SWR, caching, refetching, optimistic updates.'},
+    {d:153,t:'تدفق التوثيق',s:'Full Stack',type:'learning',desc:'تسجيل دخول/حساب، تخزين رمز JWT.',desc_en:'Login/register, JWT storage, auto-login, protected routes.'},
+    {d:154,t:'تدفق رفع الملفات',s:'Full Stack',type:'learning',desc:'معاينة أمامية، Multer خلفي، تقديم.',desc_en:'Frontend preview, multer backend, serving files.'},
+    {d:155,t:'ميزات الوقت الحقيقي',s:'Full Stack',type:'learning',desc:'Socket.io، إشعارات حية، محادثة.',desc_en:'Socket.io client+server, live notifications, chat.'},
+    {d:156,t:'تخطيط المشروع',s:'Full Project',type:'learning',desc:'ميزات، إطارات سلكية، ERD، تصميم API.',desc_en:'Features, wireframes, ER diagram, API design, board setup.'},
+    {d:157,t:'إعداد Monorepo',s:'Full Project',type:'learning',desc:'مجلدات عميل وخادم، أنواع مشتركة.',desc_en:'Client/server folders, shared types, npm workspaces.'},
+    {d:158,t:'نظام التوثيق',s:'Full Project',type:'learning',desc:'تسجيل، تحقق بريد، تسجيل دخول، إعادة تعيين.',desc_en:'Registration, email verification, login, reset, sessions.'},
+    {d:159,t:'لوحة تحكم وتحليلات',s:'Full Project',type:'learning',desc:'بيانات مستخدم، رسوم بيانية من API.',desc_en:'User data, charts from API, summary cards, date ranges.'},
+    {d:160,t:'ميزات CRUD',s:'Full Project',type:'learning',desc:'CRUD كامل للموارد، نماذج، جداول.',desc_en:'Full CRUD for resources, forms, tables, detail views.'},
+    {d:161,t:'بحث وتصفية',s:'Full Project',type:'learning',desc:'بحث مع debouncing، تصفية، حالة URL.',desc_en:'Debounced search, multi-criteria, URL state persistence.'},
+    {d:162,t:'نظام إشعارات',s:'Full Project',type:'learning',desc:'داخل التطبيق/بريد، أيقونة جرس.',desc_en:'In-app/email notifications, bell icon, real-time count.'},
+    {d:163,t:'لوحة الإدارة',s:'Full Project',type:'learning',desc:'منطقة إدارة، إدارة مستخدمين، RBAC.',desc_en:'Admin area, user management, content moderation, RBAC.'},
+    {d:164,t:'إعدادات المستخدم',s:'Full Project',type:'learning',desc:'تعديل ملف شخصي، رفع صورة رمزية.',desc_en:'Profile editing, avatar upload, password change, preferences.'},
+    {d:165,t:'ميزات اجتماعية',s:'Full Project',type:'learning',desc:'تعليقات، إعجابات، مشاركات، متابعة.',desc_en:'Comments, likes, shares, follows, activity feed.'},
+    {d:166,t:'دمج الدفع',s:'Full Project',type:'learning',desc:'Stripe Checkout، webhooks، فواتير.',desc_en:'Stripe Checkout, webhooks, subscriptions, invoices.'},
+    {d:167,t:'اختبار وضمان جودة',s:'Full Project',type:'learning',desc:'اختبارات E2E مع Playwright.',desc_en:'Unit/integration/E2E with Playwright, QA checklist.'},
+    {d:168,t:'تحسين الأداء',s:'Full Project',type:'learning',desc:'Core Web Vitals، حجم الحزمة، CDN.',desc_en:'Core Web Vitals, bundle size, API response time, CDN.'},
+    {d:169,t:'تدقيق الأمان',s:'Full Project',type:'learning',desc:'OWASP Top 10، رؤوس أمان، فحص.',desc_en:'OWASP Top 10, security headers, vulnerability scanning.'},
+    {d:170,t:'مشروع: تطبيق Full Stack',s:'Full Project',type:'project',desc:'مشروع تخرج مصقول بكل الميزات.',desc_en:'Polished capstone with all features, clean code, docs.'},
+    {d:171,t:'خيارات النشر',s:'Deployment',type:'learning',desc:'Vercel/Netlify للواجهة، Railway/Render للخلفية.',desc_en:'Vercel/Netlify frontend, Railway/Render backend, Atlas/Supabase.'},
+    {d:172,t:'نشر الواجهة الأمامية',s:'Deployment',type:'learning',desc:'Vercel/Netlify، متغيرات بيئة، نطاق مخصص.',desc_en:'Vercel/Netlify, build settings, env variables, custom domains.'},
+    {d:173,t:'نشر الخلفية',s:'Deployment',type:'learning',desc:'Railway/Render، CORS، نقاط نهاية الصحة.',desc_en:'Railway/Render, env variables, CORS config, health endpoints.'},
+    {d:174,t:'نشر قاعدة البيانات',s:'Deployment',type:'learning',desc:'MongoDB Atlas، Supabase، نسخ احتياطية.',desc_en:'MongoDB Atlas, Supabase, network access, backups.'},
+    {d:175,t:'خط أنابيب CI/CD',s:'Deployment',type:'learning',desc:'GitHub Actions، اختبار/بناء/نشر تلقائي.',desc_en:'GitHub Actions, auto test/build/deploy, branch protection.'},
+    {d:176,t:'النطاق و SSL',s:'Deployment',type:'learning',desc:'نطاق مخصص، DNS، TLS/SSL.',desc_en:'Custom domain, DNS, SSL/TLS, HTTPS redirect.'},
+    {d:177,t:'متغيرات البيئة والأسرار',s:'Deployment',type:'learning',desc:'مديري الأسرار، الحماية.',desc_en:'Secure secret management, platform managers, never commit.'},
+    {d:178,t:'المراقبة',s:'Deployment',type:'learning',desc:'Sentry, LogRocket, Google Analytics.',desc_en:'Sentry, LogRocket, Google Analytics, uptime monitoring.'},
+    {d:179,t:'قائمة تدقيق الإطلاق',s:'Deployment',type:'learning',desc:'SEO meta, favicon, صفحات خطأ.',desc_en:'SEO meta, favicon, social previews, error pages, audit.'},
+    {d:180,t:'إطلاق التطبيق!',s:'Deployment',type:'project',desc:'إطلاق تطبيقك الإنتاجي! كتابة دراسة حالة.',desc_en:'Launch production app! Case study, portfolio update.'}
   ];
 
   // --- State ---
@@ -501,13 +491,13 @@
     completed: [],
     current: 1,
     init() {
-      const saved = JSON.parse(localStorage.getItem('dp180_v8') || '{}');
+      const saved = JSON.parse(localStorage.getItem('dp180_v9') || '{}');
       this.completed = saved.completed || [];
       this.current = saved.current || 1;
       this.syncCurrent();
       this.save();
     },
-    save() { localStorage.setItem('dp180_v8', JSON.stringify({ completed: this.completed, current: this.current })); },
+    save() { localStorage.setItem('dp180_v9', JSON.stringify({ completed: this.completed, current: this.current })); },
     syncCurrent() {
       let next = 1;
       for (const d of [...this.completed].sort((a,b)=>a-b)) {
@@ -585,6 +575,10 @@
   });
 
   // --- UI ---
+  function getDesc(day) {
+    return (lang === 'en' && day.desc_en) ? day.desc_en : day.desc;
+  }
+
   function renderStats() {
     document.getElementById('stats').innerHTML = `
       <div class="stat-card"><div class="stat-icon">${STAT_ICONS.current}</div><div><div class="stat-value">${State.current}</div><div class="stat-label">${t('current_label')}</div></div></div>
@@ -674,9 +668,9 @@
     const content = document.getElementById('modalContent');
     const done = State.isDone(dayNum);
     content.innerHTML = `
-      <h3>Day ${day.d}: ${day.t}</h3>
-      <p style="color:var(--text2); margin:12px 0;">${day.desc}</p>
-      <div style="margin-top:16px; display:flex; gap:8px;">
+      <h3>${lang === 'en' ? 'Day' : 'اليوم'} ${day.d}: ${day.t}</h3>
+      <p style="color:var(--text2); margin:12px 0; white-space: pre-wrap; direction: ${lang === 'ar' ? 'rtl' : 'ltr'}; text-align: ${lang === 'ar' ? 'right' : 'left'};">${getDesc(day)}</p>
+      <div style="margin-top:16px; display:flex; gap:8px; justify-content: flex-end;">
         <button class="btn btn-primary" id="completeDayBtn" ${done ? 'disabled' : ''}>${done ? t('done_btn') : t('complete_btn')}</button>
         <button class="btn btn-outline" id="closeModalBtn">${t('close_btn')}</button>
       </div>
