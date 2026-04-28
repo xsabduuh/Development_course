@@ -190,13 +190,11 @@
       <input type="text" class="nav-title-input" id="noteTitle" placeholder="Note title">
     </div>
     <div class="editor-container">
-      <!-- Code Stage -->
       <div class="code-stage" id="codeStage">
         <div class="line-numbers" id="lineNums">1</div>
         <textarea class="code-layer code-textarea" id="codeTextarea" placeholder="Write code…" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
         <pre class="code-layer code-preview"><code class="hljs" id="codeHighlight"></code></pre>
       </div>
-      <!-- Live Preview iframe -->
       <iframe class="live-preview" id="livePreview" sandbox="allow-scripts allow-same-origin" title="Live Preview"></iframe>
     </div>
     <div class="bottom-toolbar">
@@ -252,7 +250,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script>
 (function(){
-  const STORE = 'dpn_v19';
+  const STORE = 'dpn_v20';
   let notes = JSON.parse(localStorage.getItem(STORE)||'[]');
   let currentId = null;
   let filterLang = 'all';
@@ -268,6 +266,13 @@
   const undoBtn = $('undoBtn');
   const redoBtn = $('redoBtn');
 
+  // ─── نظام Undo/Redo مخصص ───
+  const MAX_HISTORY = 100;
+  let undoStack = [];
+  let redoStack = [];
+  let lastSavedState = '';
+  let undoDebounce = null;
+
   // مؤقتات الأداء
   let highlightTimer = null;
   let lineNumbersTimer = null;
@@ -277,7 +282,83 @@
 
   function persist() { localStorage.setItem(STORE, JSON.stringify(notes)); }
 
-  // ══════ HOME ══════
+  // ─── حفظ حالة في مكدس التراجع ───
+  function pushUndoState() {
+    const ta = $('codeTextarea');
+    if (!ta) return;
+    const currentState = ta.value;
+    // لا نحفظ إذا لم يتغير شيء
+    if (currentState === lastSavedState) return;
+    
+    undoStack.push(lastSavedState);
+    if (undoStack.length > MAX_HISTORY) undoStack.shift();
+    
+    redoStack = []; // أي تغيير جديد يمسح تاريخ الإعادة
+    lastSavedState = currentState;
+    updateUndoRedoButtons();
+  }
+
+  // تنفيذ الأمر واستعادة الحالة
+  function applyState(state) {
+    const ta = $('codeTextarea');
+    if (!ta) return;
+    ta.value = state;
+    lastSavedState = state;
+    refreshHighlight();
+    updateStats();
+    drawLineNumbers();
+    syncScroll();
+    updateUndoRedoButtons();
+  }
+
+  function performUndo() {
+    if (undoStack.length === 0) return;
+    const ta = $('codeTextarea');
+    if (!ta) return;
+    
+    // حفظ الحالة الحالية في redoStack
+    redoStack.push(ta.value);
+    const previousState = undoStack.pop();
+    applyState(previousState);
+    
+    if (currentId) {
+      const note = notes.find(n => n.id === currentId);
+      if (note) { note.content = ta.value; note.updated = Date.now(); persist(); }
+    }
+    $('codeTextarea').blur(); // إخفاء لوحة المفاتيح
+  }
+
+  function performRedo() {
+    if (redoStack.length === 0) return;
+    const ta = $('codeTextarea');
+    if (!ta) return;
+    
+    // حفظ الحالة الحالية في undoStack
+    undoStack.push(ta.value);
+    const nextState = redoStack.pop();
+    applyState(nextState);
+    
+    if (currentId) {
+      const note = notes.find(n => n.id === currentId);
+      if (note) { note.content = ta.value; note.updated = Date.now(); persist(); }
+    }
+    $('codeTextarea').blur(); // إخفاء لوحة المفاتيح
+  }
+
+  function updateUndoRedoButtons() {
+    if (undoBtn) undoBtn.disabled = (undoStack.length === 0);
+    if (redoBtn) redoBtn.disabled = (redoStack.length === 0);
+  }
+
+  // مسح التاريخ عند فتح ملاحظة جديدة
+  function resetHistory(initialValue = '') {
+    undoStack = [];
+    redoStack = [];
+    lastSavedState = initialValue;
+    updateUndoRedoButtons();
+  }
+
+  // ─── HOME ───
   function renderHome() {
     let filtered = [...notes];
     if (filterLang !== 'all') filtered = filtered.filter(n => n.lang === filterLang);
@@ -320,7 +401,7 @@
     });
   }
 
-  // ══════ EDITOR ══════
+  // ─── EDITOR ───
   function openEditor(id) {
     currentId = id;
     const note = notes.find(n => n.id === id);
@@ -334,8 +415,8 @@
     refreshHighlight();
     updateStats();
     drawLineNumbers();
+    resetHistory(note.content || '');
     $('codeTextarea').focus();
-    updateUndoRedoButtons();
   }
 
   function openNewNote() {
@@ -356,10 +437,10 @@
     $('codeTextarea').value = '';
     $('codeHighlight').textContent = '';
     switchToCode();
+    resetHistory();
     renderHome();
   }
 
-  // حفظ والعودة إلى الصفحة الرئيسية
   function saveAndClose() {
     if (!currentId) return;
     const note = notes.find(n => n.id === currentId);
@@ -382,35 +463,7 @@
     toast('Deleted');
   }
 
-  // ══════ UNDO / REDO (إخفاء لوحة المفاتيح بعد التنفيذ) ══════
-  function performUndo() {
-    $('codeTextarea').focus();
-    document.execCommand('undo');
-    refreshHighlight();
-    updateStats();
-    drawLineNumbers();
-    updateUndoRedoButtons();
-    setTimeout(() => $('codeTextarea').blur(), 50);
-  }
-
-  function performRedo() {
-    $('codeTextarea').focus();
-    document.execCommand('redo');
-    refreshHighlight();
-    updateStats();
-    drawLineNumbers();
-    updateUndoRedoButtons();
-    setTimeout(() => $('codeTextarea').blur(), 50);
-  }
-
-  function updateUndoRedoButtons() {
-    if ($('codeTextarea')) {
-      undoBtn.disabled = false;
-      redoBtn.disabled = false;
-    }
-  }
-
-  // ══════ PREVIEW ══════
+  // ─── PREVIEW ───
   function switchToPreview() {
     isPreview = true;
     codeStage.style.display = 'none';
@@ -448,7 +501,7 @@
     livePreview.srcdoc = html;
   }
 
-  // ══════ SYNTAX ══════
+  // ─── SYNTAX ───
   function refreshHighlight() {
     clearTimeout(highlightTimer);
     highlightTimer = setTimeout(() => {
@@ -466,6 +519,7 @@
   function syncScroll() {
     const textarea = $('codeTextarea');
     const preview = $('codeHighlight').parentElement;
+    if (!textarea || !preview) return;
     preview.scrollTop = textarea.scrollTop;
     preview.scrollLeft = textarea.scrollLeft;
   }
@@ -512,10 +566,10 @@
     setTimeout(() => t.remove(), 2200);
   }
 
-  // ══════ EVENTS ══════
+  // ─── EVENTS ───
   $('homeNewBtn').addEventListener('click', openNewNote);
   $('editorBackBtn').addEventListener('click', closeEditor);
-  $('saveBtn').addEventListener('click', saveAndClose);  // ← تعديل: زر الحفظ يحفظ ويعود للقائمة
+  $('saveBtn').addEventListener('click', saveAndClose);
   $('deleteBtn').addEventListener('click', deleteCurrent);
   $('copyBtn').addEventListener('click', copyCode);
   $('selectAllBtn').addEventListener('click', selectAllCode);
@@ -526,7 +580,7 @@
     isPreview ? switchToCode() : switchToPreview();
   });
 
-  // معالجة الإدخال
+  // تسجيل التغييرات في تاريخ undo/redo
   $('codeTextarea').addEventListener('input', () => {
     refreshHighlight();
     clearTimeout(statsTimer);
@@ -542,7 +596,10 @@
       clearTimeout(previewTimer);
       previewTimer = setTimeout(updatePreview, 300);
     }
-    updateUndoRedoButtons();
+    
+    // حفظ الحالة بعد توقف قصير (debounce)
+    clearTimeout(undoDebounce);
+    undoDebounce = setTimeout(pushUndoState, 500);
   });
 
   $('codeTextarea').addEventListener('scroll', () => {
@@ -578,31 +635,36 @@
     if (isPreview) updatePreview();
   });
 
-  // Tab وإكمال الأقواس مع الحفاظ على تاريخ undo/redo
+  // Tab وإكمال الأقواس والسطر الجديد مع حفظ الحالة في التاريخ
   $('codeTextarea').addEventListener('keydown', function(e) {
     const ta = this;
     if (e.key === 'Tab') {
       e.preventDefault();
+      pushUndoState(); // حفظ الحالة قبل التعديل
       const start = ta.selectionStart;
       ta.setRangeText('  ', start, ta.selectionEnd, 'end');
       ta.selectionStart = ta.selectionEnd = start + 2;
       refreshHighlight(); updateStats();
+      lastSavedState = ta.value;
       updateUndoRedoButtons();
       return;
     }
     const pairs = { '(': ')', '[': ']', '{': '}', '"': '"', "'": "'", '`': '`' };
     if (pairs[e.key] && !e.ctrlKey && !e.metaKey && !e.altKey) {
       e.preventDefault();
+      pushUndoState(); // حفظ الحالة قبل التعديل
       const start = ta.selectionStart;
       const end = ta.selectionEnd;
       ta.setRangeText(e.key + pairs[e.key], start, end, 'end');
       ta.selectionStart = ta.selectionEnd = start + 1;
       refreshHighlight(); updateStats();
+      lastSavedState = ta.value;
       updateUndoRedoButtons();
       return;
     }
     if (e.key === 'Enter') {
       e.preventDefault();
+      pushUndoState(); // حفظ الحالة قبل التعديل
       const start = ta.selectionStart;
       const value = ta.value;
       const lineStart = value.lastIndexOf('\n', start - 1) + 1;
@@ -615,12 +677,13 @@
       ta.setRangeText('\n' + indent + extra, start, ta.selectionEnd, 'end');
       ta.selectionStart = ta.selectionEnd = start + 1 + indent.length + extra.length;
       refreshHighlight(); updateStats();
+      lastSavedState = ta.value;
       updateUndoRedoButtons();
     }
   });
 
   document.addEventListener('keydown', e => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); saveAndClose(); }  // Ctrl+S يحفظ ويعود
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); saveAndClose(); }
     if ((e.ctrlKey || e.metaKey) && e.key === 'n') { e.preventDefault(); openNewNote(); }
     if ((e.ctrlKey || e.metaKey) && e.key === 'p') { e.preventDefault(); isPreview ? switchToCode() : switchToPreview(); }
     if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); performUndo(); }
