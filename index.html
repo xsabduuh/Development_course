@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>DevPath 180 • مسار تعلم البرمجة</title>
+  <title>DevPath 180 • Full Stack Learning Path</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -221,7 +221,7 @@
     <div class="top-actions">
       <button class="lang-btn" id="langToggle">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
-        <span id="langLabel">العربية</span>
+        <span id="langLabel">English</span>
       </button>
       <button class="menu-btn" id="menuBtn">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
@@ -231,7 +231,7 @@
   <div class="drawer" id="drawer">
     <div class="drawer-header">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-      <span data-i18n="sections_title">الأقسام</span>
+      <span data-i18n="sections_title">Sections</span>
     </div>
     <div class="drawer-list" id="drawerList"></div>
   </div>
@@ -239,22 +239,22 @@
 
   <div class="stats-grid" id="stats"></div>
   <div class="progress-section">
-    <div class="progress-header"><span data-i18n="progress_label">التقدم</span><span id="progressPercent">0%</span></div>
+    <div class="progress-header"><span data-i18n="progress_label">Progress</span><span id="progressPercent">0%</span></div>
     <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
   </div>
 
   <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
     <button class="btn btn-primary" id="continueBtn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-      <span data-i18n="continue_btn">استمر</span>
+      <span data-i18n="continue_btn">Continue</span>
     </button>
     <button class="btn btn-outline" id="expandBtn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
-      <span data-i18n="expand_btn">توسيع الكل</span>
+      <span data-i18n="expand_btn">Expand All</span>
     </button>
     <button class="btn btn-danger" id="resetBtn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
-      <span data-i18n="reset_btn">إعادة</span>
+      <span data-i18n="reset_btn">Reset</span>
     </button>
   </div>
 
@@ -489,13 +489,13 @@
     completed: [],
     current: 1,
     init() {
-      const saved = JSON.parse(localStorage.getItem('dp180_v10') || '{}');
+      const saved = JSON.parse(localStorage.getItem('dp180_final') || '{}');
       this.completed = saved.completed || [];
       this.current = saved.current || 1;
       this.syncCurrent();
       this.save();
     },
-    save() { localStorage.setItem('dp180_v10', JSON.stringify({ completed: this.completed, current: this.current })); },
+    save() { localStorage.setItem('dp180_final', JSON.stringify({ completed: this.completed, current: this.current })); },
     syncCurrent() {
       let next = 1;
       for (const d of [...this.completed].sort((a,b)=>a-b)) {
@@ -553,12 +553,12 @@
     }
   };
 
-  let lang = localStorage.getItem('devpath_lang') || 'ar';
+  let lang = localStorage.getItem('devpath_lang') || 'en';
   function t(key) { return i18n[lang][key] || key; }
 
   function applyLanguage() {
     document.documentElement.lang = lang;
-    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    // no dir change - always ltr
     document.getElementById('langLabel').textContent = lang === 'ar' ? 'العربية' : 'English';
     document.querySelectorAll('[data-i18n]').forEach(el => {
       el.textContent = t(el.dataset.i18n);
@@ -574,11 +574,11 @@
 
   // --- UI ---
   function getTitle(day) {
-    return (lang === 'en' && day.t_en) ? day.t_en : day.t;
+    return (lang === 'ar' && day.t) ? day.t : (day.t_en || day.t);
   }
 
   function getDesc(day) {
-    return (lang === 'en' && day.desc_en) ? day.desc_en : day.desc;
+    return (lang === 'ar' && day.desc) ? day.desc : (day.desc_en || day.desc);
   }
 
   function renderStats() {
@@ -671,10 +671,9 @@
     const done = State.isDone(dayNum);
     const title = getTitle(day);
     const description = getDesc(day);
-    const dir = lang === 'ar' ? 'rtl' : 'ltr';
     content.innerHTML = `
-      <h3 style="direction: ${dir}; text-align: ${dir === 'rtl' ? 'right' : 'left'};">${lang === 'en' ? 'Day' : 'اليوم'} ${day.d}: ${title}</h3>
-      <p style="color:var(--text2); margin:12px 0; white-space: pre-wrap; direction: ${dir}; text-align: ${dir === 'rtl' ? 'right' : 'left'};">${description}</p>
+      <h3 style="direction: ltr; text-align: left;">${lang === 'en' ? 'Day' : 'اليوم'} ${day.d}: ${title}</h3>
+      <p style="color:var(--text2); margin:12px 0; white-space: pre-wrap; direction: ltr; text-align: left;">${description}</p>
       <div style="margin-top:16px; display:flex; gap:8px; justify-content: flex-end;">
         <button class="btn btn-primary" id="completeDayBtn" ${done ? 'disabled' : ''}>${done ? t('done_btn') : t('complete_btn')}</button>
         <button class="btn btn-outline" id="closeModalBtn">${t('close_btn')}</button>
