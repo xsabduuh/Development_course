@@ -251,59 +251,233 @@
     'Full Project':'🏆','Deployment':'🚀'
   };
 
-  // بيانات الأيام كاملة (مختصرة قليلاً للحفاظ على المساحة، لكنها كاملة وظيفياً)
+  // ✅ المصفوفة الكاملة (180 يومًا)
   const ROADMAP = [
-    {d:1,t:'Intro to Web Development',s:'HTML',type:'learning',desc:'Understand how the web works: clients, servers, HTTP, browsers. Set up VS Code and extensions.'},
-    {d:2,t:'HTML Document Structure',s:'HTML',type:'learning',desc:'Learn DOCTYPE, html, head, body, meta tags, linking CSS and JS files.'},
-    {d:3,t:'Text Elements & Headings',s:'HTML',type:'learning',desc:'Master h1–h6, p, span, br, hr, strong, em, mark, small, code elements.'},
-    {d:4,t:'Links & Images',s:'HTML',type:'learning',desc:'Create anchor hyperlinks, img with src/alt, absolute vs relative paths, image formats.'},
-    {d:5,t:'Lists & Tables',s:'HTML',type:'learning',desc:'Build ul/ol/li, nested lists, table with thead/tbody/tr/th/td, colspan/rowspan.'},
-    {d:6,t:'Forms & Input Elements',s:'HTML',type:'learning',desc:'Create form with input types, textarea, select, radio, checkbox, button, submit.'},
-    {d:7,t:'Semantic HTML',s:'HTML',type:'learning',desc:'Use header, nav, main, article, section, aside, footer for SEO and accessibility.'},
-    {d:8,t:'HTML5 Features',s:'HTML',type:'learning',desc:'Explore audio, video, canvas, details/summary, progress, datalist, template.'},
-    {d:9,t:'Accessibility Basics',s:'HTML',type:'learning',desc:'ARIA labels, alt text, tabindex, role attributes, skip navigation, screen-reader patterns.'},
-    {d:10,t:'Project: HTML Portfolio',s:'HTML',type:'project',desc:'Build a complete personal portfolio page using only semantic HTML.',res:['https://developer.mozilla.org/en-US/docs/Learn/HTML']},
-    {d:11,t:'CSS Syntax & Selectors',s:'CSS',type:'learning',desc:'Properties, values, rules, class/id/element selectors, combinators, specificity.'},
-    {d:12,t:'Colors & Backgrounds',s:'CSS',type:'learning',desc:'Hex/rgb/hsl colors, gradients, background-image/size/position, multiple backgrounds.'},
-    {d:13,t:'The Box Model',s:'CSS',type:'learning',desc:'Margin, border, padding, content areas, box-sizing: border-box vs content-box.'},
-    {d:14,t:'Typography & Fonts',s:'CSS',type:'learning',desc:'font-family stacks, size, weight, line-height, letter-spacing, Google Fonts.'},
-    {d:15,t:'Display & Positioning',s:'CSS',type:'learning',desc:'block/inline/inline-block/none, static/relative/absolute/fixed/sticky, z-index.'},
-    {d:16,t:'Flexbox Basics',s:'CSS',type:'learning',desc:'display:flex, flex-direction, justify-content, align-items, flex-wrap, gap.'},
-    {d:17,t:'Flexbox Advanced',s:'CSS',type:'learning',desc:'flex-grow/shrink/basis, align-self, order, nested flex containers.'},
-    {d:18,t:'CSS Grid Basics',s:'CSS',type:'learning',desc:'display:grid, grid-template-columns/rows, gap, grid-column and grid-row placement.'},
-    {d:19,t:'CSS Grid Advanced',s:'CSS',type:'learning',desc:'Named grid areas, auto-fit/auto-fill, minmax(), combining Grid and Flexbox.'},
-    {d:20,t:'Responsive Design',s:'CSS',type:'learning',desc:'Media queries, mobile-first, breakpoints, vw/vh, em/rem, fluid layouts.'},
-    {d:21,t:'Transitions & Animations',s:'CSS',type:'learning',desc:'transition, @keyframes, animation shorthand, timing functions, smooth effects.'},
-    {d:22,t:'CSS Variables',s:'CSS',type:'learning',desc:'Custom properties with --, :root scope, inheritance, dynamic theming.'},
-    {d:23,t:'Pseudo-classes/Elements',s:'CSS',type:'learning',desc:':hover, :focus, :nth-child(), ::before, ::after, tooltips, custom UI.'},
-    {d:24,t:'CSS Best Practices',s:'CSS',type:'learning',desc:'BEM naming, organizing styles, specificity management, CSS resets, performance.'},
-    {d:25,t:'Project: Responsive Landing',s:'CSS',type:'project',desc:'Build a fully responsive landing page with hero, features, pricing, footer.',res:['https://css-tricks.com']},
-    // سيتم إكمالها لاحقاً بنفس النمط... (لضمان 180 يوم)
-  ];
+    // HTML (1–10)
+    {d:1,t:'مقدمة إلى تطوير الويب',s:'HTML',type:'learning',desc:'فهم كيفية عمل الويب: العملاء، الخوادم، HTTP، المتصفحات. إعداد بيئة التطوير باستخدام VS Code والملحقات.'},
+    {d:2,t:'هيكل مستند HTML',s:'HTML',type:'learning',desc:'تعلم DOCTYPE, html, head, body، الوسوم الوصفية وربط ملفات CSS و JS.'},
+    {d:3,t:'العناصر النصية والعناوين',s:'HTML',type:'learning',desc:'إتقان h1–h6, p, span, br, hr, strong, em, mark, small, code.'},
+    {d:4,t:'الروابط والصور',s:'HTML',type:'learning',desc:'إنشاء ارتباطات تشعبية، img مع src/alt، المسارات المطلقة والنسبية، تنسيقات الصور.'},
+    {d:5,t:'القوائم والجداول',s:'HTML',type:'learning',desc:'بناء ul/ol/li, قوائم متداخلة, table مع thead/tbody/tr/th/td, colspan/rowspan.'},
+    {d:6,t:'النماذج وعناصر الإدخال',s:'HTML',type:'learning',desc:'إنشاء form مع أنواع الإدخال, textarea, select, radio, checkbox, button, submit.'},
+    {d:7,t:'HTML الدلالي',s:'HTML',type:'learning',desc:'استخدام header, nav, main, article, section, aside, footer لتحسين SEO والوصول.'},
+    {d:8,t:'ميزات HTML5',s:'HTML',type:'learning',desc:'audio, video, canvas, details/summary, progress, datalist, template.'},
+    {d:9,t:'أساسيات الوصول',s:'HTML',type:'learning',desc:'تسميات ARIA, النص البديل, tabindex, سمات الدور, تخطي التنقل.'},
+    {d:10,t:'🔥 مشروع: صفحة HTML شخصية',s:'HTML',type:'project',desc:'بناء صفحة شخصية كاملة باستخدام HTML الدلالي فقط.'},
 
-  // لإكمال المصفوفة تلقائياً (اختياري)
-  while (ROADMAP.length < TOTAL_DAYS) {
-    const d = ROADMAP.length + 1;
-    const sectionIndex = Math.floor((d - 1) / 12) % SECTIONS.length;
-    ROADMAP.push({
-      d, t: `Day ${d} Task`, s: SECTIONS[sectionIndex],
-      type: (d % 15 === 0) ? 'project' : 'learning',
-      desc: `Description for day ${d}.`
-    });
-  }
+    // CSS (11–25)
+    {d:11,t:'تركيب CSS والمحددات',s:'CSS',type:'learning',desc:'الخصائص، القيم، القواعد، محددات class/id/element، التحيدات، التخصصية.'},
+    {d:12,t:'الألوان والخلفيات',s:'CSS',type:'learning',desc:'تنسيقات hex/rgb/hsl، التدرجات، background-image/size/position، خلفيات متعددة.'},
+    {d:13,t:'نموذج الصندوق',s:'CSS',type:'learning',desc:'Margin, border, padding, content، box-sizing: border-box مقابل content-box.'},
+    {d:14,t:'الخطوط والطباعة',s:'CSS',type:'learning',desc:'font-family، الحجم، الوزن، ارتفاع السطر، تباعد الأحرف، خطوط Google.'},
+    {d:15,t:'العرض والموضع',s:'CSS',type:'learning',desc:'block/inline/inline-block/none، static/relative/absolute/fixed/sticky، z-index.'},
+    {d:16,t:'أساسيات Flexbox',s:'CSS',type:'learning',desc:'display:flex، flex-direction، justify-content، align-items، flex-wrap، gap.'},
+    {d:17,t:'Flexbox متقدم',s:'CSS',type:'learning',desc:'flex-grow/shrink/basis، align-self، order، حاويات flex متداخلة.'},
+    {d:18,t:'أساسيات CSS Grid',s:'CSS',type:'learning',desc:'display:grid، grid-template-columns/rows، gap، grid-column و grid-row.'},
+    {d:19,t:'CSS Grid متقدم',s:'CSS',type:'learning',desc:'مناطق الشبكة المسماة، auto-fit/auto-fill، minmax()، دمج Grid و Flexbox.'},
+    {d:20,t:'التصميم المتجاوب',s:'CSS',type:'learning',desc:'استعلامات الوسائط، mobile-first، نقاط التوقف، vw/vh، em/rem، تخطيطات سائلة.'},
+    {d:21,t:'الانتقالات والحركات',s:'CSS',type:'learning',desc:'transition، @keyframes، animation، دوال التوقيت، تأثيرات سلسة.'},
+    {d:22,t:'متغيرات CSS',s:'CSS',type:'learning',desc:'خصائص مخصصة مع --، نطاق :root، الوراثة، السمات الديناميكية.'},
+    {d:23,t:'الفئات والعناصر الزائفة',s:'CSS',type:'learning',desc:':hover, :focus, :nth-child(), ::before, ::after, تلميحات، واجهة مخصصة.'},
+    {d:24,t:'أفضل ممارسات CSS',s:'CSS',type:'learning',desc:'تسمية BEM، تنظيم الأنماط، إدارة التخصصية، إعادة تعيين CSS، الأداء.'},
+    {d:25,t:'🔥 مشروع: صفحة هبوط متجاوبة',s:'CSS',type:'project',desc:'بناء صفحة هبوط متجاوبة بالكامل مع قسم رئيسي ومميزات وأسعار.'},
+
+    // JavaScript Basics (26–37)
+    {d:26,t:'مقدمة JavaScript',s:'JavaScript Basics',type:'learning',desc:'ما هي JS، كيفية تضمينها، وحدة تحكم المتصفح، console.log، وسم script.'},
+    {d:27,t:'المتغيرات وأنواع البيانات',s:'JavaScript Basics',type:'learning',desc:'var/let/const، string/number/boolean/null/undefined/symbol، تحويل الأنواع.'},
+    {d:28,t:'المعاملات والتعابير',s:'JavaScript Basics',type:'learning',desc:'حسابية، إسناد، مقارنة، منطقية، ثلاثية، أولويات المعاملات.'},
+    {d:29,t:'الشروط',s:'JavaScript Basics',type:'learning',desc:'if/else if/else، switch، قيم truthy/falsy، تقييم الدائرة القصيرة.'},
+    {d:30,t:'الحلقات',s:'JavaScript Basics',type:'learning',desc:'for, while, do...while, for...of, for...in, break و continue.'},
+    {d:31,t:'أساسيات الدوال',s:'JavaScript Basics',type:'learning',desc:'إعلان، استدعاء، معاملات، وسائط، قيم إرجاع، إعلانات مقابل تعبيرات.'},
+    {d:32,t:'الدوال المتقدمة',s:'JavaScript Basics',type:'learning',desc:'معاملات افتراضية، rest، callbacks، دوال الرتبة الأعلى، مقدمة في النطاق.'},
+    {d:33,t:'أساسيات المصفوفات',s:'JavaScript Basics',type:'learning',desc:'إنشاء، وصول، .length، push/pop، shift/unshift، splice، slice.'},
+    {d:34,t:'طرق المصفوفات',s:'JavaScript Basics',type:'learning',desc:'.map(), .filter(), .reduce(), .forEach(), .find(), .some(), .every().'},
+    {d:35,t:'أساسيات الكائنات',s:'JavaScript Basics',type:'learning',desc:'إنشاء كائنات، ترميز نقطي/أقواس، إضافة/تحديث/حذف، كائنات متداخلة.'},
+    {d:36,t:'طرق الكائن و this',s:'JavaScript Basics',type:'learning',desc:'this، Object.keys/values/entries، spread، تفكيك الكائنات.'},
+    {d:37,t:'معالجة DOM',s:'JavaScript Basics',type:'learning',desc:'querySelector، querySelectorAll، textContent/innerHTML، classList، style.'},
+
+    // Practice (38–45)
+    {d:38,t:'أحداث DOM',s:'Practice',type:'learning',desc:'click, submit, input, change, addEventListener، كائن الحدث، الفقاعات، التفويض.'},
+    {d:39,t:'التحقق من النماذج',s:'Practice',type:'learning',desc:'التحقق من المدخلات، فحوصات فارغة، تعبير نمطي للبريد الإلكتروني، رسائل خطأ مخصصة.'},
+    {d:40,t:'التخزين المحلي',s:'Practice',type:'learning',desc:'setItem/getItem/removeItem، JSON.stringify/parse للكائنات.'},
+    {d:41,t:'بناء تطبيق عداد',s:'Practice',type:'learning',desc:'زيادة، نقصان، إعادة تعيين عداد مع تحديثات DOM.'},
+    {d:42,t:'بناء قائمة مهام',s:'Practice',type:'learning',desc:'إضافة/إكمال/حذف مهام، استمرارية localStorage، CRUD كامل.'},
+    {d:43,t:'بناء تطبيق اختبار',s:'Practice',type:'learning',desc:'اختيار متعدد، تتبع النتيجة، عرض النتائج، إعادة المحاولة.'},
+    {d:44,t:'بناء آلة حاسبة',s:'Practice',type:'learning',desc:'عمليات حسابية، معالجة العلامة العشرية، مسح، عمليات متسلسلة.'},
+    {d:45,t:'🔥 مشروع: تطبيق ويب تفاعلي',s:'Practice',type:'project',desc:'دمج المهارات في تطبيق كامل (متتبع نفقات، متتبع عادات).'},
+
+    // Advanced JS (46–55)
+    {d:46,t:'نظرة عامة على ES6+',s:'Advanced JS',type:'learning',desc:'let/const، دوال السهم، قوالب النص، التفكيك، spread/rest، وحدات ES.'},
+    {d:47,t:'دوال السهم والنطاق',s:'Advanced JS',type:'learning',desc:'صياغة السهم، الإرجاع الضمني، lexical this، سلسلة النطاق.'},
+    {d:48,t:'قوالب النص',s:'Advanced JS',type:'learning',desc:'سلاسل backtick، ${}، سلاسل متعددة الأسطر، قوالب موسومة.'},
+    {d:49,t:'التفكيك و Spread',s:'Advanced JS',type:'learning',desc:'تفكيك المصفوفات/الكائنات، spread (...)، معاملات rest.'},
+    {d:50,t:'الوعود و Async/Await',s:'Advanced JS',type:'learning',desc:'JS غير متزامن، سلسلة الوعود، .then/.catch، صياغة async/await.'},
+    {d:51,t:'Fetch API',s:'Advanced JS',type:'learning',desc:'fetch() للطلبات، GET/POST، تحليل JSON، معالجة الأخطاء.'},
+    {d:52,t:'معالجة الأخطاء',s:'Advanced JS',type:'learning',desc:'try...catch...finally، أخطاء مخصصة، برمجة دفاعية.'},
+    {d:53,t:'الإغلاقات بعمق',s:'Advanced JS',type:'learning',desc:'بيئة معجمية، حالات استخدام الإغلاق، خصوصية البيانات، memoization.'},
+    {d:54,t:'النماذج الأولية والفئات',s:'Advanced JS',type:'learning',desc:'وراثة النماذج الأولية، صياغة class، constructor، extends، super.'},
+    {d:55,t:'وحدات ES',s:'Advanced JS',type:'learning',desc:'وحدات ES، تصدير/استيراد مسمى وافتراضي، نطاق الوحدة.'},
+
+    // Mini Apps (56–65)
+    {d:56,t:'تطبيق الطقس',s:'Mini Apps',type:'learning',desc:'بناء تطبيق طقس باستخدام API عام، درجة الحرارة، الحالة، التوقعات.'},
+    {d:57,t:'الباحث عن الوصفات',s:'Mini Apps',type:'learning',desc:'تطبيق بحث وصفات مع API، مكونات، تعليمات، صور.'},
+    {d:58,t:'متتبع النفقات',s:'Mini Apps',type:'learning',desc:'نظام دخل/مصروفات، رصيد جارٍ، فئات، استمرارية localStorage.'},
+    {d:59,t:'مؤقت بومودورو',s:'Mini Apps',type:'learning',desc:'فترات عمل/استراحة، إشعارات، تتبع الجلسات.'},
+    {d:60,t:'تطبيق ملاحظات',s:'Mini Apps',type:'learning',desc:'إنشاء، تعديل، حذف، بحث عن ملاحظات، localStorage، markdown.'},
+    {d:61,t:'معرض صور',s:'Mini Apps',type:'learning',desc:'معرض متجاوب، lightbox، تحميل كسول، تخطيط شبكي.'},
+    {d:62,t:'واجهة مشغل موسيقى',s:'Mini Apps',type:'learning',desc:'تشغيل/إيقاف، شريط تقدم، مستوى صوت، قائمة تشغيل، HTML5 Audio.'},
+    {d:63,t:'واجهة محادثة',s:'Mini Apps',type:'learning',desc:'فقاعات رسائل، إدخال، مؤشر كتابة، تمرير تلقائي.'},
+    {d:64,t:'لوحة تحكم',s:'Mini Apps',type:'learning',desc:'لوحة إدارة، شريط جانبي، بطاقات إحصائيات، رسوم بيانية، جدول بيانات.'},
+    {d:65,t:'🔥 مشروع: مجموعة تطبيقات مصغرة',s:'Mini Apps',type:'project',desc:'دمج تطبيقين مصغرين أو أكثر في مشروع واحد متماسك.'},
+
+    // Tools + Git (66–70)
+    {d:66,t:'أساسيات Git',s:'Tools + Git',type:'learning',desc:'تثبيت Git، init، منطقة التجهيز، git status، إعداد التكوين.'},
+    {d:67,t:'أوامر Git',s:'Tools + Git',type:'learning',desc:'add, commit, log, diff, branch, checkout, merge, stash.'},
+    {d:68,t:'GitHub والمستودعات البعيدة',s:'Tools + Git',type:'learning',desc:'مستودعات GitHub، push/pull/clone/fetch، طلبات السحب.'},
+    {d:69,t:'ملحقات VS Code',s:'Tools + Git',type:'learning',desc:'Prettier, ESLint, Live Server, GitLens، اختصارات، إعدادات.'},
+    {d:70,t:'الطرفية وأدوات CLI',s:'Tools + Git',type:'learning',desc:'أوامر الصدفة، عمليات الملفات، npm/yarn، أدوات CLI.'},
+
+    // React (71–83)
+    {d:71,t:'مقدمة React',s:'React',type:'learning',desc:'ما هي React، إعداد Vite، هيكل المشروع، node_modules.'},
+    {d:72,t:'JSX والمكونات',s:'React',type:'learning',desc:'قواعد JSX، مكونات وظيفية، تداخل، fragments.'},
+    {d:73,t:'Props و PropTypes',s:'React',type:'learning',desc:'تمرير البيانات، تفكيك props، قيم افتراضية، التحقق.'},
+    {d:74,t:'الحالة و useState',s:'React',type:'learning',desc:'useState hook، تحديث الحالة، التجميع، رفع الحالة.'},
+    {d:75,t:'معالجة الأحداث',s:'React',type:'learning',desc:'onClick, onChange, onSubmit، وسائط الحدث، preventDefault.'},
+    {d:76,t:'العرض الشرطي',s:'React',type:'learning',desc:'أنماط ثلاثية، &&، حالات تحميل/خطأ/فارغة.'},
+    {d:77,t:'القوائم والمفاتيح',s:'React',type:'learning',desc:'.map() للقوائم، خاصية key الفريدة، إعادة التسوية.'},
+    {d:78,t:'النماذج في React',s:'React',type:'learning',desc:'محكومة مقابل غير محكومة، حالة النموذج، التحقق.'},
+    {d:79,t:'useEffect Hook',s:'React',type:'learning',desc:'الآثار الجانبية، مصفوفة التبعيات، التنظيف، جلب البيانات.'},
+    {d:80,t:'useContext والخطافات المخصصة',s:'React',type:'learning',desc:'createContext/useContext، بناء خطافات مخصصة.'},
+    {d:81,t:'React Router',s:'React',type:'learning',desc:'BrowserRouter, Routes, Route, Link, NavLink، معاملات URL.'},
+    {d:82,t:'إدارة الحالة',s:'React',type:'learning',desc:'حدود Context API، Redux/Zustand/Jotai.'},
+    {d:83,t:'أفضل ممارسات React',s:'React',type:'learning',desc:'هيكل المجلدات، التركيب، React.memo, useMemo, useCallback.'},
+
+    // React Practice (84–100)
+    {d:84,t:'بناء مدونة',s:'React Practice',type:'learning',desc:'قائمة منشورات، عرض فردي، واجهة CMS، React Router.'},
+    {d:85,t:'واجهة متجر إلكتروني',s:'React Practice',type:'learning',desc:'شبكة منتجات، صفحة تفاصيل، عربة تسوق، إتمام الشراء.'},
+    {d:86,t:'واجهة توثيق',s:'React Practice',type:'learning',desc:'تسجيل دخول/حساب، تخزين رمز، مسارات محمية، ملف شخصي.'},
+    {d:87,t:'لوحة تحكم مع رسوم بيانية',s:'React Practice',type:'learning',desc:'لوحة تحليلات، Recharts/Chart.js.'},
+    {d:88,t:'تغذية وسائل التواصل',s:'React Practice',type:'learning',desc:'تمرير لانهائي، بطاقات منشورات، إعجابات/تعليقات.'},
+    {d:89,t:'مكون رفع ملفات',s:'React Practice',type:'learning',desc:'سحب وإفلات، معاينة، شريط تقدم، تحقق من النوع.'},
+    {d:90,t:'نظام بحث وتصفية',s:'React Practice',type:'learning',desc:'بحث مع debouncing، تصفية متعددة، مزامنة حالة URL.'},
+    {d:91,t:'التمرير اللانهائي',s:'React Practice',type:'learning',desc:'Intersection Observer، تحميل دفعات، دوارات تحميل.'},
+    {d:92,t:'تحديثات الوقت الحقيقي',s:'React Practice',type:'learning',desc:'اقتراع، محاكاة WebSocket، واجهة حية.'},
+    {d:93,t:'حركات بصرية',s:'React Practice',type:'learning',desc:'انتقالات صفحات، تأثيرات hover/tap.'},
+    {d:94,t:'اختبار تطبيقات React',s:'React Practice',type:'learning',desc:'Jest، React Testing Library، اختبارات وحدة/تكامل.'},
+    {d:95,t:'تحسين الأداء',s:'React Practice',type:'learning',desc:'تقسيم الكود، React.lazy، Suspense، memoization.'},
+    {d:96,t:'الوصول في React',s:'React Practice',type:'learning',desc:'ARIA، تنقل بلوحة المفاتيح، إدارة التركيز.'},
+    {d:97,t:'تقسيم الكود',s:'React Practice',type:'learning',desc:'تقسيم قائم على المسار، استيراد ديناميكي، حدود Suspense.'},
+    {d:98,t:'تطبيقات الويب التقدمية',s:'React Practice',type:'learning',desc:'Service worker، manifest، دعم غير متصل، تثبيت.'},
+    {d:99,t:'React + TypeScript',s:'React Practice',type:'learning',desc:'كتابة الأنواع للـ props، state، الأحداث، generics.'},
+    {d:100,t:'🔥 مشروع: تطبيق React كامل',s:'React Practice',type:'project',desc:'تطبيق SPA كامل مع توجيه، حالة عامة، API، واجهة مصقولة.'},
+
+    // Backend (101–110)
+    {d:101,t:'مقدمة Node.js',s:'Backend',type:'learning',desc:'بيئة تشغيل Node، حلقة الأحداث، npm، وحدة http، خادم بسيط.'},
+    {d:102,t:'إعداد Express.js',s:'Backend',type:'learning',desc:'تثبيت Express، إنشاء خادم، app.get()، app.listen()، nodemon.'},
+    {d:103,t:'التوجيه والوسائط',s:'Backend',type:'learning',desc:'Express Router، morgan/cors/body-parser، وسائط مخصصة.'},
+    {d:104,t:'الطلب والاستجابة',s:'Backend',type:'learning',desc:'req.params, req.query, req.body، استجابات JSON، رموز الحالة.'},
+    {d:105,t:'تصميم REST API',s:'Backend',type:'learning',desc:'نقاط نهاية RESTful، طرق HTTP، هيكل URL، الاصطلاحات.'},
+    {d:106,t:'التوثيق (JWT)',s:'Backend',type:'learning',desc:'رموز JWT، تجزئة bcrypt، مسارات محمية، تسجيل دخول/حساب.'},
+    {d:107,t:'رفع الملفات',s:'Backend',type:'learning',desc:'Multer، تخزين محلي/سحابي، تحقق، تقديم ملفات.'},
+    {d:108,t:'معالجة الأخطاء',s:'Backend',type:'learning',desc:'وسيط أخطاء عام، مجمع async، تنسيق استجابة متسق.'},
+    {d:109,t:'أفضل ممارسات الأمان',s:'Backend',type:'learning',desc:'XSS, CSRF, SQL injection, helmet, rate limiting, CORS.'},
+    {d:110,t:'اختبار APIs',s:'Backend',type:'learning',desc:'Jest, Supertest، اختبارات وحدة/تكامل، نهج TDD.'},
+
+    // API Practice (111–130)
+    {d:111,t:'مسارات RESTful',s:'API Practice',type:'learning',desc:'مجموعة مسارات كاملة لمورد، اصطلاحات التسمية.'},
+    {d:112,t:'عمليات CRUD',s:'API Practice',type:'learning',desc:'إنشاء/قراءة/تحديث/حذف، حالات حدية، تحقق.'},
+    {d:113,t:'معاملات الاستعلام',s:'API Practice',type:'learning',desc:'تصفية، اختيار حقول، بحث عبر معاملات الاستعلام.'},
+    {d:114,t:'ترقيم الصفحات',s:'API Practice',type:'learning',desc:'Pagination بالإزاحة/المؤشر، بيانات وصفية.'},
+    {d:115,t:'الفرز والتصفية',s:'API Practice',type:'learning',desc:'فرز متعدد المعايير، تصفية ديناميكية.'},
+    {d:116,t:'تحجيم API',s:'API Practice',type:'learning',desc:'تحجيم URL مقابل الرأس، تغييرات فاصلة، إهمال.'},
+    {d:117,t:'تحديد المعدل',s:'API Practice',type:'learning',desc:'express-rate-limit، حماية من الإساءة.'},
+    {d:118,t:'CORS والأمان',s:'API Practice',type:'learning',desc:'تكوين CORS، طلبات preflight، الأصول المسموحة.'},
+    {d:119,t:'توثيق API',s:'API Practice',type:'learning',desc:'Swagger/OpenAPI، توثيق نقاط النهاية.'},
+    {d:120,t:'مقدمة WebSockets',s:'API Practice',type:'learning',desc:'Socket.io، اتصال ثنائي الاتجاه، غرف، أحداث.'},
+    {d:121,t:'Chat API',s:'API Practice',type:'learning',desc:'غرف محادثة، سجل رسائل، مؤشرات حضور.'},
+    {d:122,t:'خدمة البريد الإلكتروني',s:'API Practice',type:'learning',desc:'Nodemailer/SendGrid، إعادة تعيين كلمة المرور.'},
+    {d:123,t:'دمج الدفع',s:'API Practice',type:'learning',desc:'Stripe/PayPal، webhooks، اشتراكات.'},
+    {d:124,t:'API معالجة الصور',s:'API Practice',type:'learning',desc:'Sharp، رفع، تغيير حجم، قص، تحويل.'},
+    {d:125,t:'توليد PDF',s:'API Practice',type:'learning',desc:'Puppeteer أو PDFKit، فواتير، تقارير.'},
+    {d:126,t:'استراتيجيات التخزين المؤقت',s:'API Practice',type:'learning',desc:'Redis، ذاكرة مخبأة، استراتيجيات إبطال.'},
+    {d:127,t:'التسجيل والمراقبة',s:'API Practice',type:'learning',desc:'Winston/Pino، تتبع الأخطاء، فحوصات الصحة.'},
+    {d:128,t:'اختبار Postman',s:'API Practice',type:'learning',desc:'مجموعات، بيئات، نصوص اختبار، Newman CLI.'},
+    {d:129,t:'مقدمة GraphQL',s:'API Practice',type:'learning',desc:'Apollo Server، مخطط، محللات، queries/mutations.'},
+    {d:130,t:'🔥 مشروع: REST API كامل',s:'API Practice',type:'project',desc:'API إنتاجي مع توثيق، CRUD، pagination.'},
+
+    // Database (131–136)
+    {d:131,t:'مفاهيم قواعد البيانات',s:'Database',type:'learning',desc:'علائقية مقابل غير علائقية، ACID، مبرهنة CAP.'},
+    {d:132,t:'إعداد MongoDB',s:'Database',type:'learning',desc:'محلي/Atlas، الصدفة، Compass GUI، مستندات BSON.'},
+    {d:133,t:'CRUD مع MongoDB',s:'Database',type:'learning',desc:'insertOne/Many, find, updateOne, deleteOne.'},
+    {d:134,t:'Mongoose ODM',s:'Database',type:'learning',desc:'مخططات، نماذج، خطافات وسيطة، تحقق.'},
+    {d:135,t:'أساسيات SQL',s:'Database',type:'learning',desc:'SELECT, INSERT, UPDATE, DELETE, JOIN, GROUP BY, HAVING.'},
+    {d:136,t:'إعداد PostgreSQL',s:'Database',type:'learning',desc:'إعداد محلي، psql، pgAdmin، إنشاء قواعد بيانات.'},
+
+    // DB Integration (137–150)
+    {d:137,t:'ربط DB بـ API',s:'DB Integration',type:'learning',desc:'سلاسل اتصال، متغيرات بيئة، تجميع الاتصالات.'},
+    {d:138,t:'نموذج المستخدم',s:'DB Integration',type:'learning',desc:'مخطط مستخدم: اسم، بريد، كلمة مرور، أدوار.'},
+    {d:139,t:'العلاقات',s:'DB Integration',type:'learning',desc:'واحد-لواحد، واحد-لمتعدد، متعدد-لمتعدد.'},
+    {d:140,t:'خطوط التجميع',s:'DB Integration',type:'learning',desc:'MongoDB $match, $group, $sort, $project, $lookup.'},
+    {d:141,t:'الفهرسة والأداء',s:'DB Integration',type:'learning',desc:'فهارس، فهارس مركبة، خطط شرح، تحسين.'},
+    {d:142,t:'المعاملات',s:'DB Integration',type:'learning',desc:'عمليات ذرية، جلسات MongoDB، تراجع.'},
+    {d:143,t:'التحقق من البيانات',s:'DB Integration',type:'learning',desc:'مدققات Mongoose، قيود SQL، تكامل البيانات.'},
+    {d:144,t:'النسخ الاحتياطي والاستعادة',s:'DB Integration',type:'learning',desc:'mongodump/restore, pg_dump/restore.'},
+    {d:145,t:'الترحيلات',s:'DB Integration',type:'learning',desc:'تغييرات المخطط، Knex.js، إضافات Mongoose.'},
+    {d:146,t:'استعلامات متقدمة',s:'DB Integration',type:'learning',desc:'استعلامات فرعية SQL، دوال النافذة.'},
+    {d:147,t:'البحث النصي الكامل',s:'DB Integration',type:'learning',desc:'MongoDB $text، PostgreSQL tsvector/tsquery.'},
+    {d:148,t:'بذر البيانات',s:'DB Integration',type:'learning',desc:'نصوص بذر، faker.js، أوامر بذر.'},
+    {d:149,t:'أمان قاعدة البيانات',s:'DB Integration',type:'learning',desc:'تكوين المصادقة، TLS، قوائم السماح.'},
+    {d:150,t:'🔥 مشروع: API مدعوم بقاعدة بيانات',s:'DB Integration',type:'project',desc:'API كامل مع DB، توثيق، علاقات.'},
+
+    // Full Stack (151–155)
+    {d:151,t:'ربط الواجهة بالخلفية',s:'Full Stack',type:'learning',desc:'React إلى Express، fetch/axios، CORS.'},
+    {d:152,t:'حالة بيانات API',s:'Full Stack',type:'learning',desc:'React Query/SWR، تخزين مؤقت، تحديثات متفائلة.'},
+    {d:153,t:'تدفق التوثيق',s:'Full Stack',type:'learning',desc:'تسجيل دخول/حساب، تخزين رمز JWT.'},
+    {d:154,t:'تدفق رفع الملفات',s:'Full Stack',type:'learning',desc:'معاينة أمامية، Multer خلفي، تقديم.'},
+    {d:155,t:'ميزات الوقت الحقيقي',s:'Full Stack',type:'learning',desc:'Socket.io، إشعارات حية، محادثة.'},
+
+    // Full Project (156–170)
+    {d:156,t:'تخطيط المشروع',s:'Full Project',type:'learning',desc:'ميزات، إطارات سلكية، ERD، تصميم API.'},
+    {d:157,t:'إعداد Monorepo',s:'Full Project',type:'learning',desc:'مجلدات عميل وخادم، أنواع مشتركة.'},
+    {d:158,t:'نظام التوثيق',s:'Full Project',type:'learning',desc:'تسجيل، تحقق بريد، تسجيل دخول، إعادة تعيين.'},
+    {d:159,t:'لوحة تحكم وتحليلات',s:'Full Project',type:'learning',desc:'بيانات مستخدم، رسوم بيانية من API.'},
+    {d:160,t:'ميزات CRUD',s:'Full Project',type:'learning',desc:'CRUD كامل للموارد، نماذج، جداول.'},
+    {d:161,t:'بحث وتصفية',s:'Full Project',type:'learning',desc:'بحث مع debouncing، تصفية، حالة URL.'},
+    {d:162,t:'نظام إشعارات',s:'Full Project',type:'learning',desc:'داخل التطبيق/بريد، أيقونة جرس.'},
+    {d:163,t:'لوحة الإدارة',s:'Full Project',type:'learning',desc:'منطقة إدارة، إدارة مستخدمين، RBAC.'},
+    {d:164,t:'إعدادات المستخدم',s:'Full Project',type:'learning',desc:'تعديل ملف شخصي، رفع صورة رمزية.'},
+    {d:165,t:'ميزات اجتماعية',s:'Full Project',type:'learning',desc:'تعليقات، إعجابات، مشاركات، متابعة.'},
+    {d:166,t:'دمج الدفع',s:'Full Project',type:'learning',desc:'Stripe Checkout، webhooks، فواتير.'},
+    {d:167,t:'اختبار وضمان جودة',s:'Full Project',type:'learning',desc:'اختبارات E2E مع Playwright.'},
+    {d:168,t:'تحسين الأداء',s:'Full Project',type:'learning',desc:'Core Web Vitals، حجم الحزمة، CDN.'},
+    {d:169,t:'تدقيق الأمان',s:'Full Project',type:'learning',desc:'OWASP Top 10، رؤوس أمان، فحص.'},
+    {d:170,t:'🔥 مشروع: تطبيق Full Stack',s:'Full Project',type:'project',desc:'مشروع تخرج مصقول بكل الميزات.'},
+
+    // Deployment (171–180)
+    {d:171,t:'خيارات النشر',s:'Deployment',type:'learning',desc:'Vercel/Netlify للواجهة، Railway/Render للخلفية.'},
+    {d:172,t:'نشر الواجهة الأمامية',s:'Deployment',type:'learning',desc:'Vercel/Netlify، متغيرات بيئة، نطاق مخصص.'},
+    {d:173,t:'نشر الخلفية',s:'Deployment',type:'learning',desc:'Railway/Render، CORS، نقاط نهاية الصحة.'},
+    {d:174,t:'نشر قاعدة البيانات',s:'Deployment',type:'learning',desc:'MongoDB Atlas، Supabase، نسخ احتياطية.'},
+    {d:175,t:'خط أنابيب CI/CD',s:'Deployment',type:'learning',desc:'GitHub Actions، اختبار/بناء/نشر تلقائي.'},
+    {d:176,t:'النطاق و SSL',s:'Deployment',type:'learning',desc:'نطاق مخصص، DNS، TLS/SSL.'},
+    {d:177,t:'متغيرات البيئة والأسرار',s:'Deployment',type:'learning',desc:'مديري الأسرار، الحماية.'},
+    {d:178,t:'المراقبة',s:'Deployment',type:'learning',desc:'Sentry, LogRocket, Google Analytics.'},
+    {d:179,t:'قائمة تدقيق الإطلاق',s:'Deployment',type:'learning',desc:'SEO meta, favicon, صفحات خطأ.'},
+    {d:180,t:'🎉 إطلاق التطبيق!',s:'Deployment',type:'project',desc:'إطلاق تطبيقك الإنتاجي! كتابة دراسة حالة.'}
+  ];
 
   // --- State ---
   const State = {
     completed: [],
     current: 1,
     init() {
-      const saved = JSON.parse(localStorage.getItem('dp180_v7') || '{}');
+      const saved = JSON.parse(localStorage.getItem('dp180_v8') || '{}');
       this.completed = saved.completed || [];
       this.current = saved.current || 1;
       this.syncCurrent();
       this.save();
     },
-    save() { localStorage.setItem('dp180_v7', JSON.stringify({ completed: this.completed, current: this.current })); },
+    save() { localStorage.setItem('dp180_v8', JSON.stringify({ completed: this.completed, current: this.current })); },
     syncCurrent() {
       let next = 1;
       for (const d of [...this.completed].sort((a,b)=>a-b)) {
@@ -340,7 +514,6 @@
       complete_btn: 'Mark Complete',
       done_btn: '✓ Done',
       close_btn: 'Close',
-      locked_msg: '🔒 Locked',
       toast_done: 'Day completed!',
       reset_confirm: 'Reset all progress?'
     },
@@ -357,26 +530,21 @@
       complete_btn: 'إكمال اليوم',
       done_btn: '✓ تم',
       close_btn: 'إغلاق',
-      locked_msg: '🔒 مقفل',
       toast_done: 'تم إكمال اليوم!',
       reset_confirm: 'هل تريد إعادة كل التقدم؟'
     }
   };
 
   let lang = localStorage.getItem('devpath_lang') || 'ar';
-  function t(key) {
-    return i18n[lang][key] || key;
-  }
+  function t(key) { return i18n[lang][key] || key; }
 
   function applyLanguage() {
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
     document.getElementById('langToggle').innerHTML = lang === 'ar' ? '🇺🇸 English' : '🇸🇦 العربية';
-    // تحديث النصوص
     document.querySelectorAll('[data-i18n]').forEach(el => {
       el.textContent = t(el.dataset.i18n);
     });
-    // تحديث القائمة
     renderAll();
   }
 
@@ -475,7 +643,6 @@
     const overlay = document.getElementById('modalOverlay');
     const content = document.getElementById('modalContent');
     const done = State.isDone(dayNum);
-    const locked = State.isLocked(dayNum);
     content.innerHTML = `
       <h3>Day ${day.d}: ${day.t}</h3>
       <p style="color:var(--text2); margin:12px 0;">${day.desc}</p>
