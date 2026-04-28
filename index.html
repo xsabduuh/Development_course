@@ -1,743 +1,853 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>DevPath 180 • Full Stack Roadmap</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>DevPath 180 – مسار تعلم البرمجة</title>
   <style>
     :root {
-      --bg: #070710;
-      --surface: #0d0d1f;
-      --border: #1e1e40;
-      --text: #e8e8ff;
-      --text2: #7878aa;
-      --accent: #4f46e5;
-      --neon: #06ffa5;
-      --project: #f97316;
-      --radius: 16px;
-      --font-mono: 'Space Mono', monospace;
-      --font: 'DM Sans', sans-serif;
+      --bg: #0f0f14;
+      --surface: #1a1a24;
+      --border: #2a2a3a;
+      --text: #e0e0e0;
+      --text-secondary: #a0a0b8;
+      --accent: #6c5ce7;
+      --accent-glow: #8b7cf0;
+      --success: #2ecc71;
+      --danger: #e74c3c;
+      --project: #ff6b6b;
+      --radius: 12px;
+      --transition: 0.2s ease;
     }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
+
     body {
-      font-family: var(--font);
+      font-family: 'Segoe UI', system-ui, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
       display: flex;
-      justify-content: center;
-    }
-    .app-container {
-      width: 100%;
-      max-width: 800px;
-      padding: 0 16px;
-      display: flex;
       flex-direction: column;
+      overflow-x: hidden;
     }
-    .top-bar {
+
+    /* شريط التنقل العلوي */
+    .navbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 16px 0;
+      gap: 12px;
       position: sticky;
       top: 0;
-      background: var(--bg);
-      z-index: 10;
-      border-bottom: 1px solid var(--border);
+      z-index: 50;
     }
-    .logo {
-      font-family: var(--font-mono);
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--neon);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .menu-btn {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text);
-      font-size: 1.4rem;
-      padding: 8px 12px;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-    .drawer {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 100%;
-      width: 280px;
-      background: rgba(13, 13, 31, 0.98);
-      backdrop-filter: blur(20px);
-      border-right: 1px solid var(--border);
-      z-index: 20;
-      transform: translateX(-100%);
-      transition: transform 0.3s ease;
-      display: flex;
-      flex-direction: column;
-      padding: 20px 0;
-    }
-    .drawer.open { transform: translateX(0); }
-    .drawer-header {
-      padding: 0 20px 16px;
-      border-bottom: 1px solid var(--border);
-      font-family: var(--font-mono);
-      color: var(--neon);
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .drawer-list {
-      flex: 1;
-      overflow-y: auto;
-      padding: 12px 0;
-    }
-    .drawer-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 20px;
-      color: var(--text2);
-      cursor: pointer;
-      font-size: 0.9rem;
-      border-left: 3px solid transparent;
-    }
-    .drawer-item:hover, .drawer-item.active {
-      background: rgba(79,70,229,0.1);
-      color: white;
-      border-left-color: var(--accent);
-    }
-    .drawer-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.6);
-      z-index: 15;
-      display: none;
-    }
-    .drawer-overlay.show { display: block; }
-    .stats-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin: 20px 0;
-    }
-    .stat-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .stat-icon {
-      width: 40px; height: 40px;
-      border-radius: 10px;
-      background: rgba(79,70,229,0.15);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.2rem;
-    }
-    .stat-value { font-size: 1.6rem; font-weight: 700; font-family: var(--font-mono); }
-    .stat-label { font-size: 0.75rem; color: var(--text2); }
-    .progress-section {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px;
-      margin-bottom: 20px;
-    }
-    .progress-header {
-      display: flex; justify-content: space-between;
-      font-size: 0.85rem; margin-bottom: 8px;
-    }
-    .progress-bar {
-      height: 8px; background: #1e1e2e;
-      border-radius: 10px; overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%; background: linear-gradient(90deg, var(--accent), var(--neon));
-      width: 0%; transition: width 0.4s;
-    }
-    .ai-bar {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px;
-      margin-bottom: 20px;
-      display: flex; align-items: center; gap: 12px;
-    }
-    .ai-bar-text { font-size: 0.9rem; color: var(--text2); flex:1; }
+    .logo { font-size: 1.2rem; font-weight: 700; color: var(--accent-glow); text-decoration: none; display: flex; align-items: center; gap: 6px; }
+    .nav-links { display: flex; gap: 8px; }
     .btn {
-      padding: 10px 16px; border-radius: 10px; border: none;
-      font-weight: 600; cursor: pointer; font-size: 0.85rem;
-      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border);
+      background: transparent; color: var(--text); font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; transition: all var(--transition); text-decoration: none;
+      display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
     }
-    .btn-primary { background: var(--accent); color: white; }
-    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
-    .btn-danger { background: transparent; border: 1px solid rgba(239,68,68,0.4); color: #ef4444; }
-    .section-tabs {
-      display: flex; gap: 8px; overflow-x: auto;
-      padding-bottom: 12px; margin-bottom: 8px;
-      scrollbar-width: none;
+    .btn:hover { background: rgba(108, 92, 231, 0.1); border-color: var(--accent); }
+    .btn.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    .btn.primary:hover { background: var(--accent-glow); }
+    .btn.danger { color: var(--danger); border-color: var(--danger); }
+    .btn.danger:hover { background: rgba(231, 76, 60, 0.1); }
+
+    .container { max-width: 1000px; width: 100%; margin: 0 auto; padding: 16px; flex: 1; }
+
+    /* الإحصائيات */
+    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+    @media (min-width: 500px) { .stats-grid { grid-template-columns: repeat(4, 1fr); } }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 14px; display: flex; align-items: center; gap: 10px;
     }
-    .section-tab {
-      flex-shrink: 0; padding: 8px 14px; border-radius: 20px;
-      border: 1px solid var(--border); background: transparent;
-      color: var(--text2); font-size: 0.8rem; cursor: pointer;
-      white-space: nowrap;
+    .stat-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+    .stat-info .value { font-size: 1.4rem; font-weight: 700; }
+    .stat-info .label { font-size: 0.7rem; color: var(--text-secondary); }
+
+    /* شريط التقدم */
+    .progress-box {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 14px; margin-bottom: 20px;
     }
-    .section-tab.active { background: var(--accent); color: white; border-color: var(--accent); }
-    .section-group {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); margin-bottom: 10px; overflow: hidden;
+    .progress-header { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px; }
+    .progress-bar { height: 10px; background: #1e1e2e; border-radius: 20px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 20px; background: linear-gradient(90deg, #6c5ce7, #8b7cf0); transition: width 0.4s ease; }
+
+    /* أزرار التصفية */
+    .filter-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .filter-btn {
+      padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border);
+      background: transparent; color: var(--text-secondary); cursor: pointer;
+      font-size: 0.8rem; font-weight: 500; transition: all var(--transition);
+    }
+    .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    /* الأقسام القابلة للطي */
+    .section {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      margin-bottom: 10px; overflow: hidden;
     }
     .section-header {
-      padding: 14px 16px; display: flex; align-items: center;
-      justify-content: space-between; cursor: pointer;
+      padding: 14px 16px; cursor: pointer; display: flex; align-items: center;
+      justify-content: space-between; font-weight: 600; font-size: 0.9rem; user-select: none;
     }
-    .section-days {
-      display: none; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
-      gap: 6px; padding: 0 14px 14px;
+    .section-header:hover { background: rgba(255,255,255,0.03); }
+    .section-title { display: flex; align-items: center; gap: 6px; }
+    .section-arrow { transition: transform 0.3s; }
+    .section.open .section-arrow { transform: rotate(180deg); }
+
+    .days-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+      gap: 6px; padding: 0 12px; max-height: 0; overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.3s;
     }
-    .section-group.open .section-days { display: grid; }
+    .section.open .days-grid {
+      max-height: 2000px; padding: 8px 12px 14px; border-top: 1px solid var(--border);
+    }
+
+    /* خلايا الأيام */
     .day-cell {
-      aspect-ratio: 1; border-radius: 8px; display: flex;
-      align-items: center; justify-content: center; font-weight: 700;
-      font-family: var(--font-mono); font-size: 0.8rem;
-      border: 1px solid var(--border); cursor: pointer;
-      transition: 0.2s; background: var(--bg);
+      aspect-ratio: 1; border-radius: 6px; display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700; border: 1px solid var(--border);
+      background: var(--bg); color: var(--text-secondary); cursor: pointer;
+      transition: all 0.2s; position: relative;
     }
-    .day-cell.done { background: rgba(6,255,165,0.1); border-color: var(--neon); color: var(--neon); }
-    .day-cell.current { border-color: var(--accent); box-shadow: 0 0 12px var(--accent); }
-    .day-cell.project { border-color: var(--project); color: var(--project); }
-    .day-cell.locked { opacity: 0.3; pointer-events: none; }
+    .day-cell:active { transform: scale(0.95); }
+    .day-cell.completed { background: rgba(46,204,113,0.2); border-color: var(--success); color: var(--success); }
+    .day-cell.completed::after { content: '✓'; font-size: 0.5rem; position: absolute; top: 2px; right: 3px; }
+    .day-cell.current { border-color: var(--accent-glow); box-shadow: 0 0 12px rgba(108,92,231,0.5); color: white; }
+    .day-cell.locked { opacity: 0.4; pointer-events: none; }
+    .day-cell.project { border-color: var(--project); background: rgba(255,107,107,0.1); color: var(--project); }
+    .day-cell.hidden { display: none !important; }
+
+    /* المودال */
     .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.8);
-      display: none; align-items: center; justify-content: center; z-index: 50;
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      display: none; align-items: center; justify-content: center; z-index: 100; padding: 16px;
     }
     .modal {
-      background: var(--surface); border-radius: var(--radius); width: 90%;
-      max-width: 480px; max-height: 85vh; overflow-y: auto; padding: 20px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 20px; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto;
     }
-    .toast {
-      position: fixed; bottom: 20px; right: 20px;
-      background: var(--surface); border: 1px solid var(--neon);
-      color: var(--neon); padding: 12px 20px; border-radius: 10px;
-      z-index: 100;
-    }
-    @media (min-width: 600px) {
-      .stats-grid { grid-template-columns: repeat(4, 1fr); }
+    .modal h3 { margin-bottom: 8px; }
+    .modal .resources { margin-top: 12px; font-size: 0.8rem; }
+    .modal .resources a { color: var(--accent-glow); }
+
+    @media (min-width: 768px) {
+      .container { padding: 20px 24px; }
+      .btn { padding: 10px 20px; }
     }
   </style>
 </head>
 <body>
-<div class="app-container" id="app">
-  <div class="top-bar">
-    <div class="logo">⚡ DevPath 180</div>
-    <button class="menu-btn" id="menuBtn">☰</button>
-  </div>
+  <nav class="navbar">
+    <a href="index.html" class="logo">🛤️ DevPath 180</a>
+    <div class="nav-links">
+      <button class="btn primary" id="continueBtn">▶️ استمر</button>
+      <button class="btn" id="jumpBtn">📍 اليوم الحالي</button>
+      <button class="btn danger" id="resetBtn">🔄 إعادة</button>
+    </div>
+  </nav>
 
-  <div class="drawer" id="drawer">
-    <div class="drawer-header">📁 Sections</div>
-    <div class="drawer-list" id="drawerList"></div>
-  </div>
-  <div class="drawer-overlay" id="drawerOverlay"></div>
+  <main class="container">
+    <div class="stats-grid" id="statsGrid"></div>
 
-  <div class="stats-grid" id="stats"></div>
-
-  <div class="progress-section">
-    <div class="progress-header"><span>Progress</span><span id="progressPercent">0%</span></div>
-    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-  </div>
-
-  <div class="ai-bar">
-    <span>🤖</span>
-    <span class="ai-bar-text" id="aiTip">Loading your journey...</span>
-    <button class="btn btn-primary" id="chatToggleBtn">💬 Ask AI</button>
-  </div>
-
-  <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
-    <button class="btn btn-primary" id="continueBtn">▶ Continue</button>
-    <button class="btn btn-outline" id="expandBtn">📂 Expand All</button>
-    <button class="btn btn-danger" id="resetBtn">↺ Reset</button>
-  </div>
-
-  <div class="section-tabs" id="sectionTabs"></div>
-  <div id="sectionsContainer"></div>
-
-  <div class="modal-overlay" id="modalOverlay">
-    <div class="modal" id="modalContent"></div>
-  </div>
-
-  <div class="modal-overlay" id="chatOverlay">
-    <div class="modal" style="display:flex; flex-direction:column; height:60vh;">
-      <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-        <span>🤖 DevPath AI</span>
-        <button id="closeChatBtn" style="background:none; border:none; color:white; font-size:1.2rem;">✕</button>
+    <div class="progress-box">
+      <div class="progress-header">
+        <span>التقدم العام</span>
+        <span id="progressPercent">0%</span>
       </div>
-      <div id="chatMessages" style="flex:1; overflow-y:auto; margin-bottom:12px; display:flex; flex-direction:column; gap:8px;"></div>
-      <div style="display:flex; gap:8px;">
-        <input id="chatInput" placeholder="Ask me anything..." style="flex:1; padding:10px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:white;">
-        <button id="sendChatBtn" class="btn btn-primary">Send</button>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
       </div>
     </div>
+
+    <div class="filter-bar" id="filterBar">
+      <button class="filter-btn active" data-filter="all">الكل</button>
+      <button class="filter-btn" data-filter="completed">✅ مكتمل</button>
+      <button class="filter-btn" data-filter="pending">⏳ قيد الانتظار</button>
+    </div>
+
+    <div id="sectionsContainer"></div>
+  </main>
+
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="modal"></div>
   </div>
-</div>
 
-<script>
-(function() {
-  const Y = 
-  const GROQ_MODEL = 'llama3-8b-8192';
-  const TOTAL_DAYS = 180;
-  const SECTIONS = [
-    'HTML','CSS','JavaScript Basics','Practice','Advanced JS','Mini Apps',
-    'Tools + Git','React','React Practice','Backend','API Practice',
-    'Database','DB Integration','Full Stack','Full Project','Deployment'
-  ];
-  const SECTION_ICONS = {
-    'HTML':'🏗️','CSS':'🎨','JavaScript Basics':'⚡','Practice':'🔨',
-    'Advanced JS':'🚀','Mini Apps':'📱','Tools + Git':'🛠️','React':'⚛️',
-    'React Practice':'💡','Backend':'⚙️','API Practice':'🔌',
-    'Database':'🗄️','DB Integration':'🔗','Full Stack':'🌐',
-    'Full Project':'🏆','Deployment':'🚀'
-  };
+  <script>
+    // ====================== 1. البيانات الكاملة (180 يوم) ======================
+    const roadmap = [
+      // HTML (1–10)
+      { day: 1, title: 'مقدمة إلى تطوير الويب', section: 'HTML', type: 'learning',
+        desc: 'فهم كيفية عمل الويب: العملاء، الخوادم، HTTP، المتصفحات، ودور HTML و CSS و JavaScript. إعداد بيئة التطوير باستخدام VS Code ومتصفح.',
+        resources: ['https://developer.mozilla.org/ar/docs/Learn/Getting_started_with_the_web'] },
+      { day: 2, title: 'هيكل مستند HTML', section: 'HTML', type: 'learning',
+        desc: 'تعلم البنية الأساسية لمستند HTML: !DOCTYPE, html, head, body. فهم الوسوم الوصفية والعنوان وربط الملفات الخارجية.' },
+      { day: 3, title: 'العناصر النصية والعناوين', section: 'HTML', type: 'learning',
+        desc: 'إتقان العناوين (h1–h6)، الفقرات، الامتدادات، فواصل الأسطر، الخطوط الأفقية، ووسوم التنسيق مثل strong و em و mark و small.' },
+      { day: 4, title: 'الروابط والصور', section: 'HTML', type: 'learning',
+        desc: 'إنشاء ارتباطات تشعبية باستخدام وسم a (المسارات المطلقة مقابل النسبية، target="_blank"). تضمين الصور باستخدام img، وفهم src و alt والصور المتجاوبة.' },
+      { day: 5, title: 'القوائم والجداول', section: 'HTML', type: 'learning',
+        desc: 'بناء قوائم مرتبة وغير مرتبة، قوائم متداخلة. إنشاء جداول باستخدام table, thead, tbody, tr, th, td، وتعلم colspan/rowspan.' },
+      { day: 6, title: 'النماذج وعناصر الإدخال', section: 'HTML', type: 'learning',
+        desc: 'بناء نماذج باستخدام form، أنواع الإدخال المختلفة (text, email, password, number, date)، textarea، select، radio، checkbox، وزر الإرسال.' },
+      { day: 7, title: 'HTML الدلالي (Semantic HTML)', section: 'HTML', type: 'learning',
+        desc: 'استخدام العناصر الدلالية: header, nav, main, article, section, aside, footer. فهم أهمية الدلالات لتحسين محركات البحث والوصول.' },
+      { day: 8, title: 'ميزات HTML5', section: 'HTML', type: 'learning',
+        desc: 'استكشاف ميزات HTML5: audio, video, canvas, details/summary, progress, datalist، وعنصر output. تعلم اعتبارات دعم المتصفحات.' },
+      { day: 9, title: 'أساسيات الوصول (Accessibility)', section: 'HTML', type: 'learning',
+        desc: 'تعلم تسميات ARIA، النص البديل، tabindex، سمات الدور، تخطي التنقل، واستخدام الترميز الصديق لقارئ الشاشة. اجعل الويب شاملاً.' },
+      { day: 10, title: '🔥 مشروع: صفحة HTML شخصية', section: 'HTML', type: 'project',
+        desc: 'بناء صفحة شخصية كاملة باستخدام HTML فقط. تضمين رأس، قسم "حول"، قائمة مهارات، جدول مشاريع، نموذج اتصال، وتذييل. التركيز على البنية الدلالية والوصول.',
+        resources: ['https://www.freecodecamp.org/news/how-to-build-a-developer-portfolio-website/'] },
 
-  const ROADMAP = [
-    {d:1,t:'Intro to Web Development',s:'HTML',type:'learning',desc:'Understand how the web works: clients, servers, HTTP, browsers. Set up VS Code and extensions.'},
-    {d:2,t:'HTML Document Structure',s:'HTML',type:'learning',desc:'Learn DOCTYPE, html, head, body, meta tags, linking CSS and JS files.'},
-    {d:3,t:'Text Elements & Headings',s:'HTML',type:'learning',desc:'Master h1–h6, p, span, br, hr, strong, em, mark, small, code elements.'},
-    {d:4,t:'Links & Images',s:'HTML',type:'learning',desc:'Create anchor hyperlinks, img with src/alt, absolute vs relative paths, image formats.'},
-    {d:5,t:'Lists & Tables',s:'HTML',type:'learning',desc:'Build ul/ol/li, nested lists, table with thead/tbody/tr/th/td, colspan/rowspan.'},
-    {d:6,t:'Forms & Input Elements',s:'HTML',type:'learning',desc:'Create form with input types, textarea, select, radio, checkbox, button, submit.'},
-    {d:7,t:'Semantic HTML',s:'HTML',type:'learning',desc:'Use header, nav, main, article, section, aside, footer for SEO and accessibility.'},
-    {d:8,t:'HTML5 Features',s:'HTML',type:'learning',desc:'Explore audio, video, canvas, details/summary, progress, datalist, template.'},
-    {d:9,t:'Accessibility Basics',s:'HTML',type:'learning',desc:'ARIA labels, alt text, tabindex, role attributes, skip navigation, screen-reader patterns.'},
-    {d:10,t:'Project: HTML Portfolio',s:'HTML',type:'project',desc:'Build a complete personal portfolio page using only semantic HTML.',res:['https://developer.mozilla.org/en-US/docs/Learn/HTML']},
-    {d:11,t:'CSS Syntax & Selectors',s:'CSS',type:'learning',desc:'Properties, values, rules, class/id/element selectors, combinators, specificity.'},
-    {d:12,t:'Colors & Backgrounds',s:'CSS',type:'learning',desc:'Hex/rgb/hsl colors, gradients, background-image/size/position, multiple backgrounds.'},
-    {d:13,t:'The Box Model',s:'CSS',type:'learning',desc:'Margin, border, padding, content areas, box-sizing: border-box vs content-box.'},
-    {d:14,t:'Typography & Fonts',s:'CSS',type:'learning',desc:'font-family stacks, size, weight, line-height, letter-spacing, Google Fonts.'},
-    {d:15,t:'Display & Positioning',s:'CSS',type:'learning',desc:'block/inline/inline-block/none, static/relative/absolute/fixed/sticky, z-index.'},
-    {d:16,t:'Flexbox Basics',s:'CSS',type:'learning',desc:'display:flex, flex-direction, justify-content, align-items, flex-wrap, gap.'},
-    {d:17,t:'Flexbox Advanced',s:'CSS',type:'learning',desc:'flex-grow/shrink/basis, align-self, order, nested flex containers.'},
-    {d:18,t:'CSS Grid Basics',s:'CSS',type:'learning',desc:'display:grid, grid-template-columns/rows, gap, grid-column and grid-row placement.'},
-    {d:19,t:'CSS Grid Advanced',s:'CSS',type:'learning',desc:'Named grid areas, auto-fit/auto-fill, minmax(), combining Grid and Flexbox.'},
-    {d:20,t:'Responsive Design',s:'CSS',type:'learning',desc:'Media queries, mobile-first, breakpoints, vw/vh, em/rem, fluid layouts.'},
-    {d:21,t:'Transitions & Animations',s:'CSS',type:'learning',desc:'transition, @keyframes, animation shorthand, timing functions, smooth effects.'},
-    {d:22,t:'CSS Variables',s:'CSS',type:'learning',desc:'Custom properties with --, :root scope, inheritance, dynamic theming.'},
-    {d:23,t:'Pseudo-classes/Elements',s:'CSS',type:'learning',desc:':hover, :focus, :nth-child(), ::before, ::after, tooltips, custom UI.'},
-    {d:24,t:'CSS Best Practices',s:'CSS',type:'learning',desc:'BEM naming, organizing styles, specificity management, CSS resets, performance.'},
-    {d:25,t:'Project: Responsive Landing',s:'CSS',type:'project',desc:'Build a fully responsive landing page with hero, features, pricing, footer.',res:['https://css-tricks.com']},
-    {d:26,t:'JavaScript Introduction',s:'JavaScript Basics',type:'learning',desc:'What is JS, how to include it, browser console, console.log, script tag.'},
-    {d:27,t:'Variables & Data Types',s:'JavaScript Basics',type:'learning',desc:'var/let/const, string/number/boolean/null/undefined/symbol, type coercion.'},
-    {d:28,t:'Operators & Expressions',s:'JavaScript Basics',type:'learning',desc:'Arithmetic, assignment, comparison, logical, ternary, operator precedence.'},
-    {d:29,t:'Conditionals',s:'JavaScript Basics',type:'learning',desc:'if/else if/else, switch, truthy/falsy, short-circuit evaluation.'},
-    {d:30,t:'Loops',s:'JavaScript Basics',type:'learning',desc:'for, while, do...while, for...of, for...in, break and continue.'},
-    {d:31,t:'Functions Basics',s:'JavaScript Basics',type:'learning',desc:'Declare, invoke, parameters, arguments, return values, declarations vs expressions.'},
-    {d:32,t:'Functions Advanced',s:'JavaScript Basics',type:'learning',desc:'Default params, rest params, callbacks, higher-order functions, scope intro.'},
-    {d:33,t:'Arrays Basics',s:'JavaScript Basics',type:'learning',desc:'Create, access, .length, push/pop, shift/unshift, splice, slice.'},
-    {d:34,t:'Array Methods',s:'JavaScript Basics',type:'learning',desc:'.map(), .filter(), .reduce(), .forEach(), .find(), .some(), .every().'},
-    {d:35,t:'Objects Basics',s:'JavaScript Basics',type:'learning',desc:'Create objects, dot/bracket notation, add/update/delete, nested objects.'},
-    {d:36,t:'Object Methods & this',s:'JavaScript Basics',type:'learning',desc:'this keyword, Object.keys/values/entries, spread, object destructuring.'},
-    {d:37,t:'DOM Manipulation',s:'JavaScript Basics',type:'learning',desc:'querySelector, querySelectorAll, textContent/innerHTML, classList, style.'},
-    {d:38,t:'DOM Events',s:'Practice',type:'learning',desc:'click, submit, input, change, addEventListener, event object, bubbling, delegation.'},
-    {d:39,t:'Form Validation',s:'Practice',type:'learning',desc:'Validate inputs, empty checks, email regex, custom error messages.'},
-    {d:40,t:'Local Storage',s:'Practice',type:'learning',desc:'setItem/getItem/removeItem, JSON.stringify/parse for objects.'},
-    {d:41,t:'Build a Counter App',s:'Practice',type:'learning',desc:'Increment, decrement, reset counter with DOM updates.'},
-    {d:42,t:'Build a To-Do List',s:'Practice',type:'learning',desc:'Add/complete/delete tasks, localStorage persistence, CRUD.'},
-    {d:43,t:'Build a Quiz App',s:'Practice',type:'learning',desc:'Multiple-choice, score tracking, results display, retake.'},
-    {d:44,t:'Build a Calculator',s:'Practice',type:'learning',desc:'Arithmetic, decimal handling, clear, chained operations.'},
-    {d:45,t:'Project: Interactive Web App',s:'Practice',type:'project',desc:'Full app with localStorage (expense tracker, habit tracker).',res:[]},
-    {d:46,t:'ES6+ Overview',s:'Advanced JS',type:'learning',desc:'let/const, arrow functions, template literals, destructuring, spread/rest.'},
-    {d:47,t:'Arrow Functions & Scope',s:'Advanced JS',type:'learning',desc:'Arrow syntax, implicit return, lexical this, scope chain.'},
-    {d:48,t:'Template Literals',s:'Advanced JS',type:'learning',desc:'Backtick strings, ${} interpolation, multi-line, tagged templates.'},
-    {d:49,t:'Destructuring & Spread',s:'Advanced JS',type:'learning',desc:'Array/object destructuring, spread (...), rest parameters.'},
-    {d:50,t:'Promises & Async/Await',s:'Advanced JS',type:'learning',desc:'Async JS, Promise chain, .then/.catch, async/await syntax.'},
-    {d:51,t:'Fetch API',s:'Advanced JS',type:'learning',desc:'fetch() for HTTP, GET/POST, JSON parsing, error handling.'},
-    {d:52,t:'Error Handling',s:'Advanced JS',type:'learning',desc:'try...catch...finally, custom errors, defensive programming.'},
-    {d:53,t:'Closures Deep Dive',s:'Advanced JS',type:'learning',desc:'Lexical environment, closure use cases, data privacy, memoization.'},
-    {d:54,t:'Prototypes & Classes',s:'Advanced JS',type:'learning',desc:'Prototypal inheritance, class syntax, constructor, extends, super.'},
-    {d:55,t:'ES Modules',s:'Advanced JS',type:'learning',desc:'ES modules, named/default exports, imports, module scope.'},
-    {d:56,t:'Weather App',s:'Mini Apps',type:'learning',desc:'Weather app with public API, temperature, conditions, forecast.'},
-    {d:57,t:'Recipe Finder',s:'Mini Apps',type:'learning',desc:'Recipe search API, ingredients, instructions, images.'},
-    {d:58,t:'Expense Tracker',s:'Mini Apps',type:'learning',desc:'Income/expense, balance, categories, localStorage persistence.'},
-    {d:59,t:'Pomodoro Timer',s:'Mini Apps',type:'learning',desc:'Work/break intervals, notifications, session tracking.'},
-    {d:60,t:'Notes App',s:'Mini Apps',type:'learning',desc:'Create, edit, delete, search notes, localStorage, markdown.'},
-    {d:61,t:'Image Gallery',s:'Mini Apps',type:'learning',desc:'Responsive gallery, lightbox, lazy loading, grid layout.'},
-    {d:62,t:'Music Player UI',s:'Mini Apps',type:'learning',desc:'Play/pause, progress bar, volume, playlist, HTML5 Audio.'},
-    {d:63,t:'Chat Interface UI',s:'Mini Apps',type:'learning',desc:'Message bubbles, input, typing indicator, auto-scroll.'},
-    {d:64,t:'Dashboard UI',s:'Mini Apps',type:'learning',desc:'Admin dashboard, sidebar, stat cards, charts, data table.'},
-    {d:65,t:'Project: Mini App Suite',s:'Mini Apps',type:'project',desc:'Combine 2+ mini apps into one cohesive project.',res:[]},
-    {d:66,t:'Git Basics',s:'Tools + Git',type:'learning',desc:'Install Git, init, staging, git status, config setup.'},
-    {d:67,t:'Git Commands',s:'Tools + Git',type:'learning',desc:'add, commit, log, diff, branch, checkout, merge, stash.'},
-    {d:68,t:'GitHub & Remote',s:'Tools + Git',type:'learning',desc:'GitHub repos, push/pull/clone/fetch, pull requests, code review.'},
-    {d:69,t:'VS Code Extensions',s:'Tools + Git',type:'learning',desc:'Prettier, ESLint, Live Server, GitLens, shortcuts, settings.'},
-    {d:70,t:'Terminal & CLI',s:'Tools + Git',type:'learning',desc:'Shell commands, file ops, npm/yarn basics, CLI tools.'},
-    {d:71,t:'React Intro & Setup',s:'React',type:'learning',desc:'What is React, Vite setup, project structure, node_modules.'},
-    {d:72,t:'JSX & Components',s:'React',type:'learning',desc:'JSX syntax, functional components, nesting, fragments.'},
-    {d:73,t:'Props & PropTypes',s:'React',type:'learning',desc:'Passing data, destructuring props, default values, validation.'},
-    {d:74,t:'State & useState',s:'React',type:'learning',desc:'useState hook, updating state, batching, lifting state.'},
-    {d:75,t:'Event Handling',s:'React',type:'learning',desc:'onClick, onChange, onSubmit, event args, preventDefault.'},
-    {d:76,t:'Conditional Rendering',s:'React',type:'learning',desc:'Ternary patterns, &&, loading/error/empty states.'},
-    {d:77,t:'Lists & Keys',s:'React',type:'learning',desc:'.map() for lists, unique key prop, reconciliation.'},
-    {d:78,t:'Forms in React',s:'React',type:'learning',desc:'Controlled vs uncontrolled, form state, validation.'},
-    {d:79,t:'useEffect Hook',s:'React',type:'learning',desc:'Side effects, dependency array, cleanup, data fetching.'},
-    {d:80,t:'useContext & Custom Hooks',s:'React',type:'learning',desc:'Global state, createContext, custom hooks for reuse.'},
-    {d:81,t:'React Router',s:'React',type:'learning',desc:'BrowserRouter, Routes, Route, Link, NavLink, URL params.'},
-    {d:82,t:'State Management',s:'React',type:'learning',desc:'Context API limits, Redux/Zustand/Jotai intro.'},
-    {d:83,t:'React Best Practices',s:'React',type:'learning',desc:'Folder structure, composition, React.memo, useMemo, useCallback.'},
-    {d:84,t:'Building a Blog',s:'React Practice',type:'learning',desc:'Post listing, individual view, CMS interface, React Router.'},
-    {d:85,t:'E-commerce UI',s:'React Practice',type:'learning',desc:'Product grid, detail page, cart, checkout, state management.'},
-    {d:86,t:'Authentication UI',s:'React Practice',type:'learning',desc:'Login/register, token storage, protected routes, profile.'},
-    {d:87,t:'Dashboard with Charts',s:'React Practice',type:'learning',desc:'Analytics dashboard, Recharts/Chart.js integration.'},
-    {d:88,t:'Social Media Feed',s:'React Practice',type:'learning',desc:'Infinite scroll, post cards, likes/comments, avatars.'},
-    {d:89,t:'File Upload Component',s:'React Practice',type:'learning',desc:'Drag-and-drop, preview, progress bar, validation.'},
-    {d:90,t:'Search & Filter System',s:'React Practice',type:'learning',desc:'Debounced search, multi-criteria, sorting, URL sync.'},
-    {d:91,t:'Infinite Scroll',s:'React Practice',type:'learning',desc:'Intersection Observer, pagination, loading spinners.'},
-    {d:92,t:'Real-time Updates',s:'React Practice',type:'learning',desc:'Polling, WebSocket simulation, live UI, optimistic UI.'},
-    {d:93,t:'Animation with Framer',s:'React Practice',type:'learning',desc:'Page transitions, hover/tap animations, layout animations.'},
-    {d:94,t:'Testing React',s:'React Practice',type:'learning',desc:'Jest setup, React Testing Library, unit/integration tests.'},
-    {d:95,t:'Performance Optimization',s:'React Practice',type:'learning',desc:'Code splitting, React.lazy, Suspense, memoization, profiler.'},
-    {d:96,t:'Accessibility in React',s:'React Practice',type:'learning',desc:'ARIA, keyboard nav, focus management, screen readers.'},
-    {d:97,t:'Code Splitting',s:'React Practice',type:'learning',desc:'Route-based splitting, dynamic imports, Suspense boundaries.'},
-    {d:98,t:'Progressive Web Apps',s:'React Practice',type:'learning',desc:'Service worker, manifest, offline support, install prompt.'},
-    {d:99,t:'React + TypeScript',s:'React Practice',type:'learning',desc:'Typing props, state, events, hooks, generics, strict mode.'},
-    {d:100,t:'Project: Full React App',s:'React Practice',type:'project',desc:'Complete React SPA with routing, state, API, polished UI.',res:['https://react.dev']},
-    {d:101,t:'Node.js Introduction',s:'Backend',type:'learning',desc:'Node.js runtime, event loop, npm, http module, simple server.'},
-    {d:102,t:'Express.js Setup',s:'Backend',type:'learning',desc:'Install Express, create server, routes, nodemon.'},
-    {d:103,t:'Routing & Middleware',s:'Backend',type:'learning',desc:'Express Router, morgan/cors/body-parser, custom middleware.'},
-    {d:104,t:'Request & Response',s:'Backend',type:'learning',desc:'req.params, req.query, req.body, JSON responses, status codes.'},
-    {d:105,t:'REST API Design',s:'Backend',type:'learning',desc:'RESTful endpoints, HTTP methods, URL structure, conventions.'},
-    {d:106,t:'Authentication (JWT)',s:'Backend',type:'learning',desc:'JWT tokens, bcrypt hashing, protected routes, login/register.'},
-    {d:107,t:'File Uploads',s:'Backend',type:'learning',desc:'Multer middleware, local/cloud storage, validation, serving files.'},
-    {d:108,t:'Error Handling',s:'Backend',type:'learning',desc:'Global error middleware, async wrapper, consistent responses.'},
-    {d:109,t:'Security Best Practices',s:'Backend',type:'learning',desc:'XSS, CSRF, SQL injection, helmet, rate limiting, CORS.'},
-    {d:110,t:'Testing APIs',s:'Backend',type:'learning',desc:'Jest, Supertest, unit/integration tests, TDD approach.'},
-    {d:111,t:'RESTful Routes',s:'API Practice',type:'learning',desc:'Full REST route set, naming conventions, status codes.'},
-    {d:112,t:'CRUD Operations',s:'API Practice',type:'learning',desc:'Create/Read/Update/Delete, edge cases, validation.'},
-    {d:113,t:'Query Parameters',s:'API Practice',type:'learning',desc:'Filtering, field selection, search via query params.'},
-    {d:114,t:'Pagination',s:'API Practice',type:'learning',desc:'Offset/cursor pagination, metadata, limit/offset.'},
-    {d:115,t:'Sorting & Filtering',s:'API Practice',type:'learning',desc:'Multi-criteria sorting, dynamic filtering.'},
-    {d:116,t:'API Versioning',s:'API Practice',type:'learning',desc:'URL vs header versioning, breaking changes, deprecation.'},
-    {d:117,t:'Rate Limiting',s:'API Practice',type:'learning',desc:'express-rate-limit, abuse protection, per-endpoint limits.'},
-    {d:118,t:'CORS & Security',s:'API Practice',type:'learning',desc:'CORS config, preflight, allowed origins, credentials.'},
-    {d:119,t:'API Documentation',s:'API Practice',type:'learning',desc:'Swagger/OpenAPI, endpoint docs, request/response examples.'},
-    {d:120,t:'WebSockets Intro',s:'API Practice',type:'learning',desc:'Socket.io setup, real-time bidirectional, rooms, events.'},
-    {d:121,t:'Chat API',s:'API Practice',type:'learning',desc:'Chat rooms, message history, presence, typing events.'},
-    {d:122,t:'Email Service',s:'API Practice',type:'learning',desc:'Nodemailer/SendGrid, password reset, email verification.'},
-    {d:123,t:'Payment Integration',s:'API Practice',type:'learning',desc:'Stripe/PayPal checkout, webhooks, subscription handling.'},
-    {d:124,t:'Image Processing API',s:'API Practice',type:'learning',desc:'Sharp, upload, resize, crop, convert, thumbnails.'},
-    {d:125,t:'PDF Generation',s:'API Practice',type:'learning',desc:'Puppeteer or PDFKit, server-side PDFs, invoices, reports.'},
-    {d:126,t:'Caching Strategies',s:'API Practice',type:'learning',desc:'Redis, in-memory cache, invalidation strategies, TTL.'},
-    {d:127,t:'Logging & Monitoring',s:'API Practice',type:'learning',desc:'Winston/Pino, request timing, error tracking, health checks.'},
-    {d:128,t:'Postman Testing',s:'API Practice',type:'learning',desc:'Collections, environments, automated tests, Newman CLI.'},
-    {d:129,t:'GraphQL Intro',s:'API Practice',type:'learning',desc:'Apollo Server, schema, resolvers, queries and mutations.'},
-    {d:130,t:'Project: Complete REST API',s:'API Practice',type:'project',desc:'Production API with auth, CRUD, pagination, rate limiting.',res:['https://restfulapi.net']},
-    {d:131,t:'Database Concepts',s:'Database',type:'learning',desc:'Relational vs non-relational, ACID, CAP theorem, indexes.'},
-    {d:132,t:'MongoDB Setup',s:'Database',type:'learning',desc:'Local/Atlas setup, shell, Compass GUI, BSON documents.'},
-    {d:133,t:'CRUD with MongoDB',s:'Database',type:'learning',desc:'insertOne/Many, find, updateOne, deleteOne, ObjectId.'},
-    {d:134,t:'Mongoose ODM',s:'Database',type:'learning',desc:'Schemas, models, CRUD, middleware hooks, validation.'},
-    {d:135,t:'SQL Basics',s:'Database',type:'learning',desc:'SELECT, INSERT, UPDATE, DELETE, JOIN, GROUP BY, HAVING.'},
-    {d:136,t:'PostgreSQL Setup',s:'Database',type:'learning',desc:'Local setup, psql CLI, pgAdmin, creating databases/tables.'},
-    {d:137,t:'Connect DB to API',s:'DB Integration',type:'learning',desc:'Connection strings, env variables, connection pooling.'},
-    {d:138,t:'User Model & Schema',s:'DB Integration',type:'learning',desc:'User schema: name, email, password, timestamps, role.'},
-    {d:139,t:'Relationships',s:'DB Integration',type:'learning',desc:'One-to-one, one-to-many, many-to-many, ObjectId refs.'},
-    {d:140,t:'Aggregation Pipelines',s:'DB Integration',type:'learning',desc:'MongoDB $match, $group, $sort, $project, $lookup.'},
-    {d:141,t:'Indexing & Performance',s:'DB Integration',type:'learning',desc:'Indexes, compound indexes, explain plans, optimization.'},
-    {d:142,t:'Transactions',s:'DB Integration',type:'learning',desc:'Atomic operations, MongoDB sessions, rollback, consistency.'},
-    {d:143,t:'Data Validation',s:'DB Integration',type:'learning',desc:'Mongoose validators, SQL constraints, data integrity.'},
-    {d:144,t:'Backup & Restore',s:'DB Integration',type:'learning',desc:'mongodump/restore, pg_dump/restore, automated backups.'},
-    {d:145,t:'Migrations',s:'DB Integration',type:'learning',desc:'Schema changes, Knex.js, Mongoose migration plugins.'},
-    {d:146,t:'Advanced Queries',s:'DB Integration',type:'learning',desc:'SQL subqueries, window functions, complex aggregations.'},
-    {d:147,t:'Full-Text Search',s:'DB Integration',type:'learning',desc:'MongoDB $text, PostgreSQL tsvector/tsquery, relevance.'},
-    {d:148,t:'Data Seeding',s:'DB Integration',type:'learning',desc:'Seed scripts, faker.js, initial data, seed commands.'},
-    {d:149,t:'Database Security',s:'DB Integration',type:'learning',desc:'Auth config, TLS, IP allowlists, least privilege.'},
-    {d:150,t:'Project: DB-Backed API',s:'DB Integration',type:'project',desc:'Complete API with DB, auth, relations, aggregation.',res:[]},
-    {d:151,t:'Frontend to Backend',s:'Full Stack',type:'learning',desc:'React to Express, fetch/axios, CORS, env variables.'},
-    {d:152,t:'State for API Data',s:'Full Stack',type:'learning',desc:'React Query/SWR, caching, refetching, optimistic updates.'},
-    {d:153,t:'Auth Flow',s:'Full Stack',type:'learning',desc:'Login/register, JWT storage, auto-login, protected routes.'},
-    {d:154,t:'File Upload Flow',s:'Full Stack',type:'learning',desc:'Frontend preview, multer backend, serving files.'},
-    {d:155,t:'Real-time Features',s:'Full Stack',type:'learning',desc:'Socket.io client+server, live notifications, chat.'},
-    {d:156,t:'Project Planning',s:'Full Project',type:'learning',desc:'Features, wireframes, ER diagram, API design, board setup.'},
-    {d:157,t:'Monorepo Setup',s:'Full Project',type:'learning',desc:'Client/server folders, shared types, npm workspaces.'},
-    {d:158,t:'Auth System',s:'Full Project',type:'learning',desc:'Registration, email verification, login, reset, sessions.'},
-    {d:159,t:'Dashboard & Analytics',s:'Full Project',type:'learning',desc:'User data, charts from API, summary cards, date ranges.'},
-    {d:160,t:'CRUD Features',s:'Full Project',type:'learning',desc:'Full CRUD for resources, forms, tables, detail views.'},
-    {d:161,t:'Search & Filters',s:'Full Project',type:'learning',desc:'Debounced search, multi-criteria, URL state persistence.'},
-    {d:162,t:'Notifications System',s:'Full Project',type:'learning',desc:'In-app/email notifications, bell icon, real-time count.'},
-    {d:163,t:'Admin Panel',s:'Full Project',type:'learning',desc:'Admin area, user management, content moderation, RBAC.'},
-    {d:164,t:'User Settings',s:'Full Project',type:'learning',desc:'Profile editing, avatar upload, password change, preferences.'},
-    {d:165,t:'Social Features',s:'Full Project',type:'learning',desc:'Comments, likes, shares, follows, activity feed.'},
-    {d:166,t:'Payment Integration',s:'Full Project',type:'learning',desc:'Stripe Checkout, webhooks, subscriptions, invoices.'},
-    {d:167,t:'Testing & QA',s:'Full Project',type:'learning',desc:'Unit/integration/E2E with Playwright, QA checklist.'},
-    {d:168,t:'Performance',s:'Full Project',type:'learning',desc:'Core Web Vitals, bundle size, API response time, CDN.'},
-    {d:169,t:'Security Audit',s:'Full Project',type:'learning',desc:'OWASP Top 10, security headers, vulnerability scanning.'},
-    {d:170,t:'Project: Full Stack App',s:'Full Project',type:'project',desc:'Polished capstone with all features, clean code, docs.',res:['https://fullstackopen.com']},
-    {d:171,t:'Deployment Options',s:'Deployment',type:'learning',desc:'Vercel/Netlify frontend, Railway/Render backend, Atlas/Supabase.'},
-    {d:172,t:'Deploy Frontend',s:'Deployment',type:'learning',desc:'Vercel/Netlify, build settings, env variables, custom domains.'},
-    {d:173,t:'Deploy Backend',s:'Deployment',type:'learning',desc:'Railway/Render, env variables, CORS config, health endpoints.'},
-    {d:174,t:'Database Deployment',s:'Deployment',type:'learning',desc:'MongoDB Atlas, Supabase, network access, backups.'},
-    {d:175,t:'CI/CD Pipeline',s:'Deployment',type:'learning',desc:'GitHub Actions, auto test/build/deploy, branch protection.'},
-    {d:176,t:'Domain & SSL',s:'Deployment',type:'learning',desc:'Custom domain, DNS, SSL/TLS, HTTPS redirect.'},
-    {d:177,t:'Env Variables & Secrets',s:'Deployment',type:'learning',desc:'Secure secret management, platform managers, never commit.'},
-    {d:178,t:'Monitoring',s:'Deployment',type:'learning',desc:'Sentry, LogRocket, Google Analytics, uptime monitoring.'},
-    {d:179,t:'Launch Checklist',s:'Deployment',type:'learning',desc:'SEO meta, favicon, social previews, error pages, audit.'},
-    {d:180,t:'🎉 Live App Launch!',s:'Deployment',type:'project',desc:'Launch production app! Case study, portfolio update.',res:['https://pages.github.com']}
-  ];
+      // CSS (11–25)
+      { day: 11, title: 'تركيب CSS والمحددات', section: 'CSS', type: 'learning',
+        desc: 'تعلم تركيب CSS: الخصائص، القيم، والقواعد. إتقان المحددات الأساسية (العنصر، class، ID)، المحددات المركبة (سليل، طفل، شقيق)، والتخصصية.' },
+      { day: 12, title: 'الألوان والخلفيات', section: 'CSS', type: 'learning',
+        desc: 'العمل مع تنسيقات الألوان (hex, rgb, hsl)، التدرجات (الخطية، الشعاعية)، صور الخلفية، حجم الخلفية، موضع الخلفية، والخلفيات المتعددة.' },
+      { day: 13, title: 'نموذج الصندوق (Box Model)', section: 'CSS', type: 'learning',
+        desc: 'غوص عميق في margin, border, padding, content. فهم box-sizing: border-box مقابل content-box، وكيفية التحكم في أبعاد العناصر.' },
+      { day: 14, title: 'الخطوط والطباعة', section: 'CSS', type: 'learning',
+        desc: 'تنسيق النص باستخدام font-family, font-size, font-weight, line-height, letter-spacing, text-align, text-transform، واستيراد خطوط Google.' },
+      { day: 15, title: 'العرض والموضع (Display & Positioning)', section: 'CSS', type: 'learning',
+        desc: 'إتقان display (block, inline, inline-block, none) والموضع (static, relative, absolute, fixed, sticky). فهم z-index وسياقات التكدس.' },
+      { day: 16, title: 'أساسيات Flexbox', section: 'CSS', type: 'learning',
+        desc: 'تعلم خصائص حاوية flex: display:flex, flex-direction, justify-content, align-items, flex-wrap, gap. بناء تخطيطات متجاوبة بسهولة.' },
+      { day: 17, title: 'Flexbox متقدم', section: 'CSS', type: 'learning',
+        desc: 'استكشاف خصائص عنصر flex: flex-grow, flex-shrink, flex-basis, align-self, order. إنشاء تخطيطات مرنة معقدة باستخدام حاويات flex متداخلة.' },
+      { day: 18, title: 'أساسيات CSS Grid', section: 'CSS', type: 'learning',
+        desc: 'إعداد حاويات الشبكة باستخدام display:grid, grid-template-columns, grid-template-rows, gap، ووضع العناصر باستخدام grid-column و grid-row.' },
+      { day: 19, title: 'CSS Grid متقدم', section: 'CSS', type: 'learning',
+        desc: 'استخدام مناطق الشبكة، auto-fit/auto-fill، minmax()، وإنشاء تخطيطات معقدة بأسلوب المجلات. دمج Grid مع Flexbox للتحكم النهائي في التخطيط.' },
+      { day: 20, title: 'التصميم المتجاوب واستعلامات الوسائط', section: 'CSS', type: 'learning',
+        desc: 'كتابة استعلامات الوسائط لتصميم mobile-first. استخدام نقاط التوقف، الوحدات المتجاوبة (vw, vh, %, em, rem)، وجعل التخطيطات تتكيف مع جميع أحجام الشاشات.' },
+      { day: 21, title: 'الانتقالات والحركات', section: 'CSS', type: 'learning',
+        desc: 'إنشاء انتقالات سلسة باستخدام transition-property, duration, timing-function. بناء حركات الإطارات المفتاحية باستخدام @keyframes وخصائص animation.' },
+      { day: 22, title: 'متغيرات CSS والخصائص المخصصة', section: 'CSS', type: 'learning',
+        desc: 'تعريف واستخدام خصائص CSS المخصصة (--var). تعلم النطاق، الوراثة، والتخصيص الديناميكي للسمات. بناء مبدل سمة بسيط (فاتح/داكن).' },
+      { day: 23, title: 'الفئات الزائفة والعناصر الزائفة', section: 'CSS', type: 'learning',
+        desc: 'استخدام :hover, :active, :focus, :nth-child(), :not(), ::before, ::after. إنشاء تلميحات، مربعات اختيار مخصصة، وعناصر زخرفية.' },
+      { day: 24, title: 'أفضل ممارسات CSS', section: 'CSS', type: 'learning',
+        desc: 'تعلم تسمية BEM، تنظيم أوراق الأنماط، تجنب حروب التخصصية، استخدام إعادة تعيين CSS، ونصائح الأداء مثل تجنب الخصائص المكلفة.' },
+      { day: 25, title: '🔥 مشروع: صفحة هبوط متجاوبة', section: 'CSS', type: 'project',
+        desc: 'تصميم وبناء صفحة هبوط متجاوبة بالكامل. تضمين قسم رئيسي، شبكة مميزات، جدول أسعار، شهادات، وتذييل. استخدام Flexbox و Grid واستعلامات الوسائط.',
+        resources: ['https://www.frontendmentor.io/challenges'] },
 
-  const State = {
-    completed: [],
-    current: 1,
-    checklist: {},
-    init() {
-      const saved = JSON.parse(localStorage.getItem('dp180_v3') || '{}');
-      this.completed = saved.completed || [];
-      this.current = saved.current || 1;
-      this.checklist = saved.checklist || {};
-      this.syncCurrent();
-      this.save();
-    },
-    save() { localStorage.setItem('dp180_v3', JSON.stringify({ completed: this.completed, current: this.current, checklist: this.checklist })); },
-    syncCurrent() {
-      let next = 1;
-      for (const d of [...this.completed].sort((a,b)=>a-b)) {
-        if (d === next) next++;
-        else if (d > next) break;
-      }
-      this.current = Math.min(next, TOTAL_DAYS);
-    },
-    complete(day) {
-      if (this.completed.includes(day)) return false;
-      this.completed.push(day);
-      this.syncCurrent();
-      this.save();
-      return true;
-    },
-    isDone(d) { return this.completed.includes(d); },
-    isLocked(d) { return d !== 1 && !this.isDone(d) && !this.isDone(d-1); },
-    get progress() { return Math.round((this.completed.length / TOTAL_DAYS) * 100); },
-    get projects() { return ROADMAP.filter(d => d.type === 'project' && this.isDone(d.d)).length; }
-  };
+      // JavaScript Basics (26–37)
+      { day: 26, title: 'مقدمة JavaScript والإعداد', section: 'JavaScript Basics', type: 'learning',
+        desc: 'تعلم ما هي JavaScript، وكيفية تضمينها في HTML (داخلية، خارجية). إعداد وحدة تحكم المتصفح وكتابة أول console.log().' },
+      { day: 27, title: 'المتغيرات وأنواع البيانات', section: 'JavaScript Basics', type: 'learning',
+        desc: 'إعلان المتغيرات باستخدام var, let, const. استكشاف أنواع البيانات الأولية: string, number, boolean, null, undefined, symbol. تعلم أساسيات تحويل الأنواع.' },
+      { day: 28, title: 'المعاملات والتعابير', section: 'JavaScript Basics', type: 'learning',
+        desc: 'إتقان المعاملات الحسابية، الإسناد، المقارنة، المنطقية، والمعامل الثلاثي. فهم أولويات المعاملات وتقييم الدائرة القصيرة.' },
+      { day: 29, title: 'الشروط (if/else/switch)', section: 'JavaScript Basics', type: 'learning',
+        desc: 'كتابة المنطق الشرطي باستخدام if, else if, else, switch. تعلم القيم truthy/falsy وأفضل الممارسات للشروط النظيفة.' },
+      { day: 30, title: 'الحلقات (for/while)', section: 'JavaScript Basics', type: 'learning',
+        desc: 'التكرار باستخدام for, while, do...while, for...of. تعلم break, continue، ومتى تستخدم كل نوع من الحلقات.' },
+      { day: 31, title: 'أساسيات الدوال', section: 'JavaScript Basics', type: 'learning',
+        desc: 'إعلان الدوال واستدعاؤها. فهم المعاملات، الوسائط، قيم الإرجاع، والفرق بين تعبيرات الدالة وإعلانات الدالة.' },
+      { day: 32, title: 'الدوال المتقدمة', section: 'JavaScript Basics', type: 'learning',
+        desc: 'استكشاف المعاملات الافتراضية، معاملات rest، دوال callback، ومفهوم الدوال ذات الترتيب الأعلى. مقدمة في النطاق والإغلاقات.' },
+      { day: 33, title: 'أساسيات المصفوفات', section: 'JavaScript Basics', type: 'learning',
+        desc: 'إنشاء المصفوفات والتعامل معها. الوصول إلى العناصر بالفهرس، استخدام .length، الإضافة/الحذف باستخدام push, pop, shift, unshift, splice.' },
+      { day: 34, title: 'طرق المصفوفات', section: 'JavaScript Basics', type: 'learning',
+        desc: 'إتقان .map(), .filter(), .reduce(), .forEach(), .find(), .some(), .every(). هذه أساسية لتطوير JavaScript الحديث.' },
+      { day: 35, title: 'أساسيات الكائنات', section: 'JavaScript Basics', type: 'learning',
+        desc: 'إنشاء كائنات ذات خصائص وطرق. الوصول إلى القيم باستخدام الترميز النقطي والأقواس المربعة. تعلم إضافة وتحديث وحذف خصائص الكائن.' },
+      { day: 36, title: 'طرق الكائن و "this"', section: 'JavaScript Basics', type: 'learning',
+        desc: 'فهم الكلمة المفتاحية "this" في سياقات مختلفة. تعلم Object.keys(), Object.values(), Object.entries()، وتفكيك الكائنات.' },
+      { day: 37, title: 'أساسيات التعامل مع DOM', section: 'JavaScript Basics', type: 'learning',
+        desc: 'اختيار العناصر باستخدام querySelector و querySelectorAll. تغيير النص، HTML، الأنماط، والسمات. إنشاء وإضافة عناصر جديدة ديناميكيًا.' },
 
-  const SYSTEM_PROMPT = `You are DevPath AI, a world-class full-stack development tutor built into the DevPath 180 learning tracker. The user is on a 180-day journey to become a full-stack developer. Your role is to guide, motivate, and explain concepts related to web development (HTML, CSS, JavaScript, React, Node.js, databases, etc.). Keep responses under 80 words, encouraging and practical. Use emojis occasionally. If asked about progress, refer to the current day and completed days. Never break character.`;
+      // Practice (38–45)
+      { day: 38, title: 'أحداث DOM', section: 'Practice', type: 'learning',
+        desc: 'التعامل مع أحداث click, submit, input, change, keydown، وغيرها. استخدام addEventListener وفهم فقاعات الأحداث والتفويض.' },
+      { day: 39, title: 'التحقق من صحة النماذج', section: 'Practice', type: 'learning',
+        desc: 'التحقق من صحة مدخلات النموذج باستخدام JavaScript. التحقق من الحقول الفارغة، تنسيق البريد الإلكتروني، قوة كلمة المرور. عرض رسائل خطأ مخصصة.' },
+      { day: 40, title: 'مقدمة في التخزين المحلي', section: 'Practice', type: 'learning',
+        desc: 'استخدام localStorage.setItem(), getItem(), removeItem(). تخزين واسترجاع تفضيلات المستخدم. فهم JSON.stringify و JSON.parse للكائنات.' },
+      { day: 41, title: 'بناء تطبيق عداد', section: 'Practice', type: 'learning',
+        desc: 'إنشاء عداد بسيط مع أزرار زيادة، نقصان، وإعادة تعيين. عرض العد وممارسة التعامل مع الأحداث وتحديثات DOM.' },
+      { day: 42, title: 'بناء تطبيق قائمة مهام', section: 'Practice', type: 'learning',
+        desc: 'بناء قائمة مهام كاملة: إضافة مهام، وضع علامة كمكتملة، حذف المهام، وحفظ البيانات في localStorage. ممارسة عمليات CRUD.' },
+      { day: 43, title: 'بناء تطبيق اختبار', section: 'Practice', type: 'learning',
+        desc: 'إنشاء اختبار اختيار من متعدد. تتبع النتيجة، عرض النتائج في النهاية، والسماح بإعادة المحاولة. ممارسة المصفوفات والكائنات والعرض الشرطي.' },
+      { day: 44, title: 'بناء آلة حاسبة', section: 'Practice', type: 'learning',
+        desc: 'بناء آلة حاسبة بالعمليات الأساسية (+، -، ×، ÷). التعامل مع الفواصل العشرية، المسح، والعمليات المتسلسلة. ممارسة المنطق وتحديثات واجهة المستخدم.' },
+      { day: 45, title: '🔥 مشروع: تطبيق ويب تفاعلي', section: 'Practice', type: 'project',
+        desc: 'دمج جميع مهارات التدريب لبناء تطبيق ويب تفاعلي من اختيارك (مثل متتبع النفقات، متتبع العادات، أو تطبيق ملاحظات) مع استمرارية localStorage.' },
 
-  async function callGroq(messages, system = SYSTEM_PROMPT) {
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer $, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: GROQ_MODEL, messages: [{ role: 'system', content: system }, ...messages], max_tokens: 200, temperature: 0.7 })
-    });
-    const data = await res.json();
-    return data.choices?.[0]?.message?.content || 'I need a moment...';
-  }
+      // Advanced JS (46–55)
+      { day: 46, title: 'نظرة عامة على ميزات ES6+', section: 'Advanced JS', type: 'learning',
+        desc: 'استكشاف JavaScript الحديث: let/const، دوال السهم، قوالب النص، التفكيك، spread/rest، والوحدات النمطية. فهم التحويل باستخدام Babel.' },
+      { day: 47, title: 'دوال السهم والنطاق', section: 'Advanced JS', type: 'learning',
+        desc: 'غوص عميق في دوال السهم: التركيب، الإرجاع الضمني، وكيفية تعاملها مع "this" بشكل مختلف. فهم النطاق المعجمي.' },
+      { day: 48, title: 'قوالب النص (Template Literals)', section: 'Advanced JS', type: 'learning',
+        desc: 'استخدام الفاصلة العليا الخلفية لاستيفاء السلاسل، السلاسل متعددة الأسطر، وقوالب النص الموسومة. إنشاء قوالب HTML ديناميكية.' },
+      { day: 49, title: 'التفكيك و Spread/Rest', section: 'Advanced JS', type: 'learning',
+        desc: 'تفكيك المصفوفات والكائنات لكود أنظف. استخدام spread (...) لنسخ/دمج المصفوفات والكائنات، ومعاملات rest في الدوال.' },
+      { day: 50, title: 'الوعود و Async/Await', section: 'Advanced JS', type: 'learning',
+        desc: 'فهم JavaScript غير المتزامن. إنشاء واستهلاك الوعود، تسلسل .then()/.catch()، وكتابة كود غير متزامن أنظف باستخدام async/await.' },
+      { day: 51, title: 'Fetch API', section: 'Advanced JS', type: 'learning',
+        desc: 'إجراء طلبات HTTP باستخدام fetch(). التعامل مع GET, POST, PUT, DELETE. تحليل استجابات JSON والتعامل مع الأخطاء برشاقة.' },
+      { day: 52, title: 'معالجة الأخطاء', section: 'Advanced JS', type: 'learning',
+        desc: 'استخدام try...catch...finally لمعالجة الأخطاء. إنشاء فئات أخطاء مخصصة. تعلم أنماط البرمجة الدفاعية.' },
+      { day: 53, title: 'الإغلاقات (Closures) بعمق', section: 'Advanced JS', type: 'learning',
+        desc: 'فهم الإغلاقات، البيئة المعجمية، وكيف تمكن خصوصية البيانات. رؤية أمثلة عملية مثل memoization والتطبيق الجزئي.' },
+      { day: 54, title: 'النماذج الأولية والفئات', section: 'Advanced JS', type: 'learning',
+        desc: 'تعلم الوراثة بالنماذج الأولية وتركيب class (constructor, methods, extends, super). المقارنة مع دوال المصنع.' },
+      { day: 55, title: 'الوحدات النمطية والاستيراد/التصدير', section: 'Advanced JS', type: 'learning',
+        desc: 'تنظيم الكود باستخدام وحدات ES. استخدام الصادرات المسماة والافتراضية. فهم نطاق الوحدة وفوائدها على النصوص العالمية.' },
 
-  function renderStats() {
-    document.getElementById('stats').innerHTML = `
-      <div class="stat-card"><div class="stat-icon">📅</div><div><div class="stat-value">${State.current}</div><div class="stat-label">Current</div></div></div>
-      <div class="stat-card"><div class="stat-icon">✅</div><div><div class="stat-value">${State.completed.length}</div><div class="stat-label">Done</div></div></div>
-      <div class="stat-card"><div class="stat-icon">⏳</div><div><div class="stat-value">${TOTAL_DAYS - State.completed.length}</div><div class="stat-label">Left</div></div></div>
-      <div class="stat-card"><div class="stat-icon">🔥</div><div><div class="stat-value">${State.projects}/9</div><div class="stat-label">Projects</div></div></div>
-    `;
-    document.getElementById('progressPercent').textContent = State.progress + '%';
-    document.getElementById('progressFill').style.width = State.progress + '%';
-  }
+      // Mini Apps (56–65)
+      { day: 56, title: 'تطبيق الطقس', section: 'Mini Apps', type: 'learning',
+        desc: 'بناء تطبيق طقس باستخدام API عام (مثل OpenWeatherMap). عرض الطقس الحالي، درجة الحرارة، والحالة للمدينة التي تم البحث عنها.' },
+      { day: 57, title: 'الباحث عن الوصفات', section: 'Mini Apps', type: 'learning',
+        desc: 'إنشاء تطبيق بحث عن الوصفات باستخدام API. عرض المكونات، التعليمات، والصور. السماح بالبحث باسم المكون أو الطبق.' },
+      { day: 58, title: 'متتبع النفقات', section: 'Mini Apps', type: 'learning',
+        desc: 'بناء متتبع نفقات مع إدخالات الدخل/المصروفات، رصيد جارٍ، وتفاصيل الفئات. تخزين البيانات في localStorage.' },
+      { day: 59, title: 'مؤقت بومودورو', section: 'Mini Apps', type: 'learning',
+        desc: 'إنشاء مؤقت بومودورو مع فترات عمل/استراحة، إشعارات، وتتبع الجلسات. تنسيقه بشكل جميل باستخدام CSS.' },
+      { day: 60, title: 'تطبيق ملاحظات', section: 'Mini Apps', type: 'learning',
+        desc: 'بناء تطبيق ملاحظات مع إنشاء، تعديل، حذف، وبحث. استخدام localStorage وإضافة معاينة markdown إذا أمكن.' },
+      { day: 61, title: 'معرض الصور', section: 'Mini Apps', type: 'learning',
+        desc: 'إنشاء معرض صور متجاوب مع lightbox، تحميل كسول، وتخطيط شبكي. اختياريًا التكامل مع API صور.' },
+      { day: 62, title: 'واجهة مشغل موسيقى', section: 'Mini Apps', type: 'learning',
+        desc: 'تصميم واجهة مشغل موسيقى مع تشغيل/إيقاف، شريط تقدم، تحكم في الصوت، وقائمة تشغيل. استخدام HTML5 Audio API.' },
+      { day: 63, title: 'واجهة محادثة', section: 'Mini Apps', type: 'learning',
+        desc: 'بناء واجهة محادثة مع فقاعات رسائل، حقل إدخال، مؤشر كتابة، وتمرير تلقائي. التحضير لميزات الوقت الحقيقي لاحقًا.' },
+      { day: 64, title: 'واجهة لوحة تحكم', section: 'Mini Apps', type: 'learning',
+        desc: 'إنشاء تخطيط لوحة تحكم إدارية مع شريط جانبي، بطاقات إحصائيات، رسوم بيانية (باستخدام مكتبة بسيطة أو CSS)، وجدول بيانات.' },
+      { day: 65, title: '🔥 مشروع: مجموعة تطبيقات مصغرة كاملة', section: 'Mini Apps', type: 'project',
+        desc: 'دمج تطبيقين مصغرين أو أكثر في مشروع واحد متماسك. إضافة تنقل بينهم ونظام localStorage مشترك.' },
 
-  function renderSections(filter = 'all') {
-    const container = document.getElementById('sectionsContainer');
-    container.innerHTML = '';
-    SECTIONS.forEach(sectionName => {
-      const days = ROADMAP.filter(d => d.s === sectionName);
-      if (!days.length) return;
-      const doneCount = days.filter(d => State.isDone(d.d)).length;
-      const groupDiv = document.createElement('div');
-      groupDiv.className = 'section-group' + (doneCount > 0 ? ' open' : '');
-      groupDiv.setAttribute('data-section', sectionName);
-      groupDiv.innerHTML = `
-        <div class="section-header">
-          <span>${SECTION_ICONS[sectionName]} ${sectionName}</span>
-          <span style="font-size:0.75rem; color:var(--text2)">${doneCount}/${days.length}</span>
-        </div>
-        <div class="section-days">
-          ${days.map(d => {
-            let cls = 'day-cell';
-            if (State.isDone(d.d)) cls += ' done';
-            if (d.d === State.current && !State.isDone(d.d)) cls += ' current';
-            if (d.type === 'project') cls += ' project';
-            if (State.isLocked(d.d)) cls += ' locked';
-            return `<div class="${cls}" data-day="${d.d}">${d.d}</div>`;
-          }).join('')}
-        </div>
-      `;
-      container.appendChild(groupDiv);
-    });
-    attachDayEvents();
-    attachSectionToggles();
-  }
+      // Tools + Git (66–70)
+      { day: 66, title: 'أساسيات Git والتثبيت', section: 'Tools + Git', type: 'learning',
+        desc: 'تثبيت Git وفهم مفاهيم التحكم في الإصدار. تعلم git init, git status، ومجلد .git. إعداد التكوين العام الخاص بك.' },
+      { day: 67, title: 'أوامر Git وسير العمل', section: 'Tools + Git', type: 'learning',
+        desc: 'إتقان git add, commit, log, diff, branch, checkout, merge, stash. فهم منطقة التجهيز وتاريخ الـ commits.' },
+      { day: 68, title: 'GitHub والمستودعات البعيدة', section: 'Tools + Git', type: 'learning',
+        desc: 'إنشاء مستودعات على GitHub. تعلم git push, pull, clone, fetch، وإدارة الروابط البعيدة. فهم طلبات السحب ومراجعة الكود.' },
+      { day: 69, title: 'نصائح VS Code والإضافات', section: 'Tools + Git', type: 'learning',
+        desc: 'تعزيز VS Code بالإضافات الأساسية (Prettier, ESLint, Live Server, GitLens). تعلم اختصارات لوحة المفاتيح وتخصيص الإعدادات.' },
+      { day: 70, title: 'الطرفية وأدوات CLI', section: 'Tools + Git', type: 'learning',
+        desc: 'التنقل في الطرفية بثقة. تعلم أوامر الصدفة الأساسية، عمليات الملفات، مديري الحزم (npm/yarn)، وأدوات CLI المفيدة.' },
 
-  function attachDayEvents() {
-    document.querySelectorAll('.day-cell:not(.locked)').forEach(cell => {
-      cell.addEventListener('click', () => openDayModal(parseInt(cell.dataset.day)));
-    });
-  }
+      // React (71–83)
+      { day: 71, title: 'مقدمة React والإعداد', section: 'React', type: 'learning',
+        desc: 'فهم ما هي React ولماذا تُستخدم. إعداد مشروع باستخدام Vite أو Create React App. استكشاف هيكل المشروع.' },
+      { day: 72, title: 'JSX والمكونات', section: 'React', type: 'learning',
+        desc: 'كتابة تركيب JSX وفهم كيفية تجميعه. إنشاء مكونات وظيفية، تداخلها، واستخدام fragments. تعلم قواعد JSX.' },
+      { day: 73, title: 'Props و PropTypes', section: 'React', type: 'learning',
+        desc: 'تمرير البيانات إلى المكونات عبر props. تفكيك props، تعيين قيم افتراضية، والتحقق باستخدام PropTypes لمكونات قوية.' },
+      { day: 74, title: 'الحالة و useState', section: 'React', type: 'learning',
+        desc: 'إدارة حالة المكون باستخدام hook useState. تحديث الحالة بشكل صحيح، فهم التجميع، ورفع الحالة لأعلى عند الحاجة.' },
+      { day: 75, title: 'معالجة الأحداث', section: 'React', type: 'learning',
+        desc: 'معالجة الأحداث في React (onClick, onChange, onSubmit). تمرير الوسائط إلى المعالجات، منع السلوك الافتراضي، وربط الدوال.' },
+      { day: 76, title: 'العرض الشرطي', section: 'React', type: 'learning',
+        desc: 'عرض واجهة المستخدم بشكل شرطي باستخدام المعامل الثلاثي، &&، أنماط if/else، وحالات switch. إظهار حالات التحميل، الخطأ، والفراغ.' },
+      { day: 77, title: 'القوائم والمفاتيح', section: 'React', type: 'learning',
+        desc: 'عرض القوائم باستخدام .map(). فهم أهمية المفاتيح الفريدة لتسوية فعالة. التعامل مع القوائم الديناميكية.' },
+      { day: 78, title: 'النماذج في React', section: 'React', type: 'learning',
+        desc: 'بناء نماذج محكومة وغير محكومة. إدارة حالة النموذج، التحقق من المدخلات، ومعالجة الإرسال باستخدام أنماط React.' },
+      { day: 79, title: 'useEffect Hook', section: 'React', type: 'learning',
+        desc: 'معالجة التأثيرات الجانبية باستخدام useEffect. فهم مصفوفة التبعيات، دوال التنظيف، والأنماط الشائعة مثل جلب البيانات.' },
+      { day: 80, title: 'useContext والخطافات المخصصة', section: 'React', type: 'learning',
+        desc: 'مشاركة الحالة عالميًا باستخدام useContext. بناء خطافات مخصصة لتغليف المنطق القابل لإعادة الاستخدام. اتباع اتفاقيات التسمية.' },
+      { day: 81, title: 'React Router', section: 'React', type: 'learning',
+        desc: 'إضافة التوجيه باستخدام React Router. إعداد BrowserRouter, Routes, Route, Link, NavLink. التعامل مع معاملات URL والمسارات المتداخلة.' },
+      { day: 82, title: 'مقدمة في إدارة الحالة', section: 'React', type: 'learning',
+        desc: 'استكشاف خيارات إدارة الحالة: قيود Context API، أساسيات Redux، Zustand، أو Jotai. اختيار الأداة المناسبة لتطبيقك.' },
+      { day: 83, title: 'أفضل ممارسات React', section: 'React', type: 'learning',
+        desc: 'تعلم هيكل المجلدات، تركيب المكونات، memoization (React.memo, useMemo, useCallback)، وتجنب الأخطاء الشائعة.' },
 
-  function attachSectionToggles() {
-    document.querySelectorAll('.section-header').forEach(header => {
-      header.addEventListener('click', () => {
-        header.parentElement.classList.toggle('open');
-      });
-    });
-  }
+      // React Practice (84–100)
+      { day: 84, title: 'بناء مدونة', section: 'React Practice', type: 'learning',
+        desc: 'إنشاء مدونة مع قائمة منشورات، صفحات منشور فردي، وواجهة بسيطة تشبه CMS. استخدام React Router للتنقل.' },
+      { day: 85, title: 'واجهة متجر إلكتروني', section: 'React Practice', type: 'learning',
+        desc: 'بناء قائمة منتجات، صفحة تفاصيل المنتج، سلة تسوق، وواجهة إتمام الشراء. إدارة حالة السلة وحساب الإجماليات.' },
+      { day: 86, title: 'واجهة التوثيق', section: 'React Practice', type: 'learning',
+        desc: 'إنشاء صفحات تسجيل الدخول، التسجيل، والملف الشخصي. التعامل مع إرسال النموذج، تخزين الرمز، والمسارات المحمية.' },
+      { day: 87, title: 'لوحة تحكم مع رسوم بيانية', section: 'React Practice', type: 'learning',
+        desc: 'بناء لوحة تحليلية مع مكونات رسوم بيانية. دمج مكتبة رسوم بيانية (Recharts أو Chart.js) مع React.' },
+      { day: 88, title: 'تغذية وسائل التواصل الاجتماعي', section: 'React Practice', type: 'learning',
+        desc: 'إنشاء تغذية اجتماعية بتمرير لا نهائي مع منشورات، إعجابات، واجهة تعليقات، وصور مستخدمين. ممارسة مفاهيم المحاكاة الافتراضية للقوائم.' },
+      { day: 89, title: 'مكون رفع الملفات', section: 'React Practice', type: 'learning',
+        desc: 'بناء مكون رفع ملفات بالسحب والإفلات مع معاينة، شريط تقدم، والتحقق من نوع الملف.' },
+      { day: 90, title: 'نظام بحث وتصفية', section: 'React Practice', type: 'learning',
+        desc: 'تنفيذ بحث مع debouncing، تصفية متعددة المعايير، فرز، ومزامنة معاملات استعلام URL.' },
+      { day: 91, title: 'التمرير اللانهائي', section: 'React Practice', type: 'learning',
+        desc: 'تنفيذ التمرير اللانهائي باستخدام Intersection Observer. تحميل البيانات على دفعات وإظهار دوارات تحميل.' },
+      { day: 92, title: 'تحديثات الوقت الحقيقي', section: 'React Practice', type: 'learning',
+        desc: 'محاكاة التحديثات في الوقت الحقيقي باستخدام setInterval أو اتصالات WebSocket. تحديث واجهة المستخدم عند وصول بيانات جديدة.' },
+      { day: 93, title: 'الحركة باستخدام Framer Motion', section: 'React Practice', type: 'learning',
+        desc: 'إضافة حركات سلسة لمكونات React. تحريك انتقالات الصفحات، تأثيرات التحويم، وعناصر القائمة باستخدام Framer Motion.' },
+      { day: 94, title: 'اختبار تطبيقات React', section: 'React Practice', type: 'learning',
+        desc: 'كتابة اختبارات الوحدة باستخدام Jest و React Testing Library. اختبار المكونات، تفاعلات المستخدم، والسلوك غير المتزامن.' },
+      { day: 95, title: 'تحسين الأداء', section: 'React Practice', type: 'learning',
+        desc: 'تحسين تطبيقات React باستخدام تقسيم الكود (React.lazy)، memoization، فهم DOM الافتراضي، وتحليل الحزمة.' },
+      { day: 96, title: 'الوصول في React', section: 'React Practice', type: 'learning',
+        desc: 'بناء مكونات React قابلة للوصول. استخدام سمات ARIA، التنقل بلوحة المفاتيح، إدارة التركيز، واختبار قارئ الشاشة.' },
+      { day: 97, title: 'تقسيم الكود', section: 'React Practice', type: 'learning',
+        desc: 'تنفيذ تقسيم الكود القائم على المسار والمكونات. استخدام React.lazy و Suspense لأوقات تحميل أفضل.' },
+      { day: 98, title: 'تطبيقات الويب التقدمية (PWA)', section: 'React Practice', type: 'learning',
+        desc: 'تحويل تطبيق React إلى PWA. إضافة service worker، manifest.json، دعم غير متصل بالإنترنت، ومطالبات التثبيت.' },
+      { day: 99, title: 'React + TypeScript مقدمة', section: 'React Practice', type: 'learning',
+        desc: 'إضافة TypeScript إلى مشروع React. كتابة أنواع props، state، الأحداث، والخطافات. فهم فوائد الكتابة الثابتة.' },
+      { day: 100, title: '🔥 مشروع: تطبيق React كامل', section: 'React Practice', type: 'project',
+        desc: 'بناء تطبيق React كامل (مثل مدير مهام، متجر إلكتروني، أو لوحة تحكم اجتماعية) مع توجيه، إدارة حالة، استدعاءات API، وواجهة مستخدم مصقولة.' },
 
-  function renderSectionTabs() {
-    const tabs = document.getElementById('sectionTabs');
-    tabs.innerHTML = SECTIONS.map(s => `<button class="section-tab" data-section="${s}">${SECTION_ICONS[s]} ${s.substring(0,8)}</button>`).join('');
-    tabs.querySelectorAll('.section-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        const section = document.querySelector(`.section-group[data-section="${tab.dataset.section}"]`);
-        if (section) section.scrollIntoView({ behavior: 'smooth' });
-      });
-    });
-  }
+      // Backend (101–110)
+      { day: 101, title: 'مقدمة Node.js', section: 'Backend', type: 'learning',
+        desc: 'فهم بيئة تشغيل Node.js، حلقة الأحداث، و npm. إنشاء خادم بسيط باستخدام وحدة http وتشغيل JavaScript خارج المتصفح.' },
+      { day: 102, title: 'إعداد Express.js', section: 'Backend', type: 'learning',
+        desc: 'إعداد خادم Express.js. تعلم app.get(), app.listen()، والتوجيه الأساسي. فهم مفهوم الوسيط.' },
+      { day: 103, title: 'التوجيه والوسائط', section: 'Backend', type: 'learning',
+        desc: 'تنظيم المسارات باستخدام Express Router. استخدام الوسائط المدمجة والمخصصة (morgan, cors, body-parser). تسلسل دوال الوسيط.' },
+      { day: 104, title: 'الطلب والاستجابة', section: 'Backend', type: 'learning',
+        desc: 'التعامل مع معاملات المسار، سلاسل الاستعلام، وبيانات الجسم. إرسال استجابات JSON، تعيين رموز الحالة، والتعامل مع الرؤوس.' },
+      { day: 105, title: 'تصميم REST API', section: 'Backend', type: 'learning',
+        desc: 'تصميم نقاط نهاية RESTful باتباع أفضل الممارسات. استخدام طرق HTTP المناسبة (GET, POST, PUT, PATCH, DELETE) وعناوين URL ذات معنى.' },
+      { day: 106, title: 'التوثيق (JWT)', section: 'Backend', type: 'learning',
+        desc: 'تنفيذ توثيق قائم على JWT. إنشاء نقاط نهاية تسجيل الدخول/التسجيل، تجزئة كلمات المرور باستخدام bcrypt، وحماية المسارات بالوسيط.' },
+      { day: 107, title: 'رفع الملفات', section: 'Backend', type: 'learning',
+        desc: 'التعامل مع رفع الملفات باستخدام multer. تخزين الملفات محليًا أو في التخزين السحابي. التحقق من أنواع الملفات وأحجامها.' },
+      { day: 108, title: 'وسيط معالجة الأخطاء', section: 'Backend', type: 'learning',
+        desc: 'إنشاء وسيط معالجة أخطاء عالمي. استخدام try/catch في المسارات غير المتزامنة. إرجاع استجابات خطأ متسقة.' },
+      { day: 109, title: 'أفضل ممارسات الأمان', section: 'Backend', type: 'learning',
+        desc: 'الحماية من الثغرات الشائعة: XSS، CSRF، حقن SQL، وتحديد المعدل. استخدام helmet، cors بشكل صحيح، وتعقيم المدخلات.' },
+      { day: 110, title: 'اختبار APIs', section: 'Backend', type: 'learning',
+        desc: 'اختبار APIs باستخدام Jest و Supertest. كتابة اختبارات الوحدة والتكامل لنقاط النهاية. فهم التطوير القائم على الاختبار (TDD).' },
 
-  function renderDrawer() {
-    const drawerList = document.getElementById('drawerList');
-    drawerList.innerHTML = SECTIONS.map(s => {
-      const days = ROADMAP.filter(d => d.s === s);
-      const done = days.filter(d => State.isDone(d.d)).length;
-      return `<div class="drawer-item" data-section="${s}">
-        ${SECTION_ICONS[s]} ${s} <span style="margin-left:auto;font-size:0.7rem;">${done}/${days.length}</span>
-      </div>`;
-    }).join('');
-    drawerList.querySelectorAll('.drawer-item').forEach(item => {
-      item.addEventListener('click', () => {
-        const section = document.querySelector(`.section-group[data-section="${item.dataset.section}"]`);
-        if (section) {
-          section.classList.add('open');
-          section.scrollIntoView({ behavior: 'smooth' });
+      // API Practice (111–130)
+      { day: 111, title: 'بناء مسارات RESTful', section: 'API Practice', type: 'learning',
+        desc: 'تنفيذ مجموعة كاملة من مسارات REST لمورد (مثال /api/posts). اتباع اتفاقيات التسمية ومعايير رموز الحالة.' },
+      { day: 112, title: 'عمليات CRUD', section: 'API Practice', type: 'learning',
+        desc: 'بناء عمليات إنشاء، قراءة، تحديث، حذف كاملة. التعامل مع الحالات الحدية، التحقق، وإرجاع الاستجابات المناسبة.' },
+      { day: 113, title: 'معاملات الاستعلام', section: 'API Practice', type: 'learning',
+        desc: 'قبول وتحليل معاملات الاستعلام للتصفية والبحث واختيار الحقول. توثيق خيارات الاستعلام المتاحة.' },
+      { day: 114, title: 'ترقيم الصفحات', section: 'API Practice', type: 'learning',
+        desc: 'تنفيذ ترقيم الصفحات القائم على المؤشر أو الإزاحة. إرجاع بيانات وصفية للترقيم (الإجمالي، الصفحة، الحد) في استجابات API.' },
+      { day: 115, title: 'الفرز والتصفية', section: 'API Practice', type: 'learning',
+        desc: 'السماح لمستهلكي API بفرز النتائج وتطبيق تصفيات متعددة. بناء معالجة مرنة لمعاملات الاستعلام.' },
+      { day: 116, title: 'تحجيم API', section: 'API Practice', type: 'learning',
+        desc: 'تحجيم API الخاص بك (مثال /api/v1/). فهم تحجيم URL مقابل تحجيم الرأس. التخطيط للتغييرات الفاصلة.' },
+      { day: 117, title: 'تحديد المعدل', section: 'API Practice', type: 'learning',
+        desc: 'تنفيذ تحديد المعدل باستخدام express-rate-limit. حماية API من الإساءة وتعيين حدود مناسبة لكل نقطة نهاية.' },
+      { day: 118, title: 'CORS والأمان', section: 'API Practice', type: 'learning',
+        desc: 'تكوين CORS بشكل صحيح لـ API الخاص بك. فهم طلبات preflight وكيفية السماح بأصول محددة.' },
+      { day: 119, title: 'توثيق API', section: 'API Practice', type: 'learning',
+        desc: 'توثيق API الخاص بك باستخدام Swagger/OpenAPI. إنشاء أوصاف واضحة لنقاط النهاية، مواصفات المعاملات، واستجابات نموذجية.' },
+      { day: 120, title: 'مقدمة WebSockets', section: 'API Practice', type: 'learning',
+        desc: 'إعداد خادم WebSocket باستخدام Socket.io. فهم الاتصال ثنائي الاتجاه في الوقت الحقيقي بين العميل والخادم.' },
+      { day: 121, title: 'بناء API محادثة', section: 'API Practice', type: 'learning',
+        desc: 'بناء خلفية محادثة في الوقت الحقيقي مع غرف، سجل الرسائل، ومؤشرات وجود المستخدم. دمج REST و WebSockets.' },
+      { day: 122, title: 'دمج خدمة البريد الإلكتروني', section: 'API Practice', type: 'learning',
+        desc: 'إرسال رسائل بريد إلكتروني من API باستخدام Nodemailer أو SendGrid. بناء تدفقات إعادة تعيين كلمة المرور والتحقق من البريد الإلكتروني.' },
+      { day: 123, title: 'دمج الدفع', section: 'API Practice', type: 'learning',
+        desc: 'دمج Stripe أو PayPal لمعالجة المدفوعات. التعامل مع webhooks، جلسات الدفع، وتأكيد حالة الدفع.' },
+      { day: 124, title: 'API معالجة الصور', section: 'API Practice', type: 'learning',
+        desc: 'بناء نقاط نهاية لرفع الصور، تغيير حجمها، قصها، وتحويل تنسيقها. استخدام Sharp أو مكتبات مماثلة.' },
+      { day: 125, title: 'توليد PDF', section: 'API Practice', type: 'learning',
+        desc: 'توليد مستندات PDF من جانب الخادم (فواتير، تقارير). استخدام Puppeteer أو PDFKit لإنشاء وتقديم PDFs.' },
+      { day: 126, title: 'استراتيجيات التخزين المؤقت', section: 'API Practice', type: 'learning',
+        desc: 'تنفيذ التخزين المؤقت باستخدام Redis أو مخازن في الذاكرة. تخزين الاستعلامات المتكررة مؤقتًا وإبطال ذاكرة التخزين المؤقت عند تغيير البيانات.' },
+      { day: 127, title: 'التسجيل والمراقبة', section: 'API Practice', type: 'learning',
+        desc: 'إضافة تسجيل منظم (Winston/Pino) ومراقبة أساسية. تتبع أوقات الطلب، معدلات الخطأ، وصحة الخادم.' },
+      { day: 128, title: 'اختبار API باستخدام Postman', section: 'API Practice', type: 'learning',
+        desc: 'إنشاء مجموعات Postman، بيئات، ونصوص اختبار تلقائية. تنظيم ومشاركة مجموعات اختبار API.' },
+      { day: 129, title: 'مقدمة GraphQL', section: 'API Practice', type: 'learning',
+        desc: 'إعداد خادم GraphQL باستخدام Apollo. تعريف المخططات، المحللات، وأنواع query/mutation. المقارنة مع REST.' },
+      { day: 130, title: '🔥 مشروع: REST API كامل', section: 'API Practice', type: 'project',
+        desc: 'بناء REST API جاهز للإنتاج مع توثيق، CRUD، ترقيم صفحات، رفع ملفات، وتوثيق كامل. نشر واختبار شامل.' },
+
+      // Database (131–136)
+      { day: 131, title: 'مفاهيم قواعد البيانات', section: 'Database', type: 'learning',
+        desc: 'فهم قواعد البيانات العلائقية مقابل غير العلائقية، خصائص ACID، نظرية CAP، ومتى تختار كل نوع.' },
+      { day: 132, title: 'إعداد MongoDB', section: 'Database', type: 'learning',
+        desc: 'إعداد MongoDB محليًا وعلى Atlas. تعلم صدفة MongoDB، الأوامر الأساسية، وواجهة Compass الرسومية.' },
+      { day: 133, title: 'CRUD مع MongoDB', section: 'Database', type: 'learning',
+        desc: 'تنفيذ عمليات insertOne, find, updateOne, deleteOne. فهم BSON، ObjectId، ومعاملات الاستعلام ($gt, $in، إلخ).' },
+      { day: 134, title: 'Mongoose ODM', section: 'Database', type: 'learning',
+        desc: 'تعريف المخططات والنماذج باستخدام Mongoose. تنفيذ عمليات CRUD، استخدام الوسائط (pre/post hooks)، والتعامل مع التحقق.' },
+      { day: 135, title: 'أساسيات SQL', section: 'Database', type: 'learning',
+        desc: 'تعلم أساسيات SQL: SELECT, INSERT, UPDATE, DELETE, JOIN, GROUP BY. التدريب باستخدام SQLite أو PostgreSQL.' },
+      { day: 136, title: 'إعداد PostgreSQL', section: 'Database', type: 'learning',
+        desc: 'إعداد PostgreSQL محليًا. تعلم أوامر psql، إنشاء قواعد البيانات والجداول، واستكشاف pgAdmin.' },
+
+      // DB Integration (137–150)
+      { day: 137, title: 'ربط قاعدة البيانات بـ API', section: 'DB Integration', type: 'learning',
+        desc: 'ربط Express API بـ MongoDB/PostgreSQL. استخدام سلاسل الاتصال، متغيرات البيئة، والتعامل مع أخطاء الاتصال.' },
+      { day: 138, title: 'نموذج المستخدم والمخطط', section: 'DB Integration', type: 'learning',
+        desc: 'تصميم مخطط مستخدم بحقول مثل الاسم، البريد الإلكتروني، كلمة المرور (مجزأة)، الطوابع الزمنية، والأدوار. إضافة قواعد التحقق.' },
+      { day: 139, title: 'العلاقات والمراجع', section: 'DB Integration', type: 'learning',
+        desc: 'نمذجة علاقات واحد لواحد، واحد لمتعدد، ومتعدد لمتعدد. استخدام مراجع ObjectId في MongoDB أو المفاتيح الخارجية في SQL.' },
+      { day: 140, title: 'خطوط التجميع (Aggregation)', section: 'DB Integration', type: 'learning',
+        desc: 'بناء خطوط تجميع MongoDB: $match, $group, $sort, $project, $lookup. إنشاء استعلامات بيانات معقدة.' },
+      { day: 141, title: 'الفهرسة والأداء', section: 'DB Integration', type: 'learning',
+        desc: 'إنشاء فهارس لتسريع الاستعلامات. فهم الفهارس المركبة، خطط الشرح، وتجنب العمليات البطيئة.' },
+      { day: 142, title: 'المعاملات (Transactions)', section: 'DB Integration', type: 'learning',
+        desc: 'تنفيذ معاملات قاعدة البيانات للعمليات الذرية. التعامل مع سيناريوهات التراجع وضمان اتساق البيانات.' },
+      { day: 143, title: 'التحقق من صحة البيانات', section: 'DB Integration', type: 'learning',
+        desc: 'إضافة تحقق شامل على مستوى قاعدة البيانات. استخدام مدققات Mongoose أو قيود SQL لضمان سلامة البيانات.' },
+      { day: 144, title: 'النسخ الاحتياطي والاستعادة', section: 'DB Integration', type: 'learning',
+        desc: 'إعداد نسخ احتياطية تلقائية لقاعدة البيانات. تعلم إجراءات الاستعادة. استخدام mongodump/mongorestore أو pg_dump/pg_restore.' },
+      { day: 145, title: 'الترحيلات (Migrations)', section: 'DB Integration', type: 'learning',
+        desc: 'إدارة تغييرات مخطط قاعدة البيانات باستخدام الترحيلات. استخدام أدوات مثل Knex.js أو إضافات ترحيل Mongoose.' },
+      { day: 146, title: 'استعلامات متقدمة', section: 'DB Integration', type: 'learning',
+        desc: 'كتابة استعلامات معقدة باستخدام الاستعلامات الفرعية، دوال النافذة (SQL)، أو التجميع المتقدم. تحسين الأداء.' },
+      { day: 147, title: 'البحث النصي الكامل', section: 'DB Integration', type: 'learning',
+        desc: 'تنفيذ البحث النصي الكامل في MongoDB ($text) أو PostgreSQL (tsvector). بناء نقطة نهاية بحث لـ API.' },
+      { day: 148, title: 'تزويد البيانات (Seeding)', section: 'DB Integration', type: 'learning',
+        desc: 'إنشاء نصوص تزويد لملء قاعدة البيانات ببيانات أولية/تجريبية. جعل التطوير والاختبار أسهل.' },
+      { day: 149, title: 'أمان قاعدة البيانات', section: 'DB Integration', type: 'learning',
+        desc: 'تأمين قاعدة البيانات: تمكين التوثيق، استخدام TLS، تقييد الوصول عبر IP، واتباع مبدأ الامتيازات الدنيا.' },
+      { day: 150, title: '🔥 مشروع: API كامل مدعوم بقاعدة بيانات', section: 'DB Integration', type: 'project',
+        desc: 'بناء API كامل مع تكامل قاعدة البيانات. تضمين توثيق المستخدم، نماذج بيانات مترابطة، نقاط نهاية تجميعية، وفهرسة مناسبة.' },
+
+      // Full Stack (151–155)
+      { day: 151, title: 'ربط الواجهة الأمامية بالخلفية', section: 'Full Stack', type: 'learning',
+        desc: 'ربط تطبيق React بـ Express API. استخدام fetch/axios، التعامل مع CORS، وإدارة عناوين API الأساسية بمتغيرات البيئة.' },
+      { day: 152, title: 'إدارة حالة بيانات API', section: 'Full Stack', type: 'learning',
+        desc: 'إدارة حالة الخادم بفعالية. استكشاف React Query أو SWR للتخزين المؤقت، إعادة الجلب، والتحديثات المتفائلة.' },
+      { day: 153, title: 'تدفق التوثيق', section: 'Full Stack', type: 'learning',
+        desc: 'بناء تدفق التوثيق الكامل: تسجيل الدخول، التسجيل، تخزين الرمز، تسجيل الدخول التلقائي، وتسجيل الخروج. حماية مسارات الواجهة الأمامية بناءً على حالة التوثيق.' },
+      { day: 154, title: 'تدفق رفع الملفات', section: 'Full Stack', type: 'learning',
+        desc: 'إنشاء رفع ملفات شامل: نموذج واجهة أمامية مع معاينة، معالجة خلفية باستخدام multer، وتقديم الملفات المرفوعة.' },
+      { day: 155, title: 'ميزات الوقت الحقيقي', section: 'Full Stack', type: 'learning',
+        desc: 'إضافة وظائف الوقت الحقيقي باستخدام Socket.io على كلا العميل والخادم. بناء إشعارات حية أو ميزة محادثة.' },
+
+      // Full Project (156–170)
+      { day: 156, title: 'تخطيط المشروع', section: 'Full Project', type: 'learning',
+        desc: 'تخطيط مشروعك الرئيسي. تحديد الميزات، إنشاء إطارات سلكية، تصميم مخطط قاعدة البيانات، وإعداد لوحة مشروع.' },
+      { day: 157, title: 'إعداد Monorepo', section: 'Full Project', type: 'learning',
+        desc: 'هيكلة مشروعك الكامل. إعداد مجلدات العميل والخادم، أنواع مشتركة، و package.json جذري مع نصوص.' },
+      { day: 158, title: 'نظام توثيق المستخدم', section: 'Full Project', type: 'learning',
+        desc: 'تنفيذ توثيق كامل: التسجيل، التحقق من البريد الإلكتروني، تسجيل الدخول، إعادة تعيين كلمة المرور، وإدارة الجلسات.' },
+      { day: 159, title: 'لوحة التحكم والتحليلات', section: 'Full Project', type: 'learning',
+        desc: 'بناء لوحة التحكم الرئيسية ببيانات خاصة بالمستخدم، رسوم بيانية، وبطاقات ملخصة. جلب وعرض التحليلات من API.' },
+      { day: 160, title: 'ميزات CRUD', section: 'Full Project', type: 'learning',
+        desc: 'تنفيذ جميع عمليات CRUD لموردك الرئيسي. بناء نماذج، جداول، وطرق عرض تفصيلية مع تكامل API كامل.' },
+      { day: 161, title: 'البحث والتصفيات', section: 'Full Project', type: 'learning',
+        desc: 'إضافة بحث متقدم مع debouncing، تصفية متعددة الحقول، وحالة تصفية قائمة على URL. الربط بنقاط نهاية البحث الخلفية.' },
+      { day: 162, title: 'نظام الإشعارات', section: 'Full Project', type: 'learning',
+        desc: 'بناء نظام إشعارات (داخل التطبيق وبريد إلكتروني اختياري). إنشاء جرس إشعارات، عدد غير مقروء، وتحديثات حية.' },
+      { day: 163, title: 'لوحة الإدارة', section: 'Full Project', type: 'learning',
+        desc: 'إنشاء منطقة مخصصة للمسؤول لإدارة المستخدمين، تعديل المحتوى، وإعدادات النظام. تنفيذ تحكم في الوصول قائم على الأدوار.' },
+      { day: 164, title: 'إعدادات المستخدم', section: 'Full Project', type: 'learning',
+        desc: 'بناء صفحات الملف الشخصي والإعدادات. السماح بتحديث الصورة الرمزية، كلمة المرور، التفضيلات، وإعدادات الإشعارات.' },
+      { day: 165, title: 'الميزات الاجتماعية', section: 'Full Project', type: 'learning',
+        desc: 'إضافة تعليقات، إعجابات، أو ميزات مشاركة. تنفيذ تحديثات حية وتتبع تفاعل المستخدم.' },
+      { day: 166, title: 'دمج الدفع', section: 'Full Project', type: 'learning',
+        desc: 'دمج نظام دفع للميزات المميزة. التعامل مع الدفع، webhooks، إدارة الاشتراكات، والفواتير.' },
+      { day: 167, title: 'الاختبار وضمان الجودة', section: 'Full Project', type: 'learning',
+        desc: 'كتابة اختبارات شاملة: اختبارات وحدة، اختبارات تكامل، واختبارات E2E. إجراء ضمان جودة يدوي وإصلاح الأخطاء.' },
+      { day: 168, title: 'تحسين الأداء', section: 'Full Project', type: 'learning',
+        desc: 'تحسين أوقات التحميل، حجم الحزمة، وأوقات استجابة API. تنفيذ التحميل الكسول، التخزين المؤقت، وتحسين استعلامات قاعدة البيانات.' },
+      { day: 169, title: 'تدقيق الأمان', section: 'Full Project', type: 'learning',
+        desc: 'تدقيق تطبيقك بحثًا عن ثغرات أمنية. التحقق من OWASP top 10، إصلاح المشكلات، وتنفيذ رؤوس الأمان.' },
+      { day: 170, title: '🔥 مشروع: تطبيق Full Stack كامل', section: 'Full Project', type: 'project',
+        desc: 'أكمل وصقل مشروعك الرئيسي الكامل. تأكد من عمل جميع الميزات، واجهة مستخدم مصقولة، وكود نظيف وموثق.' },
+
+      // Deployment (171–180)
+      { day: 171, title: 'نظرة عامة على خيارات النشر', section: 'Deployment', type: 'learning',
+        desc: 'استكشاف منصات النشر: Vercel، Netlify (واجهة أمامية)، Railway، Render (خلفية)، MongoDB Atlas، Supabase (قاعدة بيانات). مقارنة الإيجابيات والسلبيات.' },
+      { day: 172, title: 'نشر الواجهة الأمامية', section: 'Deployment', type: 'learning',
+        desc: 'نشر واجهة React الأمامية على Vercel أو Netlify. تكوين إعدادات البناء، متغيرات البيئة، والنطاقات المخصصة.' },
+      { day: 173, title: 'نشر الخلفية', section: 'Deployment', type: 'learning',
+        desc: 'نشر Express API على Railway أو Render. إعداد متغيرات البيئة، التعامل مع CORS للإنتاج، واختبار نقاط النهاية.' },
+      { day: 174, title: 'نشر قاعدة البيانات', section: 'Deployment', type: 'learning',
+        desc: 'إعداد MongoDB Atlas أو Supabase للإنتاج. تكوين وصول الشبكة، سلاسل الاتصال، وجداول النسخ الاحتياطي.' },
+      { day: 175, title: 'إعداد خط أنابيب CI/CD', section: 'Deployment', type: 'learning',
+        desc: 'إنشاء خط أنابيب CI/CD باستخدام GitHub Actions. أتمتة الاختبار، البناء، والنشر عند الدفع إلى الفرع الرئيسي.' },
+      { day: 176, title: 'إعداد النطاق و SSL', section: 'Deployment', type: 'learning',
+        desc: 'شراء نطاق مخصص وتكوين DNS. إعداد شهادات SSL (عادةً تلقائية مع المنصات الحديثة).' },
+      { day: 177, title: 'متغيرات البيئة والأسرار', section: 'Deployment', type: 'learning',
+        desc: 'إدارة متغيرات البيئة والأسرار بشكل آمن في الإنتاج. لا تقم أبدًا بإيداع البيانات الحساسة. استخدم مدراء الأسرار في المنصة.' },
+      { day: 178, title: 'المراقبة والتحليلات', section: 'Deployment', type: 'learning',
+        desc: 'إعداد المراقبة (Sentry، LogRocket) والتحليلات (Google Analytics، Plausible). تتبع الأخطاء، الأداء، وسلوك المستخدم.' },
+      { day: 179, title: 'قائمة تدقيق الإطلاق', section: 'Deployment', type: 'learning',
+        desc: 'إكمال قائمة تدقيق ما قبل الإطلاق: وسوم SEO الوصفية، الأيقونة المفضلة، صور المعاينة الاجتماعية، صفحات الخطأ، الصفحات القانونية، وتدقيق الأداء.' },
+      { day: 180, title: '🔥 مشروع: تطبيق إنتاجي حي', section: 'Deployment', type: 'project',
+        desc: '🎉 أطلق تطبيقك الكامل والمنشور والجاهز للإنتاج! شارك إنجازك، اكتب دراسة حالة، وأضفه إلى محفظتك.' }
+    ];
+
+    // ====================== 2. نظام الحالة (StateManager) ======================
+    const StateManager = {
+      _completed: [],
+      _currentDay: 1,
+      _filter: 'all',
+      _openSections: new Set(),
+
+      init() {
+        const saved = JSON.parse(localStorage.getItem('devpath_state') || '{}');
+        this._completed = saved.completedDays || [];
+        this._currentDay = saved.currentDay || 1;
+        this._filter = saved.filter || 'all';
+        this._openSections = new Set(saved.openSections || []);
+        this.syncCurrentDay();
+        this.save();
+      },
+
+      save() {
+        localStorage.setItem('devpath_state', JSON.stringify({
+          completedDays: this._completed,
+          currentDay: this._currentDay,
+          filter: this._filter,
+          openSections: [...this._openSections]
+        }));
+      },
+
+      completeDay(dayNum) {
+        if (this._completed.includes(dayNum)) return false;
+        this._completed.push(dayNum);
+        this._completed.sort((a,b)=>a-b);
+        this.syncCurrentDay();
+        this.save();
+        return true;
+      },
+
+      syncCurrentDay() {
+        let next = 1;
+        for (let d of this._completed) {
+          if (d === next) next++;
+          else break;
         }
-        document.getElementById('drawer').classList.remove('open');
-        document.getElementById('drawerOverlay').classList.remove('show');
-      });
-    });
-  }
+        this._currentDay = next > 180 ? 180 : next;
+      },
 
-  async function updateAiTip() {
-    const day = ROADMAP.find(d => d.d === State.current);
-    if (!day) return;
-    try {
-      const tip = await callGroq([{ role: 'user', content: `Give a one-sentence motivational tip for Day ${State.current}: ${day.t} (${day.s}).` }]);
-      document.getElementById('aiTip').textContent = tip;
-    } catch(e) {
-      document.getElementById('aiTip').textContent = 'Keep building, keep growing! 🚀';
-    }
-  }
+      reset() {
+        this._completed = [];
+        this._currentDay = 1;
+        this._filter = 'all';
+        this._openSections = new Set();
+        this.save();
+      },
 
-  async function openDayModal(dayNum) {
-    const day = ROADMAP.find(d => d.d === dayNum);
-    if (!day) return;
-    const overlay = document.getElementById('modalOverlay');
-    const content = document.getElementById('modalContent');
-    const done = State.isDone(dayNum);
-    content.innerHTML = `
-      <h3>Day ${day.d}: ${day.t}</h3>
-      <p style="color:var(--text2); margin:12px 0;">${day.desc}</p>
-      <div id="aiExplain" style="margin:12px 0; padding:12px; background:rgba(79,70,229,0.1); border-radius:8px;">🤖 Loading AI explanation...</div>
-      ${day.res ? `<div><a href="${day.res[0]}" target="_blank">📚 Resource</a></div>` : ''}
-      <div style="margin-top:16px; display:flex; gap:8px;">
-        <button class="btn btn-primary" id="completeDayBtn" ${done ? 'disabled' : ''}>${done ? '✓ Done' : 'Mark Complete'}</button>
-        <button class="btn btn-outline" id="closeModalBtn">Close</button>
-      </div>
-    `;
-    overlay.style.display = 'flex';
-    document.getElementById('closeModalBtn').onclick = () => overlay.style.display = 'none';
-    document.getElementById('completeDayBtn').onclick = () => {
-      if (State.complete(dayNum)) {
-        overlay.style.display = 'none';
-        renderAll();
-        showToast('✅ Day ' + dayNum + ' completed!');
+      get completedDays() { return this._completed; },
+      get currentDay() { return this._currentDay; },
+      get filter() { return this._filter; },
+      set filter(val) { this._filter = val; this.save(); },
+      isSectionOpen(section) { return this._openSections.has(section); },
+      toggleSection(section) {
+        if (this._openSections.has(section)) this._openSections.delete(section);
+        else this._openSections.add(section);
+        this.save();
+      },
+      setSectionOpen(section, open) {
+        if (open) this._openSections.add(section);
+        else this._openSections.delete(section);
+        this.save();
+      },
+
+      getProgress() {
+        const total = 180;
+        const completed = this._completed.length;
+        const percent = Math.round((completed / total) * 100);
+        const projectDays = [10,25,45,65,100,130,150,170,180];
+        const projectsDone = projectDays.filter(d => this._completed.includes(d)).length;
+        return { completed, percent, projectsDone, totalProjects: projectDays.length };
       }
     };
 
-    try {
-      const explanation = await callGroq([{ role: 'user', content: `Explain in 2 sentences why Day ${dayNum} "${day.t}" is important for a full-stack developer.` }]);
-      document.getElementById('aiExplain').textContent = '🤖 ' + explanation;
-    } catch(e) {
-      document.getElementById('aiExplain').textContent = '🤖 Focus on mastering this concept before moving forward.';
+    // ====================== 3. طبقة واجهة المستخدم (UI) ======================
+    const UI = {
+      updateStats() {
+        const { completed, percent, projectsDone, totalProjects } = StateManager.getProgress();
+        document.getElementById('statsGrid').innerHTML = `
+          <div class="stat-card"><div class="stat-icon" style="background:rgba(108,92,231,0.2)">📅</div><div class="stat-info"><div class="value">${StateManager.currentDay}</div><div class="label">اليوم الحالي</div></div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:rgba(46,204,113,0.2)">✅</div><div class="stat-info"><div class="value">${completed}</div><div class="label">أيام مكتملة</div></div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:rgba(243,156,18,0.2)">📈</div><div class="stat-info"><div class="value">${percent}%</div><div class="label">التقدم</div></div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:rgba(255,107,107,0.2)">🔥</div><div class="stat-info"><div class="value">${projectsDone}/${totalProjects}</div><div class="label">مشاريع</div></div></div>
+        `;
+        document.getElementById('progressPercent').textContent = percent + '%';
+        document.getElementById('progressFill').style.width = percent + '%';
+      },
+
+      renderSections() {
+        const container = document.getElementById('sectionsContainer');
+        const filter = StateManager.filter;
+        const sections = {};
+        roadmap.forEach(day => {
+          if (!sections[day.section]) sections[day.section] = [];
+          sections[day.section].push(day);
+        });
+
+        const sectionOrder = [
+          'HTML','CSS','JavaScript Basics','Practice','Advanced JS','Mini Apps',
+          'Tools + Git','React','React Practice','Backend','API Practice',
+          'Database','DB Integration','Full Stack','Full Project','Deployment'
+        ];
+
+        container.innerHTML = '';
+        sectionOrder.forEach(sectionName => {
+          const days = sections[sectionName];
+          if (!days) return;
+          const start = days[0].day, end = days[days.length-1].day;
+          const completedIn = days.filter(d => StateManager.completedDays.includes(d.day)).length;
+          const isOpen = StateManager.isSectionOpen(sectionName);
+
+          const sectionDiv = document.createElement('div');
+          sectionDiv.className = `section ${isOpen ? 'open' : ''}`;
+          sectionDiv.dataset.section = sectionName;
+
+          sectionDiv.innerHTML = `
+            <div class="section-header">
+              <span class="section-title">📁 ${sectionName} <span style="font-size:0.7rem;color:var(--text-secondary)">${start}–${end}</span></span>
+              <span style="display:flex;align-items:center;gap:8px;">
+                <span style="font-size:0.7rem;">${completedIn}/${days.length}</span>
+                <span class="section-arrow">▼</span>
+              </span>
+            </div>
+            <div class="days-grid"></div>
+          `;
+
+          const grid = sectionDiv.querySelector('.days-grid');
+          days.forEach(day => {
+            const cell = document.createElement('div');
+            cell.className = 'day-cell';
+            cell.textContent = day.day;
+            cell.dataset.day = day.day;
+            if (StateManager.completedDays.includes(day.day)) cell.classList.add('completed');
+            if (day.day === StateManager.currentDay && !StateManager.completedDays.includes(day.day)) cell.classList.add('current');
+            if (day.type === 'project') cell.classList.add('project');
+            if (day.day > 1 && !StateManager.completedDays.includes(day.day-1) && day.day !== StateManager.currentDay) {
+              cell.classList.add('locked');
+            }
+            if (filter === 'completed' && !StateManager.completedDays.includes(day.day)) cell.classList.add('hidden');
+            if (filter === 'pending' && StateManager.completedDays.includes(day.day)) cell.classList.add('hidden');
+            grid.appendChild(cell);
+          });
+
+          // أحداث النقر على الخلايا
+          grid.querySelectorAll('.day-cell:not(.locked)').forEach(cell => {
+            cell.addEventListener('click', () => showDayModal(parseInt(cell.dataset.day)));
+          });
+          grid.querySelectorAll('.day-cell.locked').forEach(cell => {
+            cell.addEventListener('click', () => showDayModal(parseInt(cell.dataset.day), true));
+          });
+
+          sectionDiv.querySelector('.section-header').addEventListener('click', () => {
+            sectionDiv.classList.toggle('open');
+            StateManager.toggleSection(sectionName);
+          });
+
+          container.appendChild(sectionDiv);
+        });
+      },
+
+      showModal(day, locked = false) {
+        const overlay = document.getElementById('modalOverlay');
+        const modal = document.getElementById('modal');
+        const isProject = day.type === 'project';
+        const isCompleted = StateManager.completedDays.includes(day.day);
+
+        let resourcesHtml = '';
+        if (day.resources && day.resources.length > 0) {
+          resourcesHtml = `<div class="resources">📚 مصادر: ${day.resources.map(url => `<a href="${url}" target="_blank" rel="noopener">رابط</a>`).join(' | ')}</div>`;
+        }
+
+        modal.innerHTML = `
+          <h3>📅 اليوم ${day.day}: ${day.title} ${isProject ? '🔥' : ''}</h3>
+          <p style="color:var(--text-secondary); margin:8px 0;">${day.desc}</p>
+          ${resourcesHtml}
+          ${locked ? '<p style="color:orange;">🔒 يجب إكمال اليوم السابق أولاً</p>' : ''}
+          <div style="margin-top:16px; display:flex; gap:8px; flex-wrap:wrap;">
+            ${!isCompleted && !locked ? '<button class="btn primary" id="modalComplete">✅ إكمال اليوم</button>' : ''}
+            <button class="btn" id="modalClose">إغلاق</button>
+          </div>
+        `;
+
+        overlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+
+        const closeModal = () => {
+          overlay.style.display = 'none';
+          document.body.style.overflow = '';
+        };
+
+        document.getElementById('modalClose').addEventListener('click', closeModal);
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+
+        const completeBtn = document.getElementById('modalComplete');
+        if (completeBtn) {
+          completeBtn.addEventListener('click', () => {
+            if (StateManager.completeDay(day.day)) {
+              UI.updateStats();
+              UI.renderSections();
+              showToast('✅ تم إكمال اليوم ' + day.day);
+            }
+            closeModal();
+          });
+        }
+      }
+    };
+
+    // ====================== 4. دوال مساعدة ======================
+    function showDayModal(dayNum, locked = false) {
+      const day = roadmap.find(d => d.day === dayNum);
+      if (day) UI.showModal(day, locked);
     }
-  }
 
-  function showToast(msg) {
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.textContent = msg;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 2500);
-  }
-
-  function renderAll() {
-    renderStats();
-    renderSections();
-    renderSectionTabs();
-    renderDrawer();
-    updateAiTip();
-  }
-
-  // Init
-  State.init();
-  renderAll();
-
-  // Drawer toggle
-  document.getElementById('menuBtn').addEventListener('click', () => {
-    document.getElementById('drawer').classList.toggle('open');
-    document.getElementById('drawerOverlay').classList.toggle('show');
-  });
-  document.getElementById('drawerOverlay').addEventListener('click', () => {
-    document.getElementById('drawer').classList.remove('open');
-    document.getElementById('drawerOverlay').classList.remove('show');
-  });
-
-  // Continue
-  document.getElementById('continueBtn').addEventListener('click', () => openDayModal(State.current));
-  document.getElementById('expandBtn').addEventListener('click', () => {
-    document.querySelectorAll('.section-group').forEach(g => g.classList.add('open'));
-  });
-  document.getElementById('resetBtn').addEventListener('click', () => {
-    if (confirm('Reset all progress?')) {
-      State.completed = [];
-      State.current = 1;
-      State.save();
-      renderAll();
+    function showToast(msg) {
+      const toast = document.createElement('div');
+      toast.textContent = msg;
+      toast.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#2ecc71;color:#fff;padding:12px 20px;border-radius:8px;font-weight:bold;z-index:999;';
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2000);
     }
-  });
 
-  // Chat
-  document.getElementById('chatToggleBtn').addEventListener('click', () => {
-    document.getElementById('chatOverlay').style.display = 'flex';
-  });
-  document.getElementById('closeChatBtn').addEventListener('click', () => {
-    document.getElementById('chatOverlay').style.display = 'none';
-  });
-  document.getElementById('sendChatBtn').addEventListener('click', async () => {
-    const input = document.getElementById('chatInput');
-    const msg = input.value.trim();
-    if (!msg) return;
-    const messagesDiv = document.getElementById('chatMessages');
-    messagesDiv.innerHTML += `<div style="align-self:flex-end; background:var(--accent); padding:8px; border-radius:8px; max-width:80%;">${msg}</div>`;
-    input.value = '';
-    try {
-      const reply = await callGroq([{ role: 'user', content: msg }]);
-      messagesDiv.innerHTML += `<div style="align-self:flex-start; background:var(--surface); padding:8px; border-radius:8px; max-width:80%;">${reply}</div>`;
-    } catch(e) {
-      messagesDiv.innerHTML += `<div style="align-self:flex-start; background:var(--surface); padding:8px; border-radius:8px; max-width:80%;">Sorry, AI is unavailable.</div>`;
-    }
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-  });
+    // ====================== 5. ربط الأحداث ======================
+    document.getElementById('continueBtn').addEventListener('click', () => showDayModal(StateManager.currentDay));
 
-})();
-</script>
+    document.getElementById('jumpBtn').addEventListener('click', () => {
+      const day = roadmap.find(d => d.day === StateManager.currentDay);
+      if (!day) return;
+      const sectionDiv = document.querySelector(`.section[data-section="${day.section}"]`);
+      if (sectionDiv) {
+        sectionDiv.classList.add('open');
+        StateManager.setSectionOpen(day.section, true);
+        sectionDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => {
+          const cell = sectionDiv.querySelector(`.day-cell[data-day="${StateManager.currentDay}"]`);
+          if (cell) cell.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+      }
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      if (confirm('هل أنت متأكد من إعادة تعيين كل التقدم؟')) {
+        StateManager.reset();
+        UI.updateStats();
+        UI.renderSections();
+        showToast('🔄 تم إعادة التعيين');
+      }
+    });
+
+    document.getElementById('filterBar').addEventListener('click', (e) => {
+      if (e.target.classList.contains('filter-btn')) {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        StateManager.filter = e.target.dataset.filter;
+        UI.renderSections();
+      }
+    });
+
+    // ====================== 6. بدء التطبيق ======================
+    StateManager.init();
+    UI.updateStats();
+    UI.renderSections();
+    document.querySelector(`.filter-btn[data-filter="${StateManager.filter}"]`).classList.add('active');
+  </script>
 </body>
 </html>
