@@ -2787,4 +2787,181 @@
   // ════════════════════════════════════════
   function formatCode() {
     const lang = editorLang.value;
-    let
+    let code = codeTextarea.value;
+    
+    if (!code.trim()) return;
+    
+    // Simple formatting
+    if (lang === 'json') {
+      try {
+        code = JSON.stringify(JSON.parse(code), null, 2);
+        codeTextarea.value = code;
+        updateHighlighting();
+        updateStats();
+        updateLineNumbers();
+        showToast('✨ Formatted', 'success');
+      } catch(e) {
+        showToast('⚠️ Invalid JSON', 'error');
+      }
+      return;
+    }
+    
+    // Basic indentation cleanup
+    const lines = code.split('\n');
+    let indent = 0;
+    const formatted = lines.map(line => {
+      const trimmed = line.trim();
+      if (trimmed.endsWith('{') || trimmed.endsWith('[') || trimmed.endsWith('(')) {
+        const result = '  '.repeat(indent) + trimmed;
+        indent++;
+        return result;
+      } else if (trimmed.startsWith('}') || trimmed.startsWith(']') || trimmed.startsWith(')')) {
+        indent = Math.max(0, indent - 1);
+        return '  '.repeat(indent) + trimmed;
+      }
+      return '  '.repeat(indent) + trimmed;
+    }).join('\n');
+    
+    codeTextarea.value = formatted;
+    updateHighlighting();
+    updateStats();
+    updateLineNumbers();
+    showToast('✨ Formatted', 'success');
+  }
+
+  // ════════════════════════════════════════
+  // 11. EXPORT / IMPORT
+  // ════════════════════════════════════════
+  function exportNotes() {
+    const data = {
+      version: '2.0',
+      exportedAt: new Date().toISOString(),
+      notes: notes
+    };
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `code-notes-backup-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('📤 Exported successfully', 'success');
+  }
+
+  function importNotes(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (data.notes && Array.isArray(data.notes)) {
+          notes = data.notes;
+          saveNotes(notes);
+          renderSidebar();
+          showToast(`📥 Imported ${data.notes.length} notes`, 'success');
+        } else {
+          showToast('⚠️ Invalid file format', 'error');
+        }
+      } catch(err) {
+        showToast('⚠️ Failed to import', 'error');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // ════════════════════════════════════════
+  // 12. SMART TYPING (Tab, Brackets)
+  // ════════════════════════════════════════
+  function handleSmartInput(e) {
+    const ta = codeTextarea;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const value = ta.value;
+    
+    // Tab key
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      ta.value = value.substring(0, start) + '  ' + value.substring(end);
+      ta.selectionStart = ta.selectionEnd = start + 2;
+      triggerUpdate();
+      return;
+    }
+    
+    // Auto-brackets
+    const pairs = { '(': ')', '[': ']', '{': '}', '"': '"', "'": "'", '`': '`' };
+    if (pairs[e.key] && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      e.preventDefault();
+      ta.value = value.substring(0, start) + e.key + pairs[e.key] + value.substring(end);
+      ta.selectionStart = ta.selectionEnd = start + 1;
+      triggerUpdate();
+      return;
+    }
+    
+    // Auto-indent on Enter
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+      const currentLine = value.substring(lineStart, start);
+      const indent = currentLine.match(/^\s*/)[0];
+      
+      // Check if line ends with opening bracket
+      const trimmed = currentLine.trim();
+      let extraIndent = '';
+      if (trimmed.endsWith('{') || trimmed.endsWith('[') || trimmed.endsWith('(')) {
+        extraIndent = '  ';
+      }
+      
+      ta.value = value.substring(0, start) + '\n' + indent + extraIndent + value.substring(end);
+      ta.selectionStart = ta.selectionEnd = start + 1 + indent.length + extraIndent.length;
+      triggerUpdate();
+      return;
+    }
+  }
+
+  function triggerUpdate() {
+    isTyping = true;
+    updateHighlighting();
+    updateStats();
+    updateLineNumbers();
+    autoSave();
+  }
+
+  // ════════════════════════════════════════
+  // 13. STATS
+  // ════════════════════════════════════════
+  function updateStats() {
+    const text = codeTextarea.value;
+    const chars = text.length;
+    const lines = text.split('\n').length;
+    const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+    
+    charCounter.textContent = formatNumber(chars);
+    lineCountEl.textContent = formatNumber(lines);
+    wordCountEl.textContent = formatNumber(words);
+  }
+
+  // ════════════════════════════════════════
+  // 14. UTILITIES
+  // ════════════════════════════════════════
+  function generateId() {
+    return Date.now().toString(36) + Math.random().toString(36).substring(2, 9);
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function formatDate(ts) {
+    const d = new Date(ts);
+    const now = new Date();
+    const diff = now - d;
+    
+    if (diff < 60000) return 'Just now';
+    if (diff < 3600000) return `${Math.floor(diff/60000)}m ago`;
+    if (diff < 86400000) return `${Math.floor(diff/3600000)}h ago`;
+    if (diff < 604800000) return `${Math.floor(diff/86400000)}d ago`;
+    
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+ 
