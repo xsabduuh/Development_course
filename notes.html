@@ -3,573 +3,538 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>DevPath 180 • Notes</title>
+  <title>DevPath 180 • Notes Pro</title>
+  <!-- highlight.js -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
   <style>
     :root {
-      --bg: #000;
-      --sheet: #111118;
-      --card: #1a1a24;
-      --border: #2a2a36;
-      --text: #f5f5f7;
-      --secondary: #8e8e93;
-      --accent: #0a84ff;
-      --accent2: #409cff;
-      --green: #30d158;
-      --red: #ff453a;
-      --orange: #ff9f0a;
-      --radius: 14px;
-      --radius-lg: 22px;
-      --font: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
-      --mono: 'SF Mono', 'JetBrains Mono', 'Fira Code', monospace;
-      --shadow: 0 2px 20px rgba(0,0,0,0.5);
-    }
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{
-      font-family:var(--font);
-      background:var(--bg);
-      color:var(--text);
-      height:100dvh;display:flex;overflow:hidden;
-      -webkit-font-smoothing:antialiased;
-      -webkit-user-select:none;user-select:none;
-      -webkit-tap-highlight-color:transparent;
-    }
-    ::-webkit-scrollbar{width:3px}
-    ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-
-    /* ===== SHEET (القائمة الجانبية) ===== */
-    .sheet-overlay{
-      position:fixed;inset:0;background:rgba(0,0,0,0.5);
-      z-index:50;opacity:0;pointer-events:none;
-      transition:opacity 0.35s;
-      backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
-    }
-    .sheet-overlay.show{opacity:1;pointer-events:auto}
-
-    .sheet{
-      position:fixed;top:0;left:0;bottom:0;
-      width:88vw;max-width:360px;
-      background:var(--sheet);z-index:60;
-      transform:translateX(-100%);
-      transition:transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-      display:flex;flex-direction:column;
-      border-right:1px solid var(--border);
-    }
-    .sheet.show{transform:translateX(0)}
-
-    .sheet-handle{
-      display:none;width:36px;height:5px;
-      background:var(--border);border-radius:3px;
-      margin:12px auto 8px;
-    }
-    @media(max-width:768px){.sheet-handle{display:block}}
-
-    .sheet-header{
-      padding:20px 20px 16px;
-      display:flex;align-items:center;justify-content:space-between;
-    }
-    .sheet-title{
-      font-weight:700;font-size:1.2rem;
-      letter-spacing:-0.3px;
-    }
-    .sheet-new-btn{
-      width:36px;height:36px;border-radius:50%;
-      background:var(--accent);color:#fff;
-      display:flex;align-items:center;justify-content:center;
-      font-size:1.4rem;font-weight:300;
-      border:none;cursor:pointer;
-      transition:background 0.2s, transform 0.2s;
-    }
-    .sheet-new-btn:active{transform:scale(0.92);background:var(--accent2)}
-
-    .sheet-list{
-      flex:1;overflow-y:auto;padding:0 12px 12px;
-      -webkit-overflow-scrolling:touch;
+      --bg: #0a0a14;
+      --surface: #10101e;
+      --border: #202038;
+      --text: #e0e0f0;
+      --text-secondary: #8888aa;
+      --accent: #5b5bf0;
+      --accent-hover: #7777ff;
+      --success: #2dd4bf;
+      --danger: #f87171;
+      --warning: #fbbf24;
+      --radius: 12px;
+      --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
     }
 
-    .note-card{
-      padding:14px 16px;margin:4px 0;
-      border-radius:var(--radius);
-      cursor:pointer;transition:background 0.2s;
-      position:relative;border:1px solid transparent;
-    }
-    .note-card:active{background:var(--card)}
-    .note-card.selected{
-      background:var(--card);border-color:var(--accent);
-    }
-    .note-card-title{
-      font-weight:600;font-size:0.95rem;
-      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-    }
-    .note-card-meta{
-      display:flex;align-items:center;gap:8px;margin-top:4px;
-    }
-    .note-card-lang{
-      font-size:0.65rem;font-weight:600;text-transform:uppercase;
-      color:var(--accent);background:rgba(10,132,255,0.12);
-      padding:2px 8px;border-radius:4px;letter-spacing:0.5px;
-    }
-    .note-card-date{
-      font-size:0.7rem;color:var(--secondary);
-    }
-    .note-card-delete{
-      position:absolute;right:12px;top:50%;transform:translateY(-50%);
-      width:28px;height:28px;border-radius:50%;
-      background:rgba(255,69,58,0.12);color:var(--red);
-      display:flex;align-items:center;justify-content:center;
-      font-size:0.8rem;opacity:0;transition:opacity 0.2s;
-      border:none;cursor:pointer;
-    }
-    .note-card:hover .note-card-delete,
-    .note-card:active .note-card-delete{opacity:1}
-
-    .sheet-footer{
-      padding:14px 20px;border-top:1px solid var(--border);
-      display:flex;align-items:center;justify-content:space-between;
-      font-size:0.75rem;color:var(--secondary);
-    }
-    .sheet-back-btn{
-      display:flex;align-items:center;gap:6px;
-      color:var(--accent);text-decoration:none;
-      font-weight:500;font-size:0.85rem;
-    }
-    .sheet-back-btn svg{width:16px;height:16px}
-
-    /* ===== MAIN ===== */
-    .main{
-      flex:1;display:flex;flex-direction:column;min-width:0;
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      height: 100dvh; display: flex; overflow: hidden;
+      user-select: none; -webkit-user-select: none;
     }
 
-    .navbar{
-      padding:14px 20px;display:flex;align-items:center;
-      gap:12px;border-bottom:1px solid var(--border);
-      min-height:56px;
-    }
-    .menu-btn{
-      width:36px;height:36px;border-radius:50%;
-      background:var(--card);border:1px solid var(--border);
-      display:flex;align-items:center;justify-content:center;
-      cursor:pointer;font-size:1.1rem;flex-shrink:0;
-    }
-    .nav-title-input{
-      flex:1;background:transparent;border:none;
-      font-size:1.15rem;font-weight:600;color:var(--text);
-      outline:none;min-width:0;
-    }
-    .nav-title-input::placeholder{color:var(--secondary)}
-
-    .editor-container{
-      flex:1;display:flex;flex-direction:column;
-      position:relative;
-    }
-    .empty-view{
-      flex:1;display:flex;align-items:center;justify-content:center;
-      flex-direction:column;color:var(--secondary);gap:16px;
-    }
-    .empty-view-icon{
-      width:64px;height:64px;border-radius:50%;
-      background:var(--card);display:flex;
-      align-items:center;justify-content:center;
-      font-size:2rem;
+    /* شريط جانبي */
+    .sidebar {
+      width: 300px; min-width: 300px;
+      height: 100dvh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      transition: transform 0.3s ease;
+      z-index: 30;
     }
 
-    .code-stage{
-      flex:1;position:relative;display:flex;overflow:hidden;
+    .sidebar-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 10px;
     }
-    .code-layer{
-      position:absolute;inset:16px 16px 16px 56px;
-      font-family:var(--mono);font-size:0.88rem;
-      line-height:1.75;white-space:pre-wrap;
-      overflow:auto;border:none;outline:none;
-      background:transparent;
+    .back-link {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--accent); color: white;
+      padding: 8px 14px; border-radius: 8px;
+      text-decoration: none; font-weight: 600;
+      font-size: 0.8rem; white-space: nowrap;
     }
-    .code-textarea{
-      color:transparent;caret-color:var(--accent);
-      resize:none;z-index:2;
-    }
-    .code-textarea::selection{background:rgba(10,132,255,0.3)}
-    .code-preview{
-      pointer-events:none;z-index:1;
-    }
-    .code-preview code{background:transparent!important;padding:0!important}
-    .line-numbers{
-      position:absolute;top:16px;left:8px;bottom:16px;
-      width:40px;font-family:var(--mono);font-size:0.78rem;
-      color:var(--secondary);text-align:right;
-      overflow:hidden;z-index:3;pointer-events:none;
-      line-height:1.75;padding-right:8px;
-    }
-    .line-numbers span{display:block}
+    .back-link:hover { background: var(--accent-hover); }
 
-    .toolbar-row{
-      display:flex;align-items:center;gap:8px;
-      padding:8px 16px;border-top:1px solid var(--border);
-      flex-wrap:wrap;
+    .search-box {
+      flex: 1; position: relative;
     }
-    .lang-picker{
-      background:var(--card);border:1px solid var(--border);
-      color:var(--text);padding:7px 12px;border-radius:8px;
-      font-size:0.8rem;outline:none;cursor:pointer;
+    .search-box input {
+      width: 100%; background: #1a1a2e;
+      border: 1px solid var(--border); color: var(--text);
+      padding: 8px 12px; border-radius: 8px;
+      font-size: 0.8rem; outline: none;
     }
-    .tool-btn{
-      padding:8px 14px;border-radius:20px;
-      border:1px solid var(--border);
-      background:var(--card);color:var(--text);
-      font-size:0.8rem;font-weight:500;cursor:pointer;
-      display:flex;align-items:center;gap:5px;
-      transition:all 0.2s;
-    }
-    .tool-btn:active{transform:scale(0.95)}
-    .tool-btn.copy{color:var(--green);border-color:rgba(48,209,88,0.3)}
-    .tool-btn.copy:active{background:rgba(48,209,88,0.1)}
-    .tool-btn.copy.copied{background:rgba(48,209,88,0.2);border-color:var(--green)}
-    .tool-btn.save{background:var(--accent);color:#fff;border-color:var(--accent)}
-    .tool-btn.save:active{background:var(--accent2)}
-    .tool-btn.delete{color:var(--red);border-color:rgba(255,69,58,0.3)}
-    .tool-btn svg{width:16px;height:16px}
-
-    .status-bar{
-      padding:6px 20px;display:flex;justify-content:space-between;
-      font-size:0.7rem;color:var(--secondary);font-family:var(--mono);
+    .search-box input:focus { border-color: var(--accent); }
+    .search-box .search-icon {
+      position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+      color: var(--text-secondary); pointer-events: none;
     }
 
-    .toast-panel{
-      position:fixed;top:16px;left:50%;transform:translateX(-50%);
-      z-index:200;display:flex;flex-direction:column;gap:6px;
-      pointer-events:none;
+    .filter-row {
+      display: flex; gap: 6px; padding: 8px 16px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
     }
-    .toast{
-      background:var(--card);border:1px solid var(--border);
-      padding:10px 20px;border-radius:20px;
-      font-weight:500;font-size:0.85rem;
-      box-shadow:var(--shadow);text-align:center;
-      animation:toastIn 0.4s ease;
-      pointer-events:auto;
+    .filter-chip {
+      padding: 5px 12px; border-radius: 20px;
+      border: 1px solid var(--border); background: transparent;
+      color: var(--text-secondary); cursor: pointer;
+      font-size: 0.7rem; font-weight: 600;
     }
-    @keyframes toastIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
+    .filter-chip.active { background: var(--accent); color: white; border-color: var(--accent); }
 
-    /* swipe hint */
-    .swipe-hint{
-      position:absolute;left:8px;top:50%;transform:translateY(-50%);
-      color:var(--accent);font-size:1.2rem;opacity:0;
-      animation:hintPulse 2s ease-out;
-      pointer-events:none;z-index:5;
+    .notes-list {
+      flex: 1; overflow-y: auto; padding: 8px;
     }
-    @keyframes hintPulse{
-      0%{opacity:0.8;transform:translateY(-50%) translateX(0)}
-      100%{opacity:0;transform:translateY(-50%) translateX(20px)}
+    .note-item {
+      padding: 12px; margin: 4px 0; border-radius: var(--radius);
+      cursor: pointer; border: 1px solid transparent;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .note-item:hover { background: rgba(255,255,255,0.03); }
+    .note-item.active {
+      background: rgba(91,91,240,0.1); border-color: var(--accent);
+    }
+    .note-item .info { flex: 1; min-width: 0; }
+    .note-item .title { font-weight: 600; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .note-item .lang-badge {
+      font-size: 0.6rem; background: rgba(91,91,240,0.2); color: var(--accent);
+      padding: 2px 8px; border-radius: 4px; text-transform: uppercase;
+    }
+    .note-item .delete-btn {
+      background: none; border: none; color: var(--text-secondary);
+      cursor: pointer; opacity: 0; transition: opacity 0.2s;
+      font-size: 0.9rem; padding: 4px 8px;
+    }
+    .note-item:hover .delete-btn { opacity: 1; }
+    .note-item .delete-btn:hover { color: var(--danger); }
+
+    .sidebar-footer {
+      padding: 12px 16px; border-top: 1px solid var(--border);
+      font-size: 0.7rem; color: var(--text-secondary);
+      text-align: center;
     }
 
-    @media(min-width:769px){
-      .sheet{position:relative;transform:none;z-index:1}
-      .sheet-overlay{display:none}
-      .menu-btn{display:none}
+    /* المحتوى الرئيسي */
+    .main {
+      flex: 1; display: flex; flex-direction: column;
+      min-width: 0; background: var(--bg);
+    }
+
+    .top-bar {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .menu-btn {
+      background: none; border: 1px solid var(--border);
+      color: var(--text); width: 36px; height: 36px;
+      border-radius: 8px; display: none; align-items: center;
+      justify-content: center; cursor: pointer; font-size: 1.2rem;
+    }
+    .title-input {
+      flex: 1; background: transparent; border: none;
+      font-size: 1.2rem; font-weight: 600; color: var(--text);
+      outline: none; min-width: 0;
+    }
+    .title-input::placeholder { color: var(--text-secondary); }
+
+    .lang-select {
+      background: #1a1a2e; border: 1px solid var(--border);
+      color: var(--text); padding: 6px 12px; border-radius: 8px;
+      font-size: 0.8rem; outline: none; cursor: pointer;
+    }
+
+    .editor-area {
+      flex: 1; position: relative; display: flex;
+    }
+    .editor-empty {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      flex-direction: column; color: var(--text-secondary); gap: 12px;
+    }
+    .code-container {
+      flex: 1; display: flex; position: relative;
+    }
+    .gutter {
+      width: 40px; background: #0d0d1a; border-right: 1px solid var(--border);
+      padding: 12px 0; text-align: right; font-family: var(--mono);
+      font-size: 0.8rem; color: var(--text-secondary); overflow: hidden;
+      user-select: none; line-height: 1.6;
+    }
+    .gutter span { display: block; padding-right: 8px; }
+
+    .code-wrapper {
+      flex: 1; position: relative; overflow: hidden;
+    }
+    .code-textarea {
+      position: absolute; inset: 0;
+      background: transparent; border: none; padding: 12px 16px;
+      font-family: var(--mono); font-size: 0.85rem; line-height: 1.6;
+      resize: none; outline: none; color: transparent; caret-color: white;
+      z-index: 2; white-space: pre-wrap; overflow: auto;
+      tab-size: 2; -moz-tab-size: 2;
+    }
+    .code-highlight {
+      position: absolute; inset: 0; padding: 12px 16px;
+      font-family: var(--mono); font-size: 0.85rem; line-height: 1.6;
+      white-space: pre-wrap; pointer-events: none; z-index: 1;
+      overflow: hidden;
+    }
+    .code-highlight code { background: transparent !important; }
+
+    .bottom-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 16px; border-top: 1px solid var(--border);
+      font-size: 0.75rem; color: var(--text-secondary);
+      flex-wrap: wrap; gap: 8px;
+    }
+    .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 7px 14px; border-radius: 8px;
+      border: 1px solid var(--border); background: #1a1a2e;
+      color: var(--text); font-weight: 500; cursor: pointer;
+      font-size: 0.78rem; transition: all 0.2s;
+    }
+    .btn:hover { background: #222240; }
+    .btn.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    .btn.primary:hover { background: var(--accent-hover); }
+    .btn.danger { color: var(--danger); border-color: rgba(248,113,113,0.3); }
+    .btn.success { color: var(--success); border-color: rgba(45,212,191,0.3); }
+
+    .toast-container {
+      position: fixed; bottom: 20px; right: 20px;
+      z-index: 100; display: flex; flex-direction: column; gap: 8px;
+    }
+    .toast {
+      background: #1a1a2e; border: 1px solid var(--success);
+      color: var(--success); padding: 10px 20px;
+      border-radius: 8px; font-weight: 500;
+      animation: fadeInUp 0.3s;
+    }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed; left: 0; top: 0;
+        transform: translateX(-100%);
+        width: 85vw; max-width: 340px;
+      }
+      .sidebar.open { transform: translateX(0); }
+      .overlay {
+        display: none; position: fixed; inset: 0;
+        background: rgba(0,0,0,0.6); z-index: 25;
+      }
+      .overlay.show { display: block; }
+      .menu-btn { display: flex; }
     }
   </style>
 </head>
 <body>
 
-<!-- ===== SHEET ===== -->
-<div class="sheet-overlay" id="sheetOverlay"></div>
-<aside class="sheet" id="sheet">
-  <div class="sheet-handle"></div>
-  <div class="sheet-header">
-    <span class="sheet-title">Notes</span>
-    <button class="sheet-new-btn" id="sheetNewBtn">+</button>
-  </div>
-  <div class="sheet-list" id="sheetList"></div>
-  <div class="sheet-footer">
-    <a href="index.html" class="sheet-back-btn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+<!-- OVERLAY -->
+<div class="overlay" id="overlay"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <a href="index.html" class="back-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
       Dashboard
     </a>
-    <span id="noteCount">0 notes</span>
   </div>
+
+  <div class="search-box" style="padding:8px 16px;">
+    <input type="text" id="searchInput" placeholder="Search notes..." autocomplete="off">
+    <span class="search-icon">🔍</span>
+  </div>
+
+  <div class="filter-row" id="filterRow">
+    <button class="filter-chip active" data-lang="all">All</button>
+    <button class="filter-chip" data-lang="html">HTML</button>
+    <button class="filter-chip" data-lang="css">CSS</button>
+    <button class="filter-chip" data-lang="javascript">JS</button>
+    <button class="filter-chip" data-lang="python">Python</button>
+    <button class="filter-chip" data-lang="sql">SQL</button>
+  </div>
+
+  <div class="notes-list" id="notesList"></div>
+  <div class="sidebar-footer">Total: <span id="totalCount">0</span> notes</div>
 </aside>
 
-<!-- ===== MAIN ===== -->
+<!-- MAIN -->
 <main class="main">
-  <div class="navbar">
+  <div class="top-bar">
     <button class="menu-btn" id="menuBtn">☰</button>
-    <input type="text" class="nav-title-input" id="noteTitle" placeholder="Note title">
-  </div>
-
-  <div class="editor-container">
-    <div class="empty-view" id="emptyView">
-      <div class="empty-view-icon">📄</div>
-      <p>Select or create a note</p>
-    </div>
-
-    <div class="code-stage" id="codeStage" style="display:none">
-      <div class="line-numbers" id="lineNums">1</div>
-      <textarea class="code-layer code-textarea" id="codeTextarea" placeholder="Write code…" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
-      <pre class="code-layer code-preview"><code class="hljs" id="codeHighlight"></code></pre>
-      <div class="swipe-hint" id="swipeHint">←</div>
-    </div>
-  </div>
-
-  <div class="toolbar-row">
-    <select class="lang-picker" id="langPicker">
+    <input type="text" class="title-input" id="noteTitle" placeholder="Note title">
+    <select class="lang-select" id="langSelect">
       <option value="html">HTML</option>
       <option value="css">CSS</option>
       <option value="javascript">JavaScript</option>
-      <option value="jsx">React JSX</option>
-      <option value="typescript">TypeScript</option>
       <option value="python">Python</option>
       <option value="sql">SQL</option>
       <option value="json">JSON</option>
       <option value="bash">Bash</option>
       <option value="plaintext">Plain Text</option>
     </select>
-    <button class="tool-btn copy" id="copyBtn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-      Copy
-    </button>
-    <button class="tool-btn delete" id="deleteBtn" style="display:none">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
-    </button>
-    <button class="tool-btn save" id="saveBtn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
-      Save
-    </button>
   </div>
 
-  <div class="status-bar">
-    <span id="lineCount">Ln 1</span>
-    <span id="charCount">0 chars</span>
+  <div class="editor-area">
+    <div class="editor-empty" id="emptyState">
+      <span style="font-size:3rem;">📄</span>
+      <span>Select a note from the sidebar or create new</span>
+    </div>
+    <div class="code-container" id="codeContainer" style="display:none">
+      <div class="gutter" id="gutter">1</div>
+      <div class="code-wrapper">
+        <textarea class="code-textarea" id="codeTextarea" placeholder="Write your code..." spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
+        <pre class="code-highlight"><code class="hljs" id="codeHighlight"></code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <div>
+      Lines: <span id="lineCount">0</span> |
+      Chars: <span id="charCount">0</span>
+    </div>
+    <div class="btn-group">
+      <button class="btn success" id="copyBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        Copy
+      </button>
+      <button class="btn danger" id="deleteBtn" style="display:none">Delete</button>
+      <button class="btn primary" id="saveBtn">Save</button>
+    </div>
   </div>
 </main>
 
-<div class="toast-panel" id="toastPanel"></div>
+<div class="toast-container" id="toastBox"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script>
 (function(){
-  const STORE = 'dpn_v5';
-  let notes = JSON.parse(localStorage.getItem(STORE)||'[]');
+  const STORAGE = 'dp_notes_v6';
+  let notes = JSON.parse(localStorage.getItem(STORAGE) || '[]');
   let currentId = null;
-  let autoTimer = null;
+  let filterLang = 'all';
+  let searchTerm = '';
+  let autoSaveTimer = null;
 
   const $ = id => document.getElementById(id);
-  const sheet = $('sheet');
-  const overlay = $('sheetOverlay');
+  const sidebar = $('sidebar');
+  const overlay = $('overlay');
 
-  function persist(){localStorage.setItem(STORE,JSON.stringify(notes))}
+  function saveNotes() { localStorage.setItem(STORAGE, JSON.stringify(notes)); }
 
-  // ===== SHEET RENDER =====
-  function renderSheet(){
-    const sorted = [...notes].sort((a,b)=>b.updated-a.updated);
-    $('sheetList').innerHTML = sorted.map(n=>`
-      <div class="note-card${n.id===currentId?' selected':''}" data-id="${n.id}">
-        <div class="note-card-title">${esc(n.title||'Untitled')}</div>
-        <div class="note-card-meta">
-          <span class="note-card-lang">${n.lang||'txt'}</span>
-          <span class="note-card-date">${fmt(n.updated)}</span>
+  // RENDER SIDEBAR
+  function renderSidebar() {
+    let filtered = [...notes];
+    if (filterLang !== 'all') filtered = filtered.filter(n => n.lang === filterLang);
+    if (searchTerm.trim()) {
+      const q = searchTerm.toLowerCase();
+      filtered = filtered.filter(n => (n.title||'').toLowerCase().includes(q) || (n.content||'').toLowerCase().includes(q));
+    }
+    filtered.sort((a,b) => b.updated - a.updated);
+
+    const list = $('notesList');
+    list.innerHTML = filtered.map(n => `
+      <div class="note-item ${n.id===currentId?'active':''}" data-id="${n.id}">
+        <div class="info">
+          <div class="title">${escHtml(n.title || 'Untitled')}</div>
+          <span class="lang-badge">${n.lang||'txt'}</span>
         </div>
-        <button class="note-card-delete" data-del="${n.id}">✕</button>
+        <button class="delete-btn" data-del="${n.id}">✕</button>
       </div>
-    `).join('') || '<div style="padding:30px;color:var(--secondary);text-align:center">Empty</div>';
-    $('noteCount').textContent = notes.length+' note'+(notes.length!==1?'s':'');
+    `).join('') || '<div style="padding:20px;color:var(--text-secondary);text-align:center">No notes</div>';
 
-    $('sheetList').querySelectorAll('.note-card').forEach(card=>{
-      card.addEventListener('click',e=>{
-        if(e.target.closest('[data-del]'))return;
-        openNote(card.dataset.id);
-        closeSheet();
+    list.querySelectorAll('.note-item').forEach(el => {
+      el.addEventListener('click', (e) => {
+        if (e.target.closest('[data-del]')) return;
+        openNote(el.dataset.id);
+        closeSidebar();
       });
     });
-    $('sheetList').querySelectorAll('[data-del]').forEach(btn=>{
-      btn.addEventListener('click',e=>{
+    list.querySelectorAll('[data-del]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        if(confirm('Delete this note?')) removeNote(btn.dataset.del);
+        if (confirm('Delete this note?')) deleteNote(btn.dataset.del);
       });
     });
+    $('totalCount').textContent = filtered.length;
   }
 
-  // ===== SHEET TOGGLE =====
-  function openSheet(){sheet.classList.add('show');overlay.classList.add('show')}
-  function closeSheet(){sheet.classList.remove('show');overlay.classList.remove('show')}
-
-  // ===== NOTE OPS =====
-  function openNote(id){
-    saveCurrent(true);
-    const note = notes.find(n=>n.id===id);
-    if(!note)return;
-    currentId=id;
-    $('noteTitle').value=note.title||'';
-    $('codeTextarea').value=note.content||'';
-    $('langPicker').value=note.lang||'plaintext';
-    $('emptyView').style.display='none';
-    $('codeStage').style.display='flex';
-    $('deleteBtn').style.display='flex';
-    refreshHighlight();
+  function openNote(id) {
+    if (currentId && currentId !== id) saveCurrent(true);
+    const note = notes.find(n => n.id === id);
+    if (!note) return;
+    currentId = id;
+    $('noteTitle').value = note.title || '';
+    $('codeTextarea').value = note.content || '';
+    $('langSelect').value = note.lang || 'plaintext';
+    $('emptyState').style.display = 'none';
+    $('codeContainer').style.display = 'flex';
+    $('deleteBtn').style.display = '';
+    updateHighlight();
     updateStats();
-    renderSheet();
+    renderSidebar();
+    $('codeTextarea').focus();
   }
 
-  function newNote(){
+  function newNote() {
     saveCurrent(true);
-    const note={
-      id:Date.now().toString(36)+Math.random().toString(36).substr(2,7),
-      title:'',content:'',lang:'html',updated:Date.now()
+    const note = {
+      id: Date.now().toString(36) + Math.random().toString(36).substr(2,7),
+      title: '', content: '', lang: 'html', updated: Date.now()
     };
-    notes.unshift(note);persist();
+    notes.unshift(note); saveNotes();
     openNote(note.id);
-    toast('+ New note');
+    toast('+ New note created');
   }
 
-  function removeNote(id){
-    notes=notes.filter(n=>n.id!==id);persist();
-    if(currentId===id){currentId=null;clearEditor();}
-    renderSheet();
-    toast('Deleted');
+  function deleteNote(id) {
+    notes = notes.filter(n => n.id !== id); saveNotes();
+    if (currentId === id) { currentId = null; clearEditor(); }
+    renderSidebar();
+    toast('Note deleted');
   }
 
-  function clearEditor(){
-    $('noteTitle').value='';
-    $('codeTextarea').value='';
-    $('codeHighlight').textContent='';
-    currentId=null;
-    $('emptyView').style.display='flex';
-    $('codeStage').style.display='none';
-    $('deleteBtn').style.display='none';
+  function clearEditor() {
+    $('noteTitle').value = '';
+    $('codeTextarea').value = '';
+    $('codeHighlight').textContent = '';
+    currentId = null;
+    $('emptyState').style.display = 'flex';
+    $('codeContainer').style.display = 'none';
+    $('deleteBtn').style.display = 'none';
     updateStats();
   }
 
-  function saveCurrent(silent){
-    if(!currentId)return;
-    const note=notes.find(n=>n.id===currentId);
-    if(!note)return;
-    note.title=$('noteTitle').value.trim();
-    note.content=$('codeTextarea').value;
-    note.lang=$('langPicker').value;
-    note.updated=Date.now();
-    persist();
-    if(!silent)toast('Saved');
-    renderSheet();
+  function saveCurrent(silent) {
+    if (!currentId) return;
+    const note = notes.find(n => n.id === currentId);
+    if (!note) return;
+    note.title = $('noteTitle').value.trim();
+    note.content = $('codeTextarea').value;
+    note.lang = $('langSelect').value;
+    note.updated = Date.now();
+    saveNotes();
+    if (!silent) toast('Saved');
+    renderSidebar();
   }
 
-  function autoSave(){
-    clearTimeout(autoTimer);
-    autoTimer=setTimeout(()=>{if(currentId)saveCurrent(true)},2000);
+  function autoSave() {
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(() => { if (currentId) saveCurrent(true); }, 2000);
   }
 
-  // ===== SYNTAX =====
-  function refreshHighlight(){
-    const code=$('codeTextarea').value;
-    const lang=$('langPicker').value;
-    let out;
-    try{
-      out=lang==='plaintext'?esc(code):hljs.highlight(code,{language:lang,ignoreIllegals:true}).value;
-    }catch(e){out=esc(code)}
-    $('codeHighlight').innerHTML=out;
+  // SYNTAX HIGHLIGHT
+  function updateHighlight() {
+    const code = $('codeTextarea').value;
+    const lang = $('langSelect').value;
+    let result;
+    try {
+      result = lang === 'plaintext' ? escHtml(code) : hljs.highlight(code, {language: lang, ignoreIllegals: true}).value;
+    } catch(e) { result = escHtml(code); }
+    $('codeHighlight').innerHTML = result;
     syncScroll();
-    drawLineNumbers();
+    drawGutter();
   }
 
-  function syncScroll(){
-    const pre=$('codeHighlight').parentElement;
-    pre.scrollTop=$('codeTextarea').scrollTop;
-    pre.scrollLeft=$('codeTextarea').scrollLeft;
+  function syncScroll() {
+    const pre = $('codeHighlight').parentElement;
+    pre.scrollTop = $('codeTextarea').scrollTop;
+    pre.scrollLeft = $('codeTextarea').scrollLeft;
+    $('gutter').scrollTop = $('codeTextarea').scrollTop;
   }
 
-  function drawLineNumbers(){
-    const lines=$('codeTextarea').value.split('\n');
-    $('lineNums').innerHTML=lines.map((_,i)=>`<span>${i+1}</span>`).join('');
-    $('lineNums').scrollTop=$('codeTextarea').scrollTop;
+  function drawGutter() {
+    const lines = $('codeTextarea').value.split('\n');
+    $('gutter').innerHTML = lines.map((_,i) => `<span>${i+1}</span>`).join('');
   }
 
-  // ===== COPY =====
-  async function copyAll(){
-    const code=$('codeTextarea').value;
-    if(!code.trim()){toast('Nothing to copy');return}
-    try{
+  // COPY
+  async function copyCode() {
+    const code = $('codeTextarea').value;
+    if (!code.trim()) { toast('Nothing to copy'); return; }
+    try {
       await navigator.clipboard.writeText(code);
-      const btn=$('copyBtn');
-      btn.classList.add('copied');
-      btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
-      setTimeout(()=>{
-        btn.classList.remove('copied');
-        btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy';
-      },2000);
+      const btn = $('copyBtn');
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy', 2000);
       toast('Copied to clipboard');
-    }catch(e){toast('Copy failed')}
+    } catch(e) { toast('Copy failed'); }
   }
 
-  // ===== STATS =====
-  function updateStats(){
-    const code=$('codeTextarea').value;
-    $('charCount').textContent=code.length+' chars';
-    $('lineCount').textContent='Ln '+code.split('\n').length;
+  // STATS
+  function updateStats() {
+    const code = $('codeTextarea').value;
+    $('lineCount').textContent = code.split('\n').length;
+    $('charCount').textContent = code.length;
   }
 
-  // ===== HELPERS =====
-  function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
-  function fmt(ts){return new Date(ts).toLocaleDateString('en-US',{month:'short',day:'numeric'})}
-  function toast(msg){
-    const t=document.createElement('div');t.className='toast';t.textContent=msg;
-    $('toastPanel').appendChild(t);
-    setTimeout(()=>t.remove(),2200);
+  // UTILS
+  function escHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
+  function toast(msg) {
+    const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
+    $('toastBox').appendChild(t); setTimeout(() => t.remove(), 2500);
   }
 
-  // ===== EVENTS =====
-  $('sheetNewBtn').addEventListener('click',newNote);
-  $('menuBtn').addEventListener('click',openSheet);
-  overlay.addEventListener('click',closeSheet);
-  $('saveBtn').addEventListener('click',()=>saveCurrent());
-  $('deleteBtn').addEventListener('click',()=>{if(currentId)removeNote(currentId)});
-  $('copyBtn').addEventListener('click',copyAll);
+  // SIDEBAR MOBILE
+  function openSidebar() { sidebar.classList.add('open'); overlay.classList.add('show'); }
+  function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('show'); }
 
-  $('noteTitle').addEventListener('input',autoSave);
-  $('langPicker').addEventListener('change',()=>{refreshHighlight();autoSave()});
+  // EVENTS
+  $('menuBtn').addEventListener('click', openSidebar);
+  overlay.addEventListener('click', closeSidebar);
 
-  $('codeTextarea').addEventListener('input',()=>{
-    refreshHighlight();updateStats();autoSave();
+  $('filterRow').addEventListener('click', (e) => {
+    const chip = e.target.closest('.filter-chip');
+    if (!chip) return;
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    filterLang = chip.dataset.lang;
+    renderSidebar();
   });
-  $('codeTextarea').addEventListener('scroll',()=>{syncScroll();drawLineNumbers()});
 
-  // Tab key
-  $('codeTextarea').addEventListener('keydown',e=>{
-    if(e.key==='Tab'){
+  $('searchInput').addEventListener('input', (e) => {
+    searchTerm = e.target.value;
+    renderSidebar();
+  });
+
+  $('saveBtn').addEventListener('click', () => saveCurrent());
+  $('deleteBtn').addEventListener('click', () => { if (currentId) deleteNote(currentId); });
+  $('copyBtn').addEventListener('click', copyCode);
+
+  $('noteTitle').addEventListener('input', autoSave);
+  $('langSelect').addEventListener('change', () => { updateHighlight(); autoSave(); });
+  $('codeTextarea').addEventListener('input', () => { updateHighlight(); updateStats(); autoSave(); });
+  $('codeTextarea').addEventListener('scroll', () => { syncScroll(); });
+
+  // Keyboard
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey||e.metaKey) && e.key === 's') { e.preventDefault(); saveCurrent(); }
+    if ((e.ctrlKey||e.metaKey) && e.key === 'n') { e.preventDefault(); newNote(); }
+  });
+
+  // Tab support
+  $('codeTextarea').addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
       e.preventDefault();
-      const ta=$('codeTextarea');
-      const s=ta.selectionStart;
-      ta.value=ta.value.substring(0,s)+'  '+ta.value.substring(ta.selectionEnd);
-      ta.selectionStart=ta.selectionEnd=s+2;
-      refreshHighlight();updateStats();
+      const ta = $('codeTextarea');
+      const s = ta.selectionStart;
+      ta.value = ta.value.substring(0, s) + '  ' + ta.value.substring(ta.selectionEnd);
+      ta.selectionStart = ta.selectionEnd = s + 2;
+      updateHighlight(); updateStats();
     }
   });
 
-  // Shortcuts
-  document.addEventListener('keydown',e=>{
-    if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();saveCurrent()}
-    if((e.ctrlKey||e.metaKey)&&e.key==='n'){e.preventDefault();newNote()}
-    if((e.ctrlKey||e.metaKey)&&e.shiftKey&&e.key==='C'){e.preventDefault();copyAll()}
-  });
-
-  // Swipe hint on mobile
-  let touchStart=0;
-  document.addEventListener('touchstart',e=>{touchStart=e.touches[0].clientX});
-  document.addEventListener('touchend',e=>{
-    const diff=touchStart-e.changedTouches[0].clientX;
-    if(diff<-60&&touchStart<30){openSheet();$('swipeHint').style.display='none'}
-    if(diff>60&&sheet.classList.contains('show'))closeSheet();
-  });
-
-  // Show swipe hint once
-  setTimeout(()=>{
-    if(window.innerWidth<769&&!sheet.classList.contains('show')){
-      $('swipeHint').style.animation='none';
-      $('swipeHint').offsetHeight;
-      $('swipeHint').style.animation='hintPulse 2s ease-out';
-    }
-  },1500);
-
-  // ===== INIT =====
-  renderSheet();
-  if(notes.length>0)openNote(notes[0].id);
+  // INIT
+  if (notes.length > 0) openNote(notes[0].id);
+  renderSidebar();
 })();
 </script>
 </body>
