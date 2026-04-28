@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>DevPath 180 • Notes</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <style>
     :root {
       --bg: #000;
@@ -39,6 +43,30 @@
     }
     .app { flex: 1; display: flex; flex-direction: column; min-height: 100dvh; }
     ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+    /* ── LOGIN ── */
+    .login-screen {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; flex: 1; padding: 40px 20px;
+    }
+    .login-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 32px 24px; width: 100%; max-width: 400px;
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .login-title { font-size: 1.6rem; font-weight: 700; text-align: center; color: var(--accent); }
+    .input-field {
+      background: #1c1c2e; border: 1px solid var(--border); color: var(--text);
+      padding: 12px 16px; border-radius: 12px; font-size: 1rem; outline: none;
+    }
+    .error-msg { color: var(--red); font-size: 0.85rem; text-align: center; min-height: 20px; }
+    .btn {
+      padding: 12px 20px; border-radius: 12px; border: none; font-weight: 600;
+      cursor: pointer; font-size: 0.95rem; transition: all 0.2s;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .logout-btn { background: transparent; border: 1px solid var(--red); color: var(--red); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.75rem; }
 
     /* ── HOME ── */
     .home-view { display: flex; flex-direction: column; flex: 1; padding: 16px; }
@@ -148,8 +176,21 @@
 </head>
 <body>
 <div class="app" id="appRoot">
+
+  <!-- ════ LOGIN SCREEN ════ -->
+  <div class="login-screen" id="loginScreen">
+    <div class="login-card">
+      <div class="login-title">DevPath Notes</div>
+      <input type="email" class="input-field" id="emailInput" placeholder="Email" autocomplete="email">
+      <input type="password" class="input-field" id="passwordInput" placeholder="Password" autocomplete="current-password">
+      <div class="error-msg" id="loginError"></div>
+      <button class="btn btn-primary" id="loginBtn">Sign In</button>
+      <button class="btn btn-outline" id="registerBtn">Create Account</button>
+    </div>
+  </div>
+
   <!-- ════ HOME VIEW ════ -->
-  <div class="home-view" id="homeView">
+  <div class="home-view" id="homeView" style="display:none;">
     <div class="home-header">
       <div class="home-title-wrapper">
         <span class="home-title-icon">
@@ -163,7 +204,11 @@
         </span>
         <span class="home-title-text">Notes</span>
       </div>
-      <button class="home-new-btn" id="homeNewBtn">+</button>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span id="userEmail" style="font-size:0.8rem;color:var(--secondary);"></span>
+        <button class="logout-btn" id="logoutBtn">Logout</button>
+        <button class="home-new-btn" id="homeNewBtn">+</button>
+      </div>
     </div>
     <div class="home-tools">
       <input type="text" class="search-input" id="homeSearch" placeholder="Search notes..." autocomplete="off">
@@ -250,8 +295,21 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script>
 (function(){
-  const STORE = 'dpn_v20';
-  let notes = JSON.parse(localStorage.getItem(STORE)||'[]');
+  // ═══ Firebase Config ═══
+  const firebaseConfig = {
+    apiKey: "AIzaSyAszFGDs1J92_53jHvj5aABmeiKZdc-mf0",
+    authDomain: "gen-lang-client-0501601606.firebaseapp.com",
+    projectId: "gen-lang-client-0501601606",
+    storageBucket: "gen-lang-client-0501601606.firebasestorage.app",
+    messagingSenderId: "1079712784218",
+    appId: "1:1079712784218:web:598465155aa70938a6dd63",
+    measurementId: "G-CRHRGYX74V"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  let notes = [];
   let currentId = null;
   let filterLang = 'all';
   let searchTerm = '';
@@ -266,39 +324,78 @@
   const undoBtn = $('undoBtn');
   const redoBtn = $('redoBtn');
 
-  // ─── نظام Undo/Redo مخصص ───
+  // ─── نظام Undo/Redo ───
   const MAX_HISTORY = 100;
   let undoStack = [];
   let redoStack = [];
   let lastSavedState = '';
   let undoDebounce = null;
 
-  // مؤقتات الأداء
   let highlightTimer = null;
   let lineNumbersTimer = null;
   let previewTimer = null;
   let scrollTimer = null;
   let statsTimer = null;
 
-  function persist() { localStorage.setItem(STORE, JSON.stringify(notes)); }
+  // ═══ Auth ═══
+  auth.onAuthStateChanged(async (user) => {
+    if (user) {
+      $('loginScreen').style.display = 'none';
+      $('homeView').style.display = 'flex';
+      $('userEmail').textContent = user.email;
+      await loadNotes();
+    } else {
+      $('loginScreen').style.display = 'flex';
+      $('homeView').style.display = 'none';
+      $('editorView').classList.remove('active');
+    }
+  });
 
-  // ─── حفظ حالة في مكدس التراجع ───
+  $('loginBtn').addEventListener('click', async () => {
+    try {
+      await auth.signInWithEmailAndPassword($('emailInput').value, $('passwordInput').value);
+      $('loginError').textContent = '';
+    } catch(e) { $('loginError').textContent = e.message; }
+  });
+  $('registerBtn').addEventListener('click', async () => {
+    try {
+      await auth.createUserWithEmailAndPassword($('emailInput').value, $('passwordInput').value);
+      $('loginError').textContent = '';
+    } catch(e) { $('loginError').textContent = e.message; }
+  });
+  $('logoutBtn').addEventListener('click', () => auth.signOut());
+
+  // ═══ Firestore ═══
+  async function loadNotes() {
+    if (!auth.currentUser) return;
+    const snapshot = await db.collection('users').doc(auth.currentUser.uid).collection('notes').orderBy('updated', 'desc').get();
+    notes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    renderHome();
+  }
+
+  async function saveNoteToCloud(note) {
+    if (!auth.currentUser) return;
+    await db.collection('users').doc(auth.currentUser.uid).collection('notes').doc(note.id).set(note, { merge: true });
+  }
+
+  async function deleteNoteFromCloud(id) {
+    if (!auth.currentUser) return;
+    await db.collection('users').doc(auth.currentUser.uid).collection('notes').doc(id).delete();
+  }
+
+  // ─── Undo/Redo ───
   function pushUndoState() {
     const ta = $('codeTextarea');
     if (!ta) return;
     const currentState = ta.value;
-    // لا نحفظ إذا لم يتغير شيء
     if (currentState === lastSavedState) return;
-    
     undoStack.push(lastSavedState);
     if (undoStack.length > MAX_HISTORY) undoStack.shift();
-    
-    redoStack = []; // أي تغيير جديد يمسح تاريخ الإعادة
+    redoStack = [];
     lastSavedState = currentState;
     updateUndoRedoButtons();
   }
 
-  // تنفيذ الأمر واستعادة الحالة
   function applyState(state) {
     const ta = $('codeTextarea');
     if (!ta) return;
@@ -315,34 +412,26 @@
     if (undoStack.length === 0) return;
     const ta = $('codeTextarea');
     if (!ta) return;
-    
-    // حفظ الحالة الحالية في redoStack
     redoStack.push(ta.value);
-    const previousState = undoStack.pop();
-    applyState(previousState);
-    
+    applyState(undoStack.pop());
     if (currentId) {
       const note = notes.find(n => n.id === currentId);
-      if (note) { note.content = ta.value; note.updated = Date.now(); persist(); }
+      if (note) { note.content = ta.value; note.updated = Date.now(); saveNoteToCloud(note); }
     }
-    $('codeTextarea').blur(); // إخفاء لوحة المفاتيح
+    $('codeTextarea').blur();
   }
 
   function performRedo() {
     if (redoStack.length === 0) return;
     const ta = $('codeTextarea');
     if (!ta) return;
-    
-    // حفظ الحالة الحالية في undoStack
     undoStack.push(ta.value);
-    const nextState = redoStack.pop();
-    applyState(nextState);
-    
+    applyState(redoStack.pop());
     if (currentId) {
       const note = notes.find(n => n.id === currentId);
-      if (note) { note.content = ta.value; note.updated = Date.now(); persist(); }
+      if (note) { note.content = ta.value; note.updated = Date.now(); saveNoteToCloud(note); }
     }
-    $('codeTextarea').blur(); // إخفاء لوحة المفاتيح
+    $('codeTextarea').blur();
   }
 
   function updateUndoRedoButtons() {
@@ -350,7 +439,6 @@
     if (redoBtn) redoBtn.disabled = (redoStack.length === 0);
   }
 
-  // مسح التاريخ عند فتح ملاحظة جديدة
   function resetHistory(initialValue = '') {
     undoStack = [];
     redoStack = [];
@@ -393,7 +481,7 @@
         const id = btn.dataset.del;
         if (confirm('Delete this note?')) {
           notes = notes.filter(n => n.id !== id);
-          persist();
+          deleteNoteFromCloud(id);
           renderHome();
           toast('Deleted');
         }
@@ -409,7 +497,7 @@
     $('noteTitle').value = note.title || '';
     $('codeTextarea').value = note.content || '';
     $('langPicker').value = note.lang || 'plaintext';
-    homeView.style.display = 'none';
+    $('homeView').style.display = 'none';
     editorView.classList.add('active');
     switchToCode();
     refreshHighlight();
@@ -419,26 +507,27 @@
     $('codeTextarea').focus();
   }
 
-  function openNewNote() {
+  async function openNewNote() {
+    if (!auth.currentUser) return;
     const note = {
       id: Date.now().toString(36) + Math.random().toString(36).substr(2,7),
       title: '', content: '', lang: 'html', updated: Date.now()
     };
+    const docRef = await db.collection('users').doc(auth.currentUser.uid).collection('notes').add(note);
+    note.id = docRef.id;
     notes.unshift(note);
-    persist();
     openEditor(note.id);
   }
 
   function closeEditor() {
     currentId = null;
     editorView.classList.remove('active');
-    homeView.style.display = '';
+    $('homeView').style.display = 'flex';
     $('noteTitle').value = '';
     $('codeTextarea').value = '';
     $('codeHighlight').textContent = '';
     switchToCode();
     resetHistory();
-    renderHome();
   }
 
   function saveAndClose() {
@@ -449,17 +538,18 @@
     note.content = $('codeTextarea').value;
     note.lang = $('langPicker').value;
     note.updated = Date.now();
-    persist();
+    saveNoteToCloud(note);
     toast('Saved');
     closeEditor();
   }
 
-  function deleteCurrent() {
+  async function deleteCurrent() {
     if (!currentId) return;
     if (!confirm('Delete this note?')) return;
     notes = notes.filter(n => n.id !== currentId);
-    persist();
+    await deleteNoteFromCloud(currentId);
     closeEditor();
+    renderHome();
     toast('Deleted');
   }
 
@@ -487,17 +577,10 @@
     if (!isPreview) return;
     const code = $('codeTextarea').value;
     const lang = $('langPicker').value;
-    
     let html = code;
-    if (lang === 'css') {
-      html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>${code}</style></head><body></body></html>`;
-    } else if (lang === 'javascript') {
-      html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body><script>${code}<\/script></body></html>`;
-    } else if (lang === 'html') {
-      if (!code.includes('<!DOCTYPE')) {
-        html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body>${code}</body></html>`;
-      }
-    }
+    if (lang === 'css') html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>${code}</style></head><body></body></html>`;
+    else if (lang === 'javascript') html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body><script>${code}<\/script></body></html>`;
+    else if (lang === 'html' && !code.includes('<!DOCTYPE')) html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body>${code}</body></html>`;
     livePreview.srcdoc = html;
   }
 
@@ -508,9 +591,8 @@
       const code = $('codeTextarea').value;
       const lang = $('langPicker').value;
       let out;
-      try {
-        out = lang === 'plaintext' ? esc(code) : hljs.highlight(code, { language: lang, ignoreIllegals: true }).value;
-      } catch(e) { out = esc(code); }
+      try { out = lang === 'plaintext' ? esc(code) : hljs.highlight(code, { language: lang, ignoreIllegals: true }).value; }
+      catch(e) { out = esc(code); }
       $('codeHighlight').innerHTML = out;
       syncScroll();
     }, 100);
@@ -538,20 +620,12 @@
       const btn = $('copyBtn');
       btn.classList.add('copied');
       btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
-      setTimeout(() => {
-        btn.classList.remove('copied');
-        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy';
-      }, 2000);
+      setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy'; }, 2000);
       toast('Copied!');
     } catch(e) { toast('Copy failed'); }
   }
 
-  function selectAllCode() {
-    const ta = $('codeTextarea');
-    ta.focus();
-    ta.select();
-    toast('All selected');
-  }
+  function selectAllCode() { const ta = $('codeTextarea'); ta.focus(); ta.select(); toast('All selected'); }
 
   function updateStats() {
     const code = $('codeTextarea').value;
@@ -562,8 +636,7 @@
   function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
   function toast(msg) {
     const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
-    $('toastPanel').appendChild(t);
-    setTimeout(() => t.remove(), 2200);
+    $('toastPanel').appendChild(t); setTimeout(() => t.remove(), 2200);
   }
 
   // ─── EVENTS ───
@@ -576,38 +649,21 @@
   undoBtn.addEventListener('click', performUndo);
   redoBtn.addEventListener('click', performRedo);
 
-  previewBtn.addEventListener('click', () => {
-    isPreview ? switchToCode() : switchToPreview();
-  });
+  previewBtn.addEventListener('click', () => { isPreview ? switchToCode() : switchToPreview(); });
 
-  // تسجيل التغييرات في تاريخ undo/redo
   $('codeTextarea').addEventListener('input', () => {
     refreshHighlight();
-    clearTimeout(statsTimer);
-    statsTimer = setTimeout(updateStats, 200);
-    clearTimeout(lineNumbersTimer);
-    lineNumbersTimer = setTimeout(drawLineNumbers, 300);
-    
+    clearTimeout(statsTimer); statsTimer = setTimeout(updateStats, 200);
+    clearTimeout(lineNumbersTimer); lineNumbersTimer = setTimeout(drawLineNumbers, 300);
     if (currentId) {
       const note = notes.find(n => n.id === currentId);
-      if (note) { note.content = $('codeTextarea').value; note.updated = Date.now(); persist(); }
+      if (note) { note.content = $('codeTextarea').value; note.updated = Date.now(); saveNoteToCloud(note); }
     }
-    if (isPreview) {
-      clearTimeout(previewTimer);
-      previewTimer = setTimeout(updatePreview, 300);
-    }
-    
-    // حفظ الحالة بعد توقف قصير (debounce)
-    clearTimeout(undoDebounce);
-    undoDebounce = setTimeout(pushUndoState, 500);
+    if (isPreview) { clearTimeout(previewTimer); previewTimer = setTimeout(updatePreview, 300); }
+    clearTimeout(undoDebounce); undoDebounce = setTimeout(pushUndoState, 500);
   });
 
-  $('codeTextarea').addEventListener('scroll', () => {
-    syncScroll();
-    clearTimeout(scrollTimer);
-    scrollTimer = setTimeout(drawLineNumbers, 150);
-  });
-
+  $('codeTextarea').addEventListener('scroll', () => { syncScroll(); clearTimeout(scrollTimer); scrollTimer = setTimeout(drawLineNumbers, 150); });
   $('homeSearch').addEventListener('input', (e) => { searchTerm = e.target.value; renderHome(); });
 
   document.querySelectorAll('.filter-chip').forEach(chip => {
@@ -622,7 +678,7 @@
   $('noteTitle').addEventListener('input', () => {
     if (currentId) {
       const note = notes.find(n => n.id === currentId);
-      if (note) { note.title = $('noteTitle').value.trim(); note.updated = Date.now(); persist(); }
+      if (note) { note.title = $('noteTitle').value.trim(); note.updated = Date.now(); saveNoteToCloud(note); }
     }
   });
 
@@ -630,55 +686,44 @@
     refreshHighlight();
     if (currentId) {
       const note = notes.find(n => n.id === currentId);
-      if (note) { note.lang = $('langPicker').value; note.updated = Date.now(); persist(); }
+      if (note) { note.lang = $('langPicker').value; note.updated = Date.now(); saveNoteToCloud(note); }
     }
     if (isPreview) updatePreview();
   });
 
-  // Tab وإكمال الأقواس والسطر الجديد مع حفظ الحالة في التاريخ
   $('codeTextarea').addEventListener('keydown', function(e) {
     const ta = this;
     if (e.key === 'Tab') {
-      e.preventDefault();
-      pushUndoState(); // حفظ الحالة قبل التعديل
+      e.preventDefault(); pushUndoState();
       const start = ta.selectionStart;
       ta.setRangeText('  ', start, ta.selectionEnd, 'end');
       ta.selectionStart = ta.selectionEnd = start + 2;
       refreshHighlight(); updateStats();
-      lastSavedState = ta.value;
-      updateUndoRedoButtons();
+      lastSavedState = ta.value; updateUndoRedoButtons();
       return;
     }
     const pairs = { '(': ')', '[': ']', '{': '}', '"': '"', "'": "'", '`': '`' };
     if (pairs[e.key] && !e.ctrlKey && !e.metaKey && !e.altKey) {
-      e.preventDefault();
-      pushUndoState(); // حفظ الحالة قبل التعديل
-      const start = ta.selectionStart;
-      const end = ta.selectionEnd;
+      e.preventDefault(); pushUndoState();
+      const start = ta.selectionStart, end = ta.selectionEnd;
       ta.setRangeText(e.key + pairs[e.key], start, end, 'end');
       ta.selectionStart = ta.selectionEnd = start + 1;
       refreshHighlight(); updateStats();
-      lastSavedState = ta.value;
-      updateUndoRedoButtons();
+      lastSavedState = ta.value; updateUndoRedoButtons();
       return;
     }
     if (e.key === 'Enter') {
-      e.preventDefault();
-      pushUndoState(); // حفظ الحالة قبل التعديل
-      const start = ta.selectionStart;
-      const value = ta.value;
+      e.preventDefault(); pushUndoState();
+      const start = ta.selectionStart, value = ta.value;
       const lineStart = value.lastIndexOf('\n', start - 1) + 1;
       const currentLine = value.substring(lineStart, start);
       const indent = currentLine.match(/^\s*/)[0];
       let extra = '';
-      if (currentLine.trim().endsWith('{') || currentLine.trim().endsWith('[') || currentLine.trim().endsWith('(')) {
-        extra = '  ';
-      }
+      if (currentLine.trim().endsWith('{') || currentLine.trim().endsWith('[') || currentLine.trim().endsWith('(')) extra = '  ';
       ta.setRangeText('\n' + indent + extra, start, ta.selectionEnd, 'end');
       ta.selectionStart = ta.selectionEnd = start + 1 + indent.length + extra.length;
       refreshHighlight(); updateStats();
-      lastSavedState = ta.value;
-      updateUndoRedoButtons();
+      lastSavedState = ta.value; updateUndoRedoButtons();
     }
   });
 
@@ -689,8 +734,6 @@
     if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); performUndo(); }
     if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.shiftKey && e.key === 'z'))) { e.preventDefault(); performRedo(); }
   });
-
-  renderHome();
 })();
 </script>
 </body>
