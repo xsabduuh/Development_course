@@ -16,7 +16,6 @@
       --accent2: #409cff;
       --green: #30d158;
       --red: #ff453a;
-      --orange: #ff9f0a;
       --radius: 14px;
       --font: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
       --mono: 'SF Mono', 'JetBrains Mono', 'Fira Code', monospace;
@@ -73,7 +72,6 @@
     .nav-title-input::placeholder{ color:var(--secondary); }
     .editor-container{ flex:1; display:flex; flex-direction:column; min-height:0; position:relative; }
     
-    /* ── CODE STAGE ── */
     .code-stage{ flex:1; position:relative; display:flex; overflow:hidden; }
     .code-layer{ position:absolute; inset:12px 12px 12px 50px; font-family:var(--mono); font-size:0.88rem; line-height:1.75; white-space:pre-wrap; overflow:auto; border:none; outline:none; background:transparent; }
     .code-textarea{ color:transparent; caret-color:var(--accent); resize:none; z-index:2; }
@@ -96,7 +94,6 @@
       display: block;
     }
 
-    /* ── BOTTOM TOOLBAR ── */
     .bottom-toolbar{ display:flex; align-items:center; gap:8px; padding:10px 14px; border-top:1px solid var(--border); background:var(--bg); flex-wrap:wrap; }
     .lang-picker{ background:var(--card); border:1px solid var(--border); color:var(--text); padding:7px 12px; border-radius:20px; font-size:0.8rem; outline:none; cursor:pointer; }
     .tool-btn{ padding:8px 14px; border-radius:20px; border:1px solid var(--border); background:var(--card); color:var(--text); font-size:0.8rem; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:5px; transition:all 0.2s; }
@@ -162,14 +159,14 @@
       <input type="text" class="nav-title-input" id="noteTitle" placeholder="Note title">
     </div>
     <div class="editor-container">
-      <!-- Code Stage (text editor) -->
+      <!-- Code Stage -->
       <div class="code-stage" id="codeStage">
         <div class="line-numbers" id="lineNums">1</div>
         <textarea class="code-layer code-textarea" id="codeTextarea" placeholder="Write code…" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
         <pre class="code-layer code-preview"><code class="hljs" id="codeHighlight"></code></pre>
       </div>
-      <!-- Live Preview iframe -->
-      <iframe class="live-preview" id="livePreview" sandbox="allow-scripts allow-modals" title="Live Preview"></iframe>
+      <!-- Live Preview iframe using srcdoc for instant updates -->
+      <iframe class="live-preview" id="livePreview" sandbox="allow-scripts allow-same-origin" title="Live Preview"></iframe>
     </div>
     <div class="bottom-toolbar">
       <select class="lang-picker" id="langPicker">
@@ -212,13 +209,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script>
 (function(){
-  const STORE = 'dpn_v11';
+  const STORE = 'dpn_v12';
   let notes = JSON.parse(localStorage.getItem(STORE)||'[]');
   let currentId = null;
   let filterLang = 'all';
   let searchTerm = '';
   let isPreview = false;
-  let previewUpdateTimer = null;
 
   const $ = id => document.getElementById(id);
   const homeView = $('homeView');
@@ -229,7 +225,7 @@
 
   function persist() { localStorage.setItem(STORE, JSON.stringify(notes)); }
 
-  // ═══════════════ HOME ═══════════════
+  // ══════ HOME ══════
   function renderHome() {
     let filtered = [...notes];
     if (filterLang !== 'all') filtered = filtered.filter(n => n.lang === filterLang);
@@ -272,7 +268,7 @@
     });
   }
 
-  // ═══════════════ EDITOR ═══════════════
+  // ══════ EDITOR ══════
   function openEditor(id) {
     currentId = id;
     const note = notes.find(n => n.id === id);
@@ -285,7 +281,6 @@
     switchToCode();
     refreshHighlight();
     updateStats();
-    $('codeTextarea').focus();
   }
 
   function openNewNote() {
@@ -331,7 +326,7 @@
     toast('Deleted');
   }
 
-  // ═══════════════ PREVIEW ═══════════════
+  // ══════ PREVIEW ══════
   function switchToPreview() {
     isPreview = true;
     codeStage.style.display = 'none';
@@ -345,6 +340,7 @@
     isPreview = false;
     codeStage.style.display = 'flex';
     livePreview.classList.remove('active');
+    livePreview.srcdoc = ''; // clear preview content
     previewBtn.classList.remove('active');
     previewBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2"/><path d="M12 2s8 4 8 10-8 10-8 10-8-4-8-10 8-10 8-10z"/></svg> Preview';
   }
@@ -364,13 +360,10 @@
         html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body>${code}</body></html>`;
       }
     }
-    
-    const blob = new Blob([html], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    livePreview.src = url;
+    livePreview.srcdoc = html;
   }
 
-  // ═══════════════ SYNTAX ═══════════════
+  // ══════ SYNTAX ══════
   function refreshHighlight() {
     const code = $('codeTextarea').value;
     const lang = $('langPicker').value;
@@ -417,7 +410,6 @@
     $('lineCount').textContent = 'Ln ' + code.split('\n').length;
   }
 
-  // ═══════════════ HELPERS ═══════════════
   function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
   function toast(msg) {
     const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
@@ -425,23 +417,17 @@
     setTimeout(() => t.remove(), 2200);
   }
 
-  // ═══════════════ EVENTS ═══════════════
+  // ══════ EVENTS ══════
   $('homeNewBtn').addEventListener('click', openNewNote);
   $('editorBackBtn').addEventListener('click', closeEditor);
   $('saveBtn').addEventListener('click', saveCurrent);
   $('deleteBtn').addEventListener('click', deleteCurrent);
   $('copyBtn').addEventListener('click', copyCode);
 
-  // Preview toggle
   previewBtn.addEventListener('click', () => {
-    if (isPreview) {
-      switchToCode();
-    } else {
-      switchToPreview();
-    }
+    isPreview ? switchToCode() : switchToPreview();
   });
 
-  // Update preview on input changes
   $('codeTextarea').addEventListener('input', () => {
     refreshHighlight();
     updateStats();
@@ -449,17 +435,10 @@
       const note = notes.find(n => n.id === currentId);
       if (note) { note.content = $('codeTextarea').value; note.updated = Date.now(); persist(); }
     }
-    // Update preview with debounce
-    if (isPreview) {
-      clearTimeout(previewUpdateTimer);
-      previewUpdateTimer = setTimeout(updatePreview, 300);
-    }
+    if (isPreview) updatePreview();
   });
 
-  $('homeSearch').addEventListener('input', (e) => {
-    searchTerm = e.target.value;
-    renderHome();
-  });
+  $('homeSearch').addEventListener('input', (e) => { searchTerm = e.target.value; renderHome(); });
 
   document.querySelectorAll('.filter-chip').forEach(chip => {
     chip.addEventListener('click', () => {
@@ -486,12 +465,8 @@
     if (isPreview) updatePreview();
   });
 
-  $('codeTextarea').addEventListener('scroll', () => {
-    syncScroll();
-    drawLineNumbers();
-  });
+  $('codeTextarea').addEventListener('scroll', () => { syncScroll(); drawLineNumbers(); });
 
-  // Tab support
   $('codeTextarea').addEventListener('keydown', e => {
     if (e.key === 'Tab') {
       e.preventDefault();
@@ -504,17 +479,12 @@
     }
   });
 
-  // Shortcuts
   document.addEventListener('keydown', e => {
     if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); saveCurrent(); }
     if ((e.ctrlKey || e.metaKey) && e.key === 'n') { e.preventDefault(); openNewNote(); }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'p') { 
-      e.preventDefault(); 
-      if (isPreview) switchToCode(); else switchToPreview();
-    }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'p') { e.preventDefault(); isPreview ? switchToCode() : switchToPreview(); }
   });
 
-  // ═══════════════ INIT ═══════════════
   renderHome();
 })();
 </script>
