@@ -1,1268 +1,1809 @@
 <!DOCTYPE html>
-<html lang="en">
+
+<html lang="ar" dir="ltr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DevPath 180 • Learning Tracker</title>
-    <style>
-        /* ==========================================
-           CSS VARIABLES (Mobile-first base)
-           ========================================== */
-        :root {
-            --bg: #0a0a12;
-            --surface: #12121e;
-            --surface-hover: #1a1a2c;
-            --border: #252538;
-            --text: #e2e2f0;
-            --text-secondary: #9090b0;
-            --accent: #6c5ce7;
-            --accent-glow: #8b7cf0;
-            --success: #2ecc71;
-            --warning: #f39c12;
-            --danger: #e74c3c;
-            --project-badge: #ff6b6b;
-            --project-bg: rgba(255, 107, 107, 0.08);
-            --project-border: rgba(255, 107, 107, 0.3);
-            --radius: 10px;
-            --radius-sm: 6px;
-            --transition: 0.2s ease;
-            --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            --touch-target: 48px;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; font-size: 16px; }
-
-        body {
-            font-family: var(--font);
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            line-height: 1.5;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* ==========================================
-           MOBILE-FIRST LAYOUT
-           ========================================== */
-        .app-container {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        /* Top Navigation Bar */
-        .top-nav {
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            padding: 10px 14px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            min-height: var(--touch-target);
-        }
-
-        .logo {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--accent-glow);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .logo .icon { font-size: 1.3rem; }
-
-        .nav-links {
-            display: flex;
-            gap: 8px;
-        }
-
-        .nav-link {
-            padding: 8px 14px;
-            border-radius: 20px;
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            border: 1.5px solid transparent;
-            transition: all var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .nav-link.active {
-            background: var(--accent);
-            color: #fff;
-            border-color: var(--accent);
-        }
-
-        .nav-link:hover:not(.active) {
-            color: var(--text);
-            background: var(--surface-hover);
-        }
-
-        /* ==========================================
-           MAIN CONTENT AREA
-           ========================================== */
-        .main-content {
-            flex: 1;
-            padding: 16px 14px;
-            max-width: 800px;
-            width: 100%;
-            margin: 0 auto;
-        }
-
-        /* ==========================================
-           STATS CARDS (Mobile-first grid)
-           ========================================== */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 16px;
-        }
-
-        .stat-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 14px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: border-color var(--transition);
-            min-height: 64px;
-        }
-
-        .stat-card:active { border-color: var(--accent); }
-
-        .stat-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            flex-shrink: 0;
-        }
-
-        .stat-icon.purple { background: rgba(108,92,231,0.2); }
-        .stat-icon.green { background: rgba(46,204,113,0.2); }
-        .stat-icon.orange { background: rgba(243,156,18,0.2); }
-        .stat-icon.red { background: rgba(255,107,107,0.2); }
-
-        .stat-value { font-size: 1.3rem; font-weight: 700; line-height: 1.1; }
-        .stat-label { font-size: 0.7rem; color: var(--text-secondary); margin-top: 2px; }
-
-        /* ==========================================
-           PROGRESS BAR
-           ========================================== */
-        .progress-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 14px;
-            margin-bottom: 16px;
-        }
-
-        .progress-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .progress-bar-track {
-            height: 10px;
-            background: #1a1a2c;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .progress-bar-fill {
-            height: 100%;
-            border-radius: 10px;
-            background: linear-gradient(90deg, #6c5ce7, #8b7cf0);
-            transition: width 0.5s ease;
-            position: relative;
-        }
-
-        /* ==========================================
-           ACTION BUTTONS
-           ========================================== */
-        .actions-row {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-bottom: 16px;
-        }
-
-        .btn {
-            padding: 10px 16px;
-            border-radius: 20px;
-            border: 1.5px solid var(--border);
-            background: transparent;
-            color: var(--text);
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            min-height: var(--touch-target);
-            white-space: nowrap;
-            touch-action: manipulation;
-        }
-
-        .btn-primary {
-            background: var(--accent);
-            color: #fff;
-            border-color: var(--accent);
-        }
-
-        .btn-primary:active { background: var(--accent-glow); }
-        .btn-outline:active { border-color: var(--accent); }
-        .btn-danger { color: var(--danger); border-color: var(--danger); }
-        .btn-danger:active { background: rgba(231,76,60,0.15); }
-
-        /* ==========================================
-           FILTER PILLS
-           ========================================== */
-        .filter-row {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 14px;
-            flex-wrap: wrap;
-        }
-
-        .filter-pill {
-            padding: 8px 14px;
-            border-radius: 20px;
-            border: 1.5px solid var(--border);
-            background: transparent;
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: 500;
-            transition: all var(--transition);
-            min-height: 40px;
-        }
-
-        .filter-pill.active {
-            background: var(--accent);
-            color: #fff;
-            border-color: var(--accent);
-        }
-
-        /* ==========================================
-           SECTIONS (Collapsible)
-           ========================================== */
-        .section-group {
-            margin-bottom: 8px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            background: var(--surface);
-            overflow: hidden;
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 14px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9rem;
-            min-height: var(--touch-target);
-            user-select: none;
-            gap: 8px;
-            touch-action: manipulation;
-        }
-
-        .section-header:active { background: var(--surface-hover); }
-
-        .section-title {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex: 1;
-            font-size: 0.85rem;
-        }
-
-        .section-range {
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-            font-weight: 400;
-        }
-
-        .section-arrow {
-            font-size: 0.65rem;
-            transition: transform var(--transition);
-            color: var(--text-secondary);
-        }
-
-        .section-group.open .section-arrow { transform: rotate(180deg); }
-
-        .section-days {
-            display: none;
-            grid-template-columns: repeat(auto-fill, minmax(38px, 1fr));
-            gap: 5px;
-            padding: 0 12px 12px;
-            border-top: 1px solid var(--border);
-        }
-
-        .section-group.open .section-days { display: grid; padding-top: 10px; }
-
-        /* ==========================================
-           DAY CELLS
-           ========================================== */
-        .day-cell {
-            aspect-ratio: 1;
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 0.75rem;
-            font-weight: 600;
-            border: 1.5px solid var(--border);
-            background: var(--bg);
-            color: var(--text-secondary);
-            transition: all var(--transition);
-            position: relative;
-            min-width: 36px;
-            min-height: 36px;
-            touch-action: manipulation;
-        }
-
-        .day-cell:active { transform: scale(0.95); }
-
-        .day-cell.completed {
-            background: rgba(46,204,113,0.15);
-            border-color: var(--success);
-            color: var(--success);
-        }
-
-        .day-cell.current {
-            border-color: var(--accent-glow);
-            box-shadow: 0 0 10px rgba(108,92,231,0.4);
-            color: #fff;
-            animation: pulse 2.5s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 6px rgba(108,92,231,0.3); }
-            50% { box-shadow: 0 0 20px rgba(108,92,231,0.6); }
-        }
-
-        .day-cell.locked { opacity: 0.3; pointer-events: none; }
-
-        .day-cell.project-day {
-            border-color: var(--project-border);
-            background: var(--project-bg);
-            color: var(--project-badge);
-            font-weight: 700;
-        }
-
-        .day-cell.project-day::before {
-            content: '🔥';
-            position: absolute;
-            top: -2px;
-            left: 2px;
-            font-size: 0.45rem;
-        }
-
-        .hidden-by-filter { display: none !important; }
-
-        /* ==========================================
-           MODAL (Mobile-friendly)
-           ========================================== */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.75);
-            z-index: 200;
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            animation: fadeIn 0.2s ease;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .modal {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius) var(--radius) 0 0;
-            padding: 20px 16px;
-            width: 100%;
-            max-width: 500px;
-            max-height: 85vh;
-            overflow-y: auto;
-            animation: slideUp 0.3s ease;
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
-
-        .modal h3 { font-size: 1rem; margin-bottom: 8px; }
-
-        .modal .project-badge {
-            background: var(--project-badge);
-            color: #fff;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.65rem;
-            font-weight: 700;
-            margin-left: 6px;
-            display: inline-block;
-        }
-
-        .modal-desc { font-size: 0.85rem; line-height: 1.6; margin: 10px 0; }
-        .modal-resources { margin-top: 10px; font-size: 0.8rem; }
-        .modal-resources a { color: var(--accent-glow); word-break: break-all; }
-        .lock-reason { color: var(--warning); font-size: 0.8rem; margin-top: 8px; }
-        .modal-actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
-        .modal-actions .btn { flex: 1; justify-content: center; min-width: 120px; }
-
-        /* ==========================================
-           TOAST NOTIFICATION
-           ========================================== */
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--surface);
-            border: 1px solid var(--success);
-            color: var(--success);
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            z-index: 300;
-            animation: toastIn 0.3s ease, toastOut 0.3s ease 1.5s forwards;
-            white-space: nowrap;
-        }
-
-        @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
-        @keyframes toastOut { to { opacity: 0; transform: translateX(-50%) translateY(10px); } }
-
-        /* ==========================================
-           SIDEBAR (for larger screens)
-           ========================================== */
-        .sidebar {
-            display: none;
-        }
-
-        /* ==========================================
-           TABLET & DESKTOP (≥768px)
-           ========================================== */
-        @media (min-width: 768px) {
-            .app-container { flex-direction: row; }
-
-            .sidebar {
-                display: flex;
-                flex-direction: column;
-                width: 240px;
-                min-height: 100vh;
-                background: var(--surface);
-                border-right: 1px solid var(--border);
-                position: sticky;
-                top: 0;
-                max-height: 100vh;
-                overflow-y: auto;
-                padding-bottom: 16px;
-                flex-shrink: 0;
-            }
-
-            .sidebar-header {
-                padding: 16px;
-                border-bottom: 1px solid var(--border);
-                flex-shrink: 0;
-            }
-
-            .sidebar-nav { flex: 1; padding: 10px 0; overflow-y: auto; }
-            .sidebar-nav a {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                padding: 10px 16px;
-                color: var(--text-secondary);
-                text-decoration: none;
-                font-size: 0.85rem;
-                transition: all var(--transition);
-                border-left: 3px solid transparent;
-            }
-
-            .sidebar-nav a:hover,
-            .sidebar-nav a.active {
-                color: var(--text);
-                background: var(--surface-hover);
-                border-left-color: var(--accent);
-            }
-
-            .top-nav { display: none; }
-            .main-content { padding: 20px 24px; }
-            .stats-grid { grid-template-columns: repeat(4, 1fr); gap: 12px; }
-            .section-days { grid-template-columns: repeat(auto-fill, minmax(42px, 1fr)); gap: 6px; }
-            .day-cell { min-width: 40px; min-height: 40px; }
-            .modal {
-                border-radius: var(--radius);
-                margin: auto;
-                align-self: center;
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .main-content { max-width: 900px; }
-        }
-
-        /* Utility: hide on mobile, show on desktop */
-        .desktop-only { display: none; }
-        @media (min-width: 768px) { .desktop-only { display: initial; } }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevPath 180 • AI Learning Companion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #070710;
+  --surface: #0d0d1f;
+  --surface2: #12122a;
+  --border: #1e1e40;
+  --border2: #2a2a55;
+  --text: #e8e8ff;
+  --text2: #7878aa;
+  --text3: #4a4a7a;
+  --accent: #4f46e5;
+  --accent2: #818cf8;
+  --accent3: #c7d2fe;
+  --neon: #06ffa5;
+  --neon2: #00d4aa;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+  --project: #f97316;
+  --radius: 12px;
+  --font-mono: 'Space Mono', monospace;
+  --font: 'DM Sans', sans-serif;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;font-size:16px}
+
+body{
+font-family:var(–font);
+background:var(–bg);
+color:var(–text);
+min-height:100vh;
+overflow-x:hidden;
+}
+
+/* ─── BACKGROUND ───────────────────────────── */
+body::before{
+content:’’;
+position:fixed;inset:0;
+background:
+radial-gradient(ellipse 60% 50% at 20% 10%, rgba(79,70,229,.12) 0%, transparent 60%),
+radial-gradient(ellipse 50% 40% at 80% 90%, rgba(6,255,165,.06) 0%, transparent 60%),
+radial-gradient(ellipse 40% 30% at 70% 20%, rgba(249,115,22,.05) 0%, transparent 50%);
+pointer-events:none;z-index:0;
+}
+
+/* ─── GRID TEXTURE ─────────────────────────── */
+body::after{
+content:’’;
+position:fixed;inset:0;
+background-image:
+linear-gradient(rgba(79,70,229,.03) 1px,transparent 1px),
+linear-gradient(90deg,rgba(79,70,229,.03) 1px,transparent 1px);
+background-size:40px 40px;
+pointer-events:none;z-index:0;
+}
+
+.app{position:relative;z-index:1;display:flex;min-height:100vh}
+
+/* ─── SIDEBAR ───────────────────────────────── */
+.sidebar{
+width:260px;min-height:100vh;flex-shrink:0;
+background:rgba(13,13,31,.8);
+border-right:1px solid var(–border);
+display:flex;flex-direction:column;
+position:sticky;top:0;max-height:100vh;overflow:hidden;
+backdrop-filter:blur(20px);
+}
+
+.sidebar-logo{
+padding:24px 20px 20px;
+border-bottom:1px solid var(–border);
+display:flex;align-items:center;gap:10px;
+font-family:var(–font-mono);font-size:.9rem;font-weight:700;
+color:var(–neon);letter-spacing:-.02em;
+}
+
+.logo-icon{
+width:36px;height:36px;
+background:linear-gradient(135deg,var(–accent),var(–neon));
+border-radius:8px;
+display:flex;align-items:center;justify-content:center;
+font-size:1rem;
+box-shadow:0 0 20px rgba(6,255,165,.3);
+}
+
+.sidebar-ai-status{
+margin:12px 16px;
+background:rgba(6,255,165,.07);
+border:1px solid rgba(6,255,165,.2);
+border-radius:8px;
+padding:10px 12px;
+display:flex;align-items:center;gap:8px;
+font-size:.75rem;color:var(–neon2);
+font-family:var(–font-mono);
+}
+
+.ai-dot{
+width:7px;height:7px;border-radius:50%;
+background:var(–neon);
+box-shadow:0 0 8px var(–neon);
+animation:blink 2s infinite;flex-shrink:0;
+}
+
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+.sidebar-sections{
+flex:1;overflow-y:auto;padding:8px 0;
+scrollbar-width:thin;scrollbar-color:var(–border2) transparent;
+}
+
+.sidebar-sections::-webkit-scrollbar{width:3px}
+.sidebar-sections::-webkit-scrollbar-track{background:transparent}
+.sidebar-sections::-webkit-scrollbar-thumb{background:var(–border2);border-radius:4px}
+
+.sidebar-section-link{
+display:flex;align-items:center;gap:10px;
+padding:9px 20px;cursor:pointer;
+font-size:.8rem;color:var(–text2);
+transition:all .2s;border-left:2px solid transparent;
+position:relative;
+}
+
+.sidebar-section-link:hover,.sidebar-section-link.active{
+color:var(–text);
+background:rgba(79,70,229,.1);
+border-left-color:var(–accent2);
+}
+
+.sidebar-section-link .prog-mini{
+margin-left:auto;
+font-family:var(–font-mono);font-size:.65rem;
+color:var(–text3);
+}
+
+.sidebar-section-link.done-all .prog-mini{color:var(–neon);}
+
+.sidebar-bottom{
+padding:16px;border-top:1px solid var(–border);
+}
+
+/* ─── TOPBAR (mobile) ───────────────────────── */
+.topbar{
+display:none;
+background:rgba(13,13,31,.95);
+border-bottom:1px solid var(–border);
+padding:12px 16px;
+align-items:center;justify-content:space-between;
+position:sticky;top:0;z-index:100;
+backdrop-filter:blur(20px);
+}
+
+.topbar-logo{
+font-family:var(–font-mono);font-size:.9rem;
+color:var(–neon);display:flex;align-items:center;gap:8px;
+}
+
+.hamburger{
+background:none;border:1px solid var(–border2);
+color:var(–text);border-radius:8px;
+padding:6px 10px;cursor:pointer;font-size:1rem;
+}
+
+/* ─── MAIN ──────────────────────────────────── */
+.main{flex:1;padding:24px 28px;max-width:900px;overflow-x:hidden;}
+
+/* ─── PAGE HEADER ───────────────────────────── */
+.page-header{margin-bottom:24px;}
+
+.page-title{
+font-family:var(–font-mono);
+font-size:1.5rem;font-weight:700;
+color:var(–text);letter-spacing:-.03em;
+display:flex;align-items:center;gap:10px;
+}
+
+.page-subtitle{
+font-size:.85rem;color:var(–text2);margin-top:4px;
+}
+
+/* ─── AI ASSISTANT BAR ──────────────────────── */
+.ai-bar{
+background:rgba(13,13,31,.9);
+border:1px solid var(–border2);
+border-radius:var(–radius);
+padding:16px;
+margin-bottom:20px;
+display:flex;align-items:center;gap:12px;
+position:relative;overflow:hidden;
+}
+
+.ai-bar::before{
+content:’’;position:absolute;inset:0;
+background:linear-gradient(90deg,rgba(79,70,229,.05),rgba(6,255,165,.03));
+pointer-events:none;
+}
+
+.ai-avatar{
+width:42px;height:42px;border-radius:10px;flex-shrink:0;
+background:linear-gradient(135deg,var(–accent),var(–neon2));
+display:flex;align-items:center;justify-content:center;
+font-size:1.1rem;
+box-shadow:0 0 16px rgba(79,70,229,.4);
+}
+
+.ai-message{flex:1;}
+
+.ai-name{
+font-family:var(–font-mono);font-size:.7rem;
+color:var(–accent2);font-weight:700;
+margin-bottom:3px;letter-spacing:.05em;
+}
+
+.ai-text{
+font-size:.85rem;color:var(–text2);line-height:1.5;
+}
+
+.ai-text .highlight{color:var(–neon);font-weight:600;}
+
+/* ─── STATS ─────────────────────────────────── */
+.stats{
+display:grid;grid-template-columns:repeat(4,1fr);
+gap:10px;margin-bottom:20px;
+}
+
+.stat{
+background:var(–surface);
+border:1px solid var(–border);
+border-radius:var(–radius);
+padding:16px 14px;
+position:relative;overflow:hidden;
+transition:border-color .2s,transform .15s;
+cursor:default;
+}
+
+.stat::after{
+content:’’;position:absolute;
+bottom:0;left:0;right:0;height:2px;
+background:var(–stat-color,var(–accent));
+opacity:.5;
+}
+
+.stat:hover{border-color:var(–border2);transform:translateY(-1px);}
+
+.stat-label{
+font-size:.7rem;color:var(–text2);
+text-transform:uppercase;letter-spacing:.08em;
+font-family:var(–font-mono);margin-bottom:6px;
+}
+
+.stat-val{
+font-family:var(–font-mono);font-size:1.6rem;
+font-weight:700;color:var(–text);line-height:1;
+}
+
+.stat-icon{
+position:absolute;top:14px;right:14px;
+font-size:1.1rem;opacity:.4;
+}
+
+/* ─── PROGRESS ──────────────────────────────── */
+.progress-wrap{
+background:var(–surface);
+border:1px solid var(–border);
+border-radius:var(–radius);
+padding:16px;margin-bottom:20px;
+}
+
+.progress-header{
+display:flex;justify-content:space-between;align-items:center;
+margin-bottom:10px;
+}
+
+.progress-title{
+font-family:var(–font-mono);font-size:.8rem;
+color:var(–text2);text-transform:uppercase;letter-spacing:.08em;
+}
+
+.progress-pct{
+font-family:var(–font-mono);font-size:.9rem;
+font-weight:700;color:var(–neon);
+}
+
+.progress-track{
+height:8px;background:rgba(255,255,255,.04);
+border-radius:8px;overflow:hidden;position:relative;
+}
+
+.progress-fill{
+height:100%;border-radius:8px;
+background:linear-gradient(90deg,var(–accent),var(–accent2),var(–neon2));
+transition:width .6s cubic-bezier(.4,0,.2,1);
+position:relative;
+box-shadow:0 0 12px rgba(6,255,165,.3);
+}
+
+.progress-segments{
+display:flex;gap:4px;margin-top:8px;
+}
+
+.seg{
+flex:1;height:3px;border-radius:2px;
+background:var(–border);
+transition:background .3s;
+}
+
+.seg.done{background:var(–neon2);}
+.seg.partial{background:var(–accent);}
+
+/* ─── ACTION ROW ─────────────────────────────── */
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+
+.btn{
+display:inline-flex;align-items:center;gap:6px;
+padding:10px 18px;border-radius:8px;border:none;
+cursor:pointer;font-family:var(–font);font-size:.85rem;
+font-weight:600;transition:all .15s;
+white-space:nowrap;
+}
+
+.btn-primary{
+background:var(–accent);color:#fff;
+box-shadow:0 4px 14px rgba(79,70,229,.4);
+}
+.btn-primary:hover{background:var(–accent2);box-shadow:0 4px 20px rgba(79,70,229,.6);}
+.btn-primary:active{transform:scale(.97);}
+
+.btn-neon{
+background:rgba(6,255,165,.1);color:var(–neon);
+border:1px solid rgba(6,255,165,.25);
+}
+.btn-neon:hover{background:rgba(6,255,165,.18);border-color:rgba(6,255,165,.4);}
+
+.btn-ghost{
+background:transparent;color:var(–text2);
+border:1px solid var(–border2);
+}
+.btn-ghost:hover{color:var(–text);border-color:var(–border2);background:rgba(255,255,255,.04);}
+
+.btn-danger{
+background:transparent;color:var(–danger);
+border:1px solid rgba(239,68,68,.3);
+}
+.btn-danger:hover{background:rgba(239,68,68,.1);}
+
+/* ─── TABS ──────────────────────────────────── */
+.tabs{display:flex;gap:4px;margin-bottom:16px;
+background:var(–surface);border:1px solid var(–border);
+border-radius:10px;padding:4px;width:fit-content;}
+
+.tab{
+padding:7px 16px;border-radius:7px;
+border:none;background:none;cursor:pointer;
+font-size:.8rem;font-weight:600;color:var(–text2);
+transition:all .2s;
+}
+
+.tab.active{
+background:var(–accent);color:#fff;
+box-shadow:0 2px 8px rgba(79,70,229,.4);
+}
+
+/* ─── AI CHAT PANEL ─────────────────────────── */
+.ai-chat-panel{
+background:var(–surface);border:1px solid var(–border);
+border-radius:var(–radius);margin-bottom:16px;
+overflow:hidden;display:none;
+}
+
+.ai-chat-panel.open{display:block;}
+
+.ai-chat-header{
+padding:12px 16px;border-bottom:1px solid var(–border);
+display:flex;align-items:center;gap:8px;
+font-family:var(–font-mono);font-size:.8rem;color:var(–accent2);
+}
+
+.ai-chat-msgs{
+height:220px;overflow-y:auto;padding:14px;
+display:flex;flex-direction:column;gap:10px;
+scrollbar-width:thin;scrollbar-color:var(–border2) transparent;
+}
+
+.ai-chat-msgs::-webkit-scrollbar{width:3px}
+.ai-chat-msgs::-webkit-scrollbar-thumb{background:var(–border2);border-radius:4px}
+
+.chat-msg{
+display:flex;gap:8px;align-items:flex-start;
+animation:fadeUp .2s ease;
+}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.chat-msg.user{flex-direction:row-reverse;}
+
+.chat-avatar{
+width:28px;height:28px;border-radius:7px;flex-shrink:0;
+display:flex;align-items:center;justify-content:center;font-size:.8rem;
+}
+
+.chat-avatar.ai{background:linear-gradient(135deg,var(–accent),var(–neon2));}
+.chat-avatar.user{background:var(–surface2);border:1px solid var(–border2);}
+
+.chat-bubble{
+max-width:80%;padding:9px 12px;border-radius:10px;
+font-size:.82rem;line-height:1.5;
+}
+
+.chat-msg.ai .chat-bubble{
+background:rgba(79,70,229,.12);border:1px solid rgba(79,70,229,.2);
+color:var(–text);border-radius:4px 10px 10px 10px;
+}
+
+.chat-msg.user .chat-bubble{
+background:var(–accent);color:#fff;
+border-radius:10px 4px 10px 10px;
+}
+
+.chat-msg.loading .chat-bubble{color:var(–text2);}
+
+.chat-input-wrap{
+display:flex;gap:8px;padding:12px;
+border-top:1px solid var(–border);
+}
+
+.chat-input{
+flex:1;background:var(–surface2);
+border:1px solid var(–border2);border-radius:8px;
+padding:9px 12px;color:var(–text);font-size:.85rem;
+font-family:var(–font);outline:none;
+transition:border-color .2s;
+}
+
+.chat-input:focus{border-color:var(–accent);}
+.chat-input::placeholder{color:var(–text3);}
+
+.chat-send{
+background:var(–accent);color:#fff;border:none;
+border-radius:8px;padding:9px 14px;cursor:pointer;
+font-size:.9rem;transition:all .2s;
+}
+
+.chat-send:hover{background:var(–accent2);}
+.chat-send:disabled{opacity:.4;cursor:not-allowed;}
+
+/* ─── SECTIONS ──────────────────────────────── */
+.sections{display:flex;flex-direction:column;gap:6px;}
+
+.section{
+background:var(–surface);border:1px solid var(–border);
+border-radius:var(–radius);overflow:hidden;
+transition:border-color .2s;
+}
+
+.section:hover{border-color:var(–border2);}
+.section.active-section{border-color:rgba(79,70,229,.3);}
+
+.section-head{
+display:flex;align-items:center;gap:10px;
+padding:13px 16px;cursor:pointer;
+min-height:52px;user-select:none;
+transition:background .15s;
+}
+
+.section-head:hover{background:rgba(255,255,255,.02);}
+
+.section-icon{font-size:.9rem;flex-shrink:0;}
+
+.section-info{flex:1;}
+
+.section-name{
+font-size:.88rem;font-weight:600;color:var(–text);
+}
+
+.section-meta{
+font-size:.7rem;color:var(–text3);
+font-family:var(–font-mono);margin-top:1px;
+}
+
+.section-prog{
+display:flex;align-items:center;gap:8px;flex-shrink:0;
+}
+
+.section-prog-bar{
+width:50px;height:3px;background:var(–border2);
+border-radius:3px;overflow:hidden;
+}
+
+.section-prog-fill{
+height:100%;border-radius:3px;
+background:linear-gradient(90deg,var(–accent),var(–neon2));
+transition:width .4s;
+}
+
+.section-prog-text{
+font-family:var(–font-mono);font-size:.65rem;
+color:var(–text3);min-width:28px;text-align:right;
+}
+
+.section-chevron{
+font-size:.7rem;color:var(–text3);
+transition:transform .25s;flex-shrink:0;margin-left:4px;
+}
+
+.section.open .section-chevron{transform:rotate(180deg);}
+
+.section-body{
+display:none;padding:0 14px 14px;
+border-top:1px solid var(–border);
+}
+
+.section.open .section-body{display:block;padding-top:12px;}
+
+.days-grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(44px,1fr));
+gap:5px;
+}
+
+/* ─── DAY CELL ──────────────────────────────── */
+.day{
+aspect-ratio:1;border-radius:8px;
+display:flex;align-items:center;justify-content:center;
+cursor:pointer;font-family:var(–font-mono);
+font-size:.72rem;font-weight:700;
+border:1.5px solid var(–border);
+background:var(–bg);color:var(–text3);
+transition:all .15s;position:relative;
+min-width:40px;min-height:40px;
+}
+
+.day:hover:not(.locked){
+border-color:var(–accent2);color:var(–text);
+transform:scale(1.06);
+box-shadow:0 0 12px rgba(79,70,229,.3);
+}
+
+.day:active:not(.locked){transform:scale(.95);}
+
+.day.done{
+background:rgba(6,255,165,.1);
+border-color:rgba(6,255,165,.4);
+color:var(–neon);
+}
+
+.day.done::after{
+content:‘✓’;position:absolute;
+top:1px;right:3px;font-size:.45rem;
+color:var(–neon);
+}
+
+.day.current{
+border-color:var(–accent2);
+background:rgba(79,70,229,.15);
+color:var(–accent3);
+box-shadow:0 0 0 1px rgba(79,70,229,.3),0 0 16px rgba(79,70,229,.4);
+animation:glow 2.5s infinite;
+}
+
+@keyframes glow{
+0%,100%{box-shadow:0 0 0 1px rgba(79,70,229,.3),0 0 16px rgba(79,70,229,.3);}
+50%{box-shadow:0 0 0 1px rgba(79,70,229,.5),0 0 24px rgba(79,70,229,.5);}
+}
+
+.day.project{
+border-color:rgba(249,115,22,.4);
+background:rgba(249,115,22,.08);
+color:var(–project);
+}
+
+.day.project::before{
+content:‘★’;position:absolute;
+top:1px;right:2px;font-size:.4rem;color:var(–project);
+}
+
+.day.locked{opacity:.2;pointer-events:none;cursor:default;}
+
+.day.filter-hidden{display:none;}
+
+/* ─── MODAL ─────────────────────────────────── */
+.overlay{
+position:fixed;inset:0;
+background:rgba(0,0,0,.8);
+backdrop-filter:blur(6px);
+z-index:200;
+display:flex;align-items:center;justify-content:center;
+padding:20px;
+animation:fadeIn .15s;
+}
+
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+.modal{
+background:var(–surface);
+border:1px solid var(–border2);
+border-radius:16px;
+width:100%;max-width:520px;
+max-height:90vh;overflow-y:auto;
+animation:slideIn .25s cubic-bezier(.34,1.56,.64,1);
+position:relative;
+}
+
+@keyframes slideIn{from{opacity:0;transform:scale(.94) translateY(10px)}to{opacity:1;transform:none}}
+
+.modal-top{
+padding:20px 20px 0;
+border-bottom:1px solid var(–border);
+padding-bottom:16px;
+}
+
+.modal-tags{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+
+.tag{
+padding:3px 9px;border-radius:20px;
+font-family:var(–font-mono);font-size:.65rem;font-weight:700;
+text-transform:uppercase;letter-spacing:.05em;
+}
+
+.tag-section{background:rgba(79,70,229,.15);color:var(–accent2);border:1px solid rgba(79,70,229,.2);}
+.tag-project{background:rgba(249,115,22,.15);color:var(–project);border:1px solid rgba(249,115,22,.2);}
+.tag-done{background:rgba(6,255,165,.1);color:var(–neon);border:1px solid rgba(6,255,165,.2);}
+.tag-locked{background:rgba(239,68,68,.1);color:var(–danger);border:1px solid rgba(239,68,68,.2);}
+
+.modal-title{
+font-family:var(–font-mono);font-size:1.1rem;
+font-weight:700;color:var(–text);line-height:1.3;
+}
+
+.modal-day-num{
+font-size:.75rem;color:var(–text3);
+font-family:var(–font-mono);margin-top:3px;
+}
+
+.modal-body{padding:16px 20px;}
+
+.modal-desc{
+font-size:.9rem;color:var(–text2);
+line-height:1.7;margin-bottom:14px;
+}
+
+/* AI Explain section */
+.ai-explain{
+background:rgba(79,70,229,.07);
+border:1px solid rgba(79,70,229,.2);
+border-radius:10px;padding:14px;margin-bottom:14px;
+}
+
+.ai-explain-header{
+display:flex;align-items:center;gap:8px;
+font-family:var(–font-mono);font-size:.72rem;
+color:var(–accent2);font-weight:700;margin-bottom:8px;
+}
+
+.ai-explain-text{
+font-size:.85rem;color:var(–text2);line-height:1.6;
+min-height:40px;
+}
+
+.ai-explain-text.loading{
+display:flex;align-items:center;gap:4px;color:var(–text3);
+}
+
+.typing-dots span{
+display:inline-block;width:5px;height:5px;
+border-radius:50%;background:var(–accent2);
+animation:typingDot 1.2s infinite;margin:0 1px;
+}
+
+.typing-dots span:nth-child(2){animation-delay:.2s;}
+.typing-dots span:nth-child(3){animation-delay:.4s;}
+
+@keyframes typingDot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+
+.modal-resources{
+background:rgba(6,255,165,.05);
+border:1px solid rgba(6,255,165,.15);
+border-radius:8px;padding:10px 12px;
+margin-bottom:14px;
+}
+
+.modal-resources-title{
+font-family:var(–font-mono);font-size:.7rem;
+color:var(–neon2);font-weight:700;margin-bottom:5px;
+}
+
+.modal-resources a{
+display:block;color:var(–accent2);font-size:.8rem;
+word-break:break-all;margin-top:3px;
+text-decoration:none;transition:color .2s;
+}
+.modal-resources a:hover{color:var(–neon);}
+
+.modal-checklist{margin-bottom:14px;}
+
+.modal-checklist-title{
+font-family:var(–font-mono);font-size:.72rem;
+color:var(–text3);font-weight:700;
+text-transform:uppercase;margin-bottom:8px;
+}
+
+.checklist-item{
+display:flex;align-items:center;gap:8px;
+padding:6px 0;border-bottom:1px solid var(–border);
+font-size:.82rem;color:var(–text2);cursor:pointer;
+transition:color .2s;
+}
+
+.checklist-item:last-child{border:none;}
+.checklist-item:hover{color:var(–text);}
+
+.check-box{
+width:16px;height:16px;border-radius:4px;
+border:1.5px solid var(–border2);flex-shrink:0;
+display:flex;align-items:center;justify-content:center;
+font-size:.6rem;color:var(–neon);transition:all .2s;
+}
+
+.checklist-item.checked .check-box{
+background:rgba(6,255,165,.15);border-color:var(–neon2);
+}
+
+.modal-footer{
+display:flex;gap:8px;padding:14px 20px 20px;
+border-top:1px solid var(–border);
+flex-wrap:wrap;
+}
+
+.modal-footer .btn{flex:1;justify-content:center;min-width:120px;}
+
+.modal-nav{
+display:flex;gap:8px;padding:0 20px 14px;
+border-top:1px solid var(–border);
+}
+
+.modal-nav-btn{
+flex:1;padding:8px;background:none;
+border:1px solid var(–border);border-radius:7px;
+color:var(–text2);font-size:.78rem;cursor:pointer;
+transition:all .2s;display:flex;align-items:center;
+justify-content:center;gap:5px;
+}
+
+.modal-nav-btn:hover{border-color:var(–border2);color:var(–text);}
+.modal-nav-btn:disabled{opacity:.3;cursor:default;}
+
+/* ─── TOAST ─────────────────────────────────── */
+.toast-wrap{
+position:fixed;bottom:24px;right:24px;
+z-index:500;display:flex;flex-direction:column;gap:6px;
+}
+
+.toast{
+background:var(–surface);
+border:1px solid var(–border2);
+border-radius:10px;padding:10px 16px;
+font-size:.85rem;display:flex;align-items:center;gap:8px;
+box-shadow:0 8px 30px rgba(0,0,0,.4);
+animation:toastIn .3s cubic-bezier(.34,1.56,.64,1);
+min-width:200px;
+}
+
+@keyframes toastIn{from{opacity:0;transform:translateX(20px) scale(.95)}to{opacity:1;transform:none}}
+
+.toast.success{border-color:rgba(6,255,165,.3);color:var(–neon);}
+.toast.error{border-color:rgba(239,68,68,.3);color:var(–danger);}
+.toast.info{border-color:rgba(79,70,229,.3);color:var(–accent2);}
+
+/* ─── ACHIEVEMENT POPUP ─────────────────────── */
+.achievement{
+position:fixed;top:50%;left:50%;
+transform:translate(-50%,-50%) scale(0);
+background:var(–surface);
+border:2px solid var(–neon2);
+border-radius:16px;padding:32px 40px;
+text-align:center;z-index:600;
+box-shadow:0 0 60px rgba(6,255,165,.3);
+transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+pointer-events:none;
+}
+
+.achievement.show{transform:translate(-50%,-50%) scale(1);}
+
+.achievement-icon{font-size:3rem;margin-bottom:10px;}
+.achievement-title{
+font-family:var(–font-mono);font-size:1rem;
+color:var(–neon);font-weight:700;margin-bottom:5px;
+}
+.achievement-text{font-size:.85rem;color:var(–text2);}
+
+/* ─── STREAKS ───────────────────────────────── */
+.streak-display{
+background:rgba(249,115,22,.08);
+border:1px solid rgba(249,115,22,.2);
+border-radius:8px;padding:10px 14px;
+display:flex;align-items:center;gap:8px;
+margin-bottom:20px;
+font-size:.82rem;color:var(–text2);
+}
+
+.streak-num{
+font-family:var(–font-mono);font-size:1.1rem;
+font-weight:700;color:var(–project);
+}
+
+/* ─── RESPONSIVE ─────────────────────────────── */
+@media(max-width:900px){
+.stats{grid-template-columns:repeat(2,1fr);}
+.main{padding:20px 18px;}
+.sidebar{width:220px;}
+}
+
+@media(max-width:680px){
+.sidebar{display:none;}
+.topbar{display:flex;}
+.main{padding:16px 14px;}
+.stats{grid-template-columns:repeat(2,1fr);gap:8px;}
+.modal{border-radius:16px;}
+.ai-bar{flex-direction:column;align-items:flex-start;}
+.overlay{align-items:flex-end;padding:0;}
+.modal{border-radius:16px 16px 0 0;max-height:95vh;}
+.days-grid{grid-template-columns:repeat(auto-fill,minmax(38px,1fr));}
+}
+
+/* ─── SCROLLBAR ─────────────────────────────── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(–border2);border-radius:4px}
+
+/* ─── UTILS ─────────────────────────────────── */
+.hidden{display:none!important;}
+</style>
+
 </head>
 <body>
-    <div class="app-container">
-        <!-- SIDEBAR (Desktop) -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <a href="index.html" class="logo"><span class="icon">🛤️</span> DevPath 180</a>
-            </div>
-            <nav class="sidebar-nav" id="sidebarNav"></nav>
-        </aside>
 
-        <!-- TOP NAV (Mobile) -->
-        <header class="top-nav" id="topNav">
-            <a href="index.html" class="logo"><span class="icon">🛤️</span> DevPath 180</a>
-            <div class="nav-links">
-                <a href="index.html" class="nav-link active" data-page="dashboard">📊 Dashboard</a>
-                <a href="notes.html" class="nav-link" data-page="notes">📝 Notes</a>
-            </div>
-        </header>
-
-        <!-- MAIN CONTENT -->
-        <main class="main-content" id="mainContent">
-            <!-- Stats Grid -->
-            <div class="stats-grid" id="statsGrid"></div>
-
-            <!-- Progress Bar -->
-            <div class="progress-card">
-                <div class="progress-header">
-                    <span>📈 Overall Progress</span>
-                    <span id="progressPercent">0%</span>
-                </div>
-                <div class="progress-bar-track">
-                    <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
-                </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="actions-row">
-                <button class="btn btn-primary" id="btnContinue">▶ Continue</button>
-                <button class="btn btn-outline" id="btnJumpCurrent">📍 Today</button>
-                <button class="btn btn-danger" id="btnReset">🔄 Reset</button>
-            </div>
-
-            <!-- Filter Pills -->
-            <div class="filter-row">
-                <button class="filter-pill active" data-filter="all">📋 All</button>
-                <button class="filter-pill" data-filter="completed">✅ Done</button>
-                <button class="filter-pill" data-filter="pending">⏳ Pending</button>
-            </div>
-
-            <!-- Sections Container -->
-            <div id="sectionsContainer"></div>
-        </main>
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">⚡</div>
+      DevPath 180
     </div>
 
-    <!-- MODAL -->
-    <div class="modal-overlay" id="modalOverlay" style="display:none">
-        <div class="modal" id="modal">
-            <h3 id="modalTitle"></h3>
-            <div id="modalBody"></div>
-            <div class="modal-actions">
-                <button class="btn btn-primary" id="modalCompleteBtn">✅ Complete</button>
-                <button class="btn btn-outline" id="modalCloseBtn">✕ Close</button>
-            </div>
+```
+<div class="sidebar-ai-status">
+  <div class="ai-dot"></div>
+  AI Assistant Active
+</div>
+
+<div class="sidebar-sections" id="sidebarSections"></div>
+
+<div class="sidebar-bottom">
+  <div style="font-family:var(--font-mono);font-size:.65rem;color:var(--text3);text-align:center;line-height:1.6;">
+    180-Day Full Stack Roadmap<br>
+    <span style="color:var(--accent2)" id="sidebarDaysLeft"></span>
+  </div>
+</div>
+```
+
+  </aside>
+
+  <!-- TOPBAR (mobile) -->
+
+  <header class="topbar" id="topbar">
+    <div class="topbar-logo">⚡ DevPath 180</div>
+    <button class="hamburger" id="hamburger">☰</button>
+  </header>
+
+  <!-- MAIN -->
+
+  <main class="main" id="main">
+
+```
+<div class="page-header">
+  <div class="page-title">🗺️ Learning Tracker</div>
+  <div class="page-subtitle">Your 180-day journey to Full Stack mastery</div>
+</div>
+
+<!-- AI Bar -->
+<div class="ai-bar" id="aiBar">
+  <div class="ai-avatar">🤖</div>
+  <div class="ai-message">
+    <div class="ai-name">DEVPATH AI</div>
+    <div class="ai-text" id="aiBarText">Loading your progress...</div>
+  </div>
+  <button class="btn btn-neon" id="btnAiChat" style="flex-shrink:0;font-size:.78rem;padding:8px 12px;">
+    💬 Ask AI
+  </button>
+</div>
+
+<!-- AI Chat Panel -->
+<div class="ai-chat-panel" id="aiChatPanel">
+  <div class="ai-chat-header">
+    🤖 DevPath AI Assistant
+    <button onclick="document.getElementById('aiChatPanel').classList.remove('open')"
+      style="margin-left:auto;background:none;border:none;color:var(--text2);cursor:pointer;font-size:.9rem;">✕</button>
+  </div>
+  <div class="ai-chat-msgs" id="chatMsgs"></div>
+  <div class="chat-input-wrap">
+    <input class="chat-input" id="chatInput" placeholder="Ask about any topic, day, or concept..." />
+    <button class="chat-send" id="chatSend">➤</button>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="stats" id="stats"></div>
+
+<!-- Streak -->
+<div class="streak-display" id="streakDisplay" style="display:none">
+  🔥 Current Streak: <span class="streak-num" id="streakNum">0</span> days
+  <span style="color:var(--text3);font-size:.75rem;margin-left:4px">Keep it up!</span>
+</div>
+
+<!-- Progress -->
+<div class="progress-wrap">
+  <div class="progress-header">
+    <div class="progress-title">Overall Progress</div>
+    <div class="progress-pct" id="progressPct">0%</div>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+  </div>
+  <div class="progress-segments" id="progressSegs"></div>
+</div>
+
+<!-- Actions -->
+<div class="actions">
+  <button class="btn btn-primary" id="btnContinue">▶ Continue Learning</button>
+  <button class="btn btn-neon" id="btnJump">📍 Jump to Today</button>
+  <button class="btn btn-ghost" id="btnExpand">📂 Expand All</button>
+  <button class="btn btn-danger" id="btnReset">↺ Reset</button>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab active" data-filter="all">All Days</button>
+  <button class="tab" data-filter="done">✅ Done</button>
+  <button class="tab" data-filter="pending">⏳ Pending</button>
+  <button class="tab" data-filter="project">🔥 Projects</button>
+</div>
+
+<!-- Sections -->
+<div class="sections" id="sections"></div>
+```
+
+  </main>
+</div>
+
+<!-- Modal -->
+
+<div class="overlay hidden" id="overlay">
+  <div class="modal" id="modal">
+    <div class="modal-top">
+      <div class="modal-tags" id="modalTags"></div>
+      <div class="modal-title" id="modalTitle"></div>
+      <div class="modal-day-num" id="modalDayNum"></div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-desc" id="modalDesc"></div>
+
+```
+  <!-- AI Explanation -->
+  <div class="ai-explain" id="aiExplain">
+    <div class="ai-explain-header">🤖 AI Deep Explanation</div>
+    <div class="ai-explain-text" id="aiExplainText">
+      <span class="loading">
+        <span class="typing-dots"><span></span><span></span><span></span></span>
+        &nbsp;Generating explanation...
+      </span>
+    </div>
+  </div>
+
+  <!-- Resources -->
+  <div class="modal-resources hidden" id="modalResources">
+    <div class="modal-resources-title">📚 Resources</div>
+    <div id="modalResourcesList"></div>
+  </div>
+
+  <!-- Checklist -->
+  <div class="modal-checklist" id="modalChecklist">
+    <div class="modal-checklist-title">✓ Practice Checklist</div>
+    <div id="checklistItems"></div>
+  </div>
+</div>
+
+<div class="modal-nav">
+  <button class="modal-nav-btn" id="modalPrev">← Previous</button>
+  <button class="modal-nav-btn" id="modalNext">Next →</button>
+</div>
+
+<div class="modal-footer">
+  <button class="btn btn-primary" id="modalComplete">✅ Mark Complete</button>
+  <button class="btn btn-ghost" id="modalClose">✕ Close</button>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- Toast container -->
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- Achievement popup -->
+
+<div class="achievement" id="achievement">
+  <div class="achievement-icon" id="achIcon"></div>
+  <div class="achievement-title" id="achTitle"></div>
+  <div class="achievement-text" id="achText"></div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+// ══════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════
+const SECTIONS = [
+  'HTML','CSS','JavaScript Basics','Practice','Advanced JS','Mini Apps',
+  'Tools + Git','React','React Practice','Backend','API Practice',
+  'Database','DB Integration','Full Stack','Full Project','Deployment'
+];
+
+const SECTION_ICONS = {
+  'HTML':'🏗️','CSS':'🎨','JavaScript Basics':'⚡','Practice':'🔨',
+  'Advanced JS':'🚀','Mini Apps':'📱','Tools + Git':'🛠️','React':'⚛️',
+  'React Practice':'💡','Backend':'⚙️','API Practice':'🔌',
+  'Database':'🗄️','DB Integration':'🔗','Full Stack':'🌐',
+  'Full Project':'🏆','Deployment':'🚀'
+};
+
+const CHECKLISTS = {
+  learning:[
+    'Read the concept introduction',
+    'Watch a tutorial or documentation',
+    'Code along with an example',
+    'Build a small test project',
+    'Review and take notes'
+  ],
+  project:[
+    'Plan features and design',
+    'Set up project structure',
+    'Implement core functionality',
+    'Add styling and polish',
+    'Test and debug',
+    'Deploy or share it'
+  ]
+};
+
+const ROADMAP = [
+  {d:1,t:'Intro to Web Development',s:'HTML',type:'learning',desc:'Understand how the web works: clients, servers, HTTP, browsers. Set up VS Code and extensions.'},
+  {d:2,t:'HTML Document Structure',s:'HTML',type:'learning',desc:'Learn DOCTYPE, html, head, body, meta tags, linking CSS and JS files.'},
+  {d:3,t:'Text Elements & Headings',s:'HTML',type:'learning',desc:'Master h1–h6, p, span, br, hr, strong, em, mark, small, code elements.'},
+  {d:4,t:'Links & Images',s:'HTML',type:'learning',desc:'Create anchor hyperlinks, img with src/alt, absolute vs relative paths, image formats.'},
+  {d:5,t:'Lists & Tables',s:'HTML',type:'learning',desc:'Build ul/ol/li, nested lists, table with thead/tbody/tr/th/td, colspan/rowspan.'},
+  {d:6,t:'Forms & Input Elements',s:'HTML',type:'learning',desc:'Create form with input types, textarea, select, radio, checkbox, button, submit.'},
+  {d:7,t:'Semantic HTML',s:'HTML',type:'learning',desc:'Use header, nav, main, article, section, aside, footer for SEO and accessibility.'},
+  {d:8,t:'HTML5 Features',s:'HTML',type:'learning',desc:'Explore audio, video, canvas, details/summary, progress, datalist, template.'},
+  {d:9,t:'Accessibility Basics',s:'HTML',type:'learning',desc:'ARIA labels, alt text, tabindex, role attributes, skip navigation, screen-reader patterns.'},
+  {d:10,t:'Project: HTML Portfolio',s:'HTML',type:'project',desc:'Build a complete personal portfolio page using only semantic HTML with all proper elements.',res:['https://developer.mozilla.org/en-US/docs/Learn/HTML']},
+  {d:11,t:'CSS Syntax & Selectors',s:'CSS',type:'learning',desc:'Properties, values, rules, class/id/element selectors, combinators, specificity calculation.'},
+  {d:12,t:'Colors & Backgrounds',s:'CSS',type:'learning',desc:'Hex/rgb/hsl colors, gradients, background-image/size/position, multiple backgrounds.'},
+  {d:13,t:'The Box Model',s:'CSS',type:'learning',desc:'Margin, border, padding, content areas, box-sizing: border-box vs content-box.'},
+  {d:14,t:'Typography & Fonts',s:'CSS',type:'learning',desc:'font-family stacks, size, weight, line-height, letter-spacing, Google Fonts integration.'},
+  {d:15,t:'Display & Positioning',s:'CSS',type:'learning',desc:'block/inline/inline-block/none, static/relative/absolute/fixed/sticky positioning, z-index.'},
+  {d:16,t:'Flexbox Basics',s:'CSS',type:'learning',desc:'display:flex, flex-direction, justify-content, align-items, flex-wrap, gap property.'},
+  {d:17,t:'Flexbox Advanced',s:'CSS',type:'learning',desc:'flex-grow/shrink/basis shorthand, align-self, order, nested flex containers.'},
+  {d:18,t:'CSS Grid Basics',s:'CSS',type:'learning',desc:'display:grid, grid-template-columns/rows, gap, grid-column and grid-row placement.'},
+  {d:19,t:'CSS Grid Advanced',s:'CSS',type:'learning',desc:'Named grid areas, auto-fit/auto-fill, minmax(), combining Grid and Flexbox layouts.'},
+  {d:20,t:'Responsive Design',s:'CSS',type:'learning',desc:'Media queries, mobile-first approach, breakpoints, vw/vh, em/rem units, fluid layouts.'},
+  {d:21,t:'Transitions & Animations',s:'CSS',type:'learning',desc:'transition property, @keyframes, animation shorthand, timing functions, smooth effects.'},
+  {d:22,t:'CSS Variables',s:'CSS',type:'learning',desc:'Custom properties with --, :root scope, inheritance, dynamic theming with JavaScript.'},
+  {d:23,t:'Pseudo-classes/Elements',s:'CSS',type:'learning',desc:':hover, :focus, :nth-child(), ::before, ::after pseudo-elements, tooltips, custom UI.'},
+  {d:24,t:'CSS Best Practices',s:'CSS',type:'learning',desc:'BEM naming convention, organizing styles, specificity management, CSS resets, performance.'},
+  {d:25,t:'Project: Responsive Landing Page',s:'CSS',type:'project',desc:'Build a fully responsive landing page with hero, features section, pricing, and footer.',res:['https://css-tricks.com']},
+  {d:26,t:'JavaScript Introduction',s:'JavaScript Basics',type:'learning',desc:'What is JavaScript, how to include it in HTML, browser console, console.log, script tag.'},
+  {d:27,t:'Variables & Data Types',s:'JavaScript Basics',type:'learning',desc:'var/let/const declarations, string/number/boolean/null/undefined/symbol, type coercion.'},
+  {d:28,t:'Operators & Expressions',s:'JavaScript Basics',type:'learning',desc:'Arithmetic, assignment, comparison, logical operators, ternary operator, operator precedence.'},
+  {d:29,t:'Conditionals',s:'JavaScript Basics',type:'learning',desc:'if/else if/else, switch statement, truthy/falsy values, short-circuit evaluation.'},
+  {d:30,t:'Loops',s:'JavaScript Basics',type:'learning',desc:'for, while, do...while loops, for...of, for...in, break and continue statements.'},
+  {d:31,t:'Functions Basics',s:'JavaScript Basics',type:'learning',desc:'Declare, invoke, parameters, arguments, return values, declarations vs expressions.'},
+  {d:32,t:'Functions Advanced',s:'JavaScript Basics',type:'learning',desc:'Default parameters, rest params, callbacks, higher-order functions, scope introduction.'},
+  {d:33,t:'Arrays Basics',s:'JavaScript Basics',type:'learning',desc:'Create, access, .length property, push/pop, shift/unshift, splice, slice methods.'},
+  {d:34,t:'Array Methods',s:'JavaScript Basics',type:'learning',desc:'.map(), .filter(), .reduce(), .forEach(), .find(), .some(), .every(), .flat() methods.'},
+  {d:35,t:'Objects Basics',s:'JavaScript Basics',type:'learning',desc:'Create objects, dot/bracket notation, add/update/delete properties, nested objects.'},
+  {d:36,t:'Object Methods & this',s:'JavaScript Basics',type:'learning',desc:'this keyword context, Object.keys/values/entries, spread, object destructuring.'},
+  {d:37,t:'DOM Manipulation',s:'JavaScript Basics',type:'learning',desc:'querySelector, querySelectorAll, textContent/innerHTML, classList, style, create/append elements.'},
+  {d:38,t:'DOM Events',s:'Practice',type:'learning',desc:'click, submit, input, change events, addEventListener, event object, bubbling, delegation.'},
+  {d:39,t:'Form Validation',s:'Practice',type:'learning',desc:'Validate inputs on submit, empty field checks, email format regex, custom error messages.'},
+  {d:40,t:'Local Storage',s:'Practice',type:'learning',desc:'localStorage.setItem/getItem/removeItem, JSON.stringify/parse for storing objects.'},
+  {d:41,t:'Build a Counter App',s:'Practice',type:'learning',desc:'Increment, decrement, reset counter with buttons and DOM updates, style states.'},
+  {d:42,t:'Build a To-Do List',s:'Practice',type:'learning',desc:'Add/complete/delete tasks, localStorage persistence, full CRUD operations.'},
+  {d:43,t:'Build a Quiz App',s:'Practice',type:'learning',desc:'Multiple-choice quiz, score tracking, results display, retake functionality.'},
+  {d:44,t:'Build a Calculator',s:'Practice',type:'learning',desc:'Basic arithmetic operations, decimal handling, clear button, chained operations.'},
+  {d:45,t:'Project: Interactive Web App',s:'Practice',type:'project',desc:'Combine all skills into a full app (expense tracker, habit tracker) with localStorage.',res:[]},
+  {d:46,t:'ES6+ Overview',s:'Advanced JS',type:'learning',desc:'let/const, arrow functions, template literals, destructuring, spread/rest, ES modules overview.'},
+  {d:47,t:'Arrow Functions & Scope',s:'Advanced JS',type:'learning',desc:'Arrow function syntax, implicit return, lexical this binding, scope chain.'},
+  {d:48,t:'Template Literals',s:'Advanced JS',type:'learning',desc:'Backtick strings, ${} interpolation, multi-line strings, tagged template literals.'},
+  {d:49,t:'Destructuring & Spread',s:'Advanced JS',type:'learning',desc:'Array/object destructuring patterns, spread operator (...), rest parameters.'},
+  {d:50,t:'Promises & Async/Await',s:'Advanced JS',type:'learning',desc:'Asynchronous JS, Promise chain, .then/.catch/.finally, async/await syntax.'},
+  {d:51,t:'Fetch API',s:'Advanced JS',type:'learning',desc:'fetch() for HTTP requests, GET/POST methods, JSON parsing, error handling with try/catch.'},
+  {d:52,t:'Error Handling',s:'Advanced JS',type:'learning',desc:'try...catch...finally blocks, throwing custom errors, defensive programming patterns.'},
+  {d:53,t:'Closures Deep Dive',s:'Advanced JS',type:'learning',desc:'Lexical environment, closure use cases, data privacy patterns, memoization.'},
+  {d:54,t:'Prototypes & Classes',s:'Advanced JS',type:'learning',desc:'Prototypal inheritance chain, class syntax, constructor, extends, super keyword.'},
+  {d:55,t:'ES Modules',s:'Advanced JS',type:'learning',desc:'ES modules system, named/default exports and imports, module scope, circular deps.'},
+  {d:56,t:'Weather App',s:'Mini Apps',type:'learning',desc:'Build a weather app using a public API, display temperature, conditions, and forecasts.'},
+  {d:57,t:'Recipe Finder',s:'Mini Apps',type:'learning',desc:'Recipe search app with API integration, ingredients list, cooking instructions, images.'},
+  {d:58,t:'Expense Tracker',s:'Mini Apps',type:'learning',desc:'Income/expense entry system, running balance display, category charts, localStorage.'},
+  {d:59,t:'Pomodoro Timer',s:'Mini Apps',type:'learning',desc:'Work/break interval timer, browser notifications, session count tracking.'},
+  {d:60,t:'Notes App',s:'Mini Apps',type:'learning',desc:'Create, edit, delete, search notes with tags, localStorage persistence, markdown.'},
+  {d:61,t:'Image Gallery',s:'Mini Apps',type:'learning',desc:'Responsive image gallery with lightbox modal, lazy loading, masonry/grid layout.'},
+  {d:62,t:'Music Player UI',s:'Mini Apps',type:'learning',desc:'Play/pause controls, progress bar, volume slider, playlist with HTML5 Audio API.'},
+  {d:63,t:'Chat Interface UI',s:'Mini Apps',type:'learning',desc:'Message bubbles, input field, typing indicator, auto-scroll to bottom, timestamps.'},
+  {d:64,t:'Dashboard UI',s:'Mini Apps',type:'learning',desc:'Admin dashboard with sidebar navigation, stat cards, line/bar charts, data table.'},
+  {d:65,t:'Project: Mini App Suite',s:'Mini Apps',type:'project',desc:'Combine 2+ mini apps into one cohesive project with shared navigation and state.',res:[]},
+  {d:66,t:'Git Basics',s:'Tools + Git',type:'learning',desc:'Install Git, git init, working directory, staging area, git status, global config setup.'},
+  {d:67,t:'Git Commands',s:'Tools + Git',type:'learning',desc:'add, commit, log, diff, branch, checkout, merge, stash, rebase, cherry-pick.'},
+  {d:68,t:'GitHub & Remote',s:'Tools + Git',type:'learning',desc:'GitHub repos, push/pull/clone/fetch, pull requests, code review process, issues.'},
+  {d:69,t:'VS Code Extensions',s:'Tools + Git',type:'learning',desc:'Prettier, ESLint, Live Server, GitLens, keyboard shortcuts, workspace settings.'},
+  {d:70,t:'Terminal & CLI',s:'Tools + Git',type:'learning',desc:'Shell commands, file operations, npm/yarn basics, useful CLI tools, scripts.'},
+  {d:71,t:'React Intro & Setup',s:'React',type:'learning',desc:'What is React and why use it? Vite setup, project structure, node_modules, public.'},
+  {d:72,t:'JSX & Components',s:'React',type:'learning',desc:'JSX syntax rules, functional components, nesting, fragments, className vs class.'},
+  {d:73,t:'Props & PropTypes',s:'React',type:'learning',desc:'Passing data via props, destructuring props, default values, PropTypes validation.'},
+  {d:74,t:'State & useState',s:'React',type:'learning',desc:'useState hook, updating state, state batching, lifting state up to parent.'},
+  {d:75,t:'Event Handling',s:'React',type:'learning',desc:'onClick, onChange, onSubmit handlers, event arguments, preventDefault in React.'},
+  {d:76,t:'Conditional Rendering',s:'React',type:'learning',desc:'Ternary operator patterns, &&, if/else in JSX, loading/error/empty state UX.'},
+  {d:77,t:'Lists & Keys',s:'React',type:'learning',desc:'.map() for rendering lists, unique key prop importance, reconciliation algorithm.'},
+  {d:78,t:'Forms in React',s:'React',type:'learning',desc:'Controlled vs uncontrolled components, state for form values, validation patterns.'},
+  {d:79,t:'useEffect Hook',s:'React',type:'learning',desc:'Side effects, dependency array, cleanup functions, data fetching on mount.'},
+  {d:80,t:'useContext & Custom Hooks',s:'React',type:'learning',desc:'Global state with createContext/useContext, building custom hooks for reusable logic.'},
+  {d:81,t:'React Router',s:'React',type:'learning',desc:'BrowserRouter, Routes, Route components, Link, NavLink, URL params, nested routes.'},
+  {d:82,t:'State Management',s:'React',type:'learning',desc:'Context API limitations, Redux Toolkit/Zustand/Jotai introduction, when to use what.'},
+  {d:83,t:'React Best Practices',s:'React',type:'learning',desc:'Folder structure patterns, component composition, React.memo, useMemo, useCallback.'},
+  {d:84,t:'Building a Blog',s:'React Practice',type:'learning',desc:'Post listing page, individual post view, CMS-like interface with React Router.'},
+  {d:85,t:'E-commerce UI',s:'React Practice',type:'learning',desc:'Product grid, detail page, shopping cart, checkout form, cart state management.'},
+  {d:86,t:'Authentication UI',s:'React Practice',type:'learning',desc:'Login/register pages, token storage, protected routes, user profile, logout.'},
+  {d:87,t:'Dashboard with Charts',s:'React Practice',type:'learning',desc:'Analytics dashboard with Recharts or Chart.js, multiple chart types integration.'},
+  {d:88,t:'Social Media Feed',s:'React Practice',type:'learning',desc:'Infinite-scroll feed, post cards, like/comment functionality, user avatars.'},
+  {d:89,t:'File Upload Component',s:'React Practice',type:'learning',desc:'Drag-and-drop upload area, file preview, upload progress bar, type/size validation.'},
+  {d:90,t:'Search & Filter System',s:'React Practice',type:'learning',desc:'Debounced search input, multi-criteria filters, sorting options, URL state sync.'},
+  {d:91,t:'Infinite Scroll',s:'React Practice',type:'learning',desc:'Intersection Observer API, paginated data loading, loading spinners, end detection.'},
+  {d:92,t:'Real-time Updates',s:'React Practice',type:'learning',desc:'setInterval polling, WebSocket simulation, live data UI updates, optimistic UI.'},
+  {d:93,t:'Animation with Framer Motion',s:'React Practice',type:'learning',desc:'Page transitions, hover/tap animations, layout animations, AnimatePresence.'},
+  {d:94,t:'Testing React',s:'React Practice',type:'learning',desc:'Jest setup, React Testing Library, unit tests, integration tests, mocking APIs.'},
+  {d:95,t:'Performance Optimization',s:'React Practice',type:'learning',desc:'Code splitting, React.lazy + Suspense, memoization, bundle analysis, profiler.'},
+  {d:96,t:'Accessibility in React',s:'React Practice',type:'learning',desc:'ARIA attributes, keyboard navigation, focus management, screen reader testing.'},
+  {d:97,t:'Code Splitting',s:'React Practice',type:'learning',desc:'Route-based and component-based splitting, dynamic imports, Suspense boundaries.'},
+  {d:98,t:'Progressive Web Apps',s:'React Practice',type:'learning',desc:'Service worker, web manifest, offline support, install prompt, caching strategies.'},
+  {d:99,t:'React + TypeScript',s:'React Practice',type:'learning',desc:'Typing props, state, events, hooks, generics in React, strict mode benefits.'},
+  {d:100,t:'Project: Full React App',s:'React Practice',type:'project',desc:'Complete React SPA with routing, global state, API integration, polished UI.',res:['https://react.dev']},
+  {d:101,t:'Node.js Introduction',s:'Backend',type:'learning',desc:'Node.js runtime, event loop, npm ecosystem, built-in http module, simple server.'},
+  {d:102,t:'Express.js Setup',s:'Backend',type:'learning',desc:'Install Express, create server, app.get(), app.listen(), first routes, nodemon.'},
+  {d:103,t:'Routing & Middleware',s:'Backend',type:'learning',desc:'Express Router, morgan/cors/body-parser, custom middleware, middleware chain.'},
+  {d:104,t:'Request & Response',s:'Backend',type:'learning',desc:'req.params, req.query, req.body, JSON responses, HTTP status codes, headers.'},
+  {d:105,t:'REST API Design',s:'Backend',type:'learning',desc:'RESTful endpoint design, HTTP method semantics, meaningful URL structure, conventions.'},
+  {d:106,t:'Authentication (JWT)',s:'Backend',type:'learning',desc:'JWT tokens, bcrypt password hashing, protected routes, login/register endpoints.'},
+  {d:107,t:'File Uploads',s:'Backend',type:'learning',desc:'Multer middleware, local and cloud storage, file type/size validation, serving files.'},
+  {d:108,t:'Error Handling',s:'Backend',type:'learning',desc:'Global error middleware, async wrapper, consistent error response format.'},
+  {d:109,t:'Security Best Practices',s:'Backend',type:'learning',desc:'XSS, CSRF, SQL injection prevention, helmet.js, rate limiting, CORS configuration.'},
+  {d:110,t:'Testing APIs',s:'Backend',type:'learning',desc:'Jest setup, Supertest library, unit and integration tests, TDD approach.'},
+  {d:111,t:'RESTful Routes',s:'API Practice',type:'learning',desc:'Full REST route set for a resource, naming conventions, HTTP status code standards.'},
+  {d:112,t:'CRUD Operations',s:'API Practice',type:'learning',desc:'Create/Read/Update/Delete implementation, edge cases, input validation.'},
+  {d:113,t:'Query Parameters',s:'API Practice',type:'learning',desc:'Filtering data via query params, field selection, search functionality in APIs.'},
+  {d:114,t:'Pagination',s:'API Practice',type:'learning',desc:'Offset and cursor-based pagination, page metadata in responses, limit/offset.'},
+  {d:115,t:'Sorting & Filtering',s:'API Practice',type:'learning',desc:'Multi-criteria sorting, dynamic filtering via query string parameters.'},
+  {d:116,t:'API Versioning',s:'API Practice',type:'learning',desc:'URL-based vs header versioning, planning breaking changes, deprecation strategy.'},
+  {d:117,t:'Rate Limiting',s:'API Practice',type:'learning',desc:'express-rate-limit, abuse protection, per-endpoint and per-user rate limits.'},
+  {d:118,t:'CORS & Security',s:'API Practice',type:'learning',desc:'CORS configuration, preflight requests, allowed origins, credentials handling.'},
+  {d:119,t:'API Documentation',s:'API Practice',type:'learning',desc:'Swagger/OpenAPI spec, endpoint documentation, example requests and responses.'},
+  {d:120,t:'WebSockets Intro',s:'API Practice',type:'learning',desc:'Socket.io setup, real-time bidirectional communication, rooms, events.'},
+  {d:121,t:'Chat API',s:'API Practice',type:'learning',desc:'Chat rooms, message history storage, presence indicators, typing events.'},
+  {d:122,t:'Email Service',s:'API Practice',type:'learning',desc:'Nodemailer/SendGrid, password reset emails, email verification, templates.'},
+  {d:123,t:'Payment Integration',s:'API Practice',type:'learning',desc:'Stripe/PayPal checkout, webhooks, payment sessions, subscription handling.'},
+  {d:124,t:'Image Processing API',s:'API Practice',type:'learning',desc:'Upload, resize, crop, convert images with Sharp library, thumbnail generation.'},
+  {d:125,t:'PDF Generation',s:'API Practice',type:'learning',desc:'Puppeteer or PDFKit for server-side PDF generation, invoices, reports.'},
+  {d:126,t:'Caching Strategies',s:'API Practice',type:'learning',desc:'Redis caching, in-memory cache, cache invalidation strategies, TTL.'},
+  {d:127,t:'Logging & Monitoring',s:'API Practice',type:'learning',desc:'Winston/Pino logging, request timing, error rate tracking, health checks.'},
+  {d:128,t:'Postman Testing',s:'API Practice',type:'learning',desc:'Postman collections, environments, automated test scripts, Newman CLI.'},
+  {d:129,t:'GraphQL Intro',s:'API Practice',type:'learning',desc:'Apollo Server setup, schema definition, resolvers, queries and mutations.'},
+  {d:130,t:'Project: Complete REST API',s:'API Practice',type:'project',desc:'Production-ready API with auth, full CRUD, pagination, rate limiting, docs.',res:['https://restfulapi.net']},
+  {d:131,t:'Database Concepts',s:'Database',type:'learning',desc:'Relational vs non-relational databases, ACID properties, CAP theorem, indexes.'},
+  {d:132,t:'MongoDB Setup',s:'Database',type:'learning',desc:'Local and Atlas setup, MongoDB shell, Compass GUI, basic BSON document structure.'},
+  {d:133,t:'CRUD with MongoDB',s:'Database',type:'learning',desc:'insertOne/Many, find/findOne, updateOne, deleteOne, ObjectId, query operators.'},
+  {d:134,t:'Mongoose ODM',s:'Database',type:'learning',desc:'Schemas, models, CRUD via Mongoose, middleware hooks, validation, virtuals.'},
+  {d:135,t:'SQL Basics',s:'Database',type:'learning',desc:'SELECT, INSERT, UPDATE, DELETE, WHERE, JOIN types, GROUP BY, HAVING, ORDER BY.'},
+  {d:136,t:'PostgreSQL Setup',s:'Database',type:'learning',desc:'Local PostgreSQL setup, psql CLI, pgAdmin GUI, creating databases and tables.'},
+  {d:137,t:'Connect DB to API',s:'DB Integration',type:'learning',desc:'MongoDB/PostgreSQL connection strings, env variables, connection pooling, error handling.'},
+  {d:138,t:'User Model & Schema',s:'DB Integration',type:'learning',desc:'User schema design: name, email, hashed password, timestamps, role field.'},
+  {d:139,t:'Relationships',s:'DB Integration',type:'learning',desc:'One-to-one, one-to-many, many-to-many, ObjectId references, SQL foreign keys.'},
+  {d:140,t:'Aggregation Pipelines',s:'DB Integration',type:'learning',desc:'MongoDB $match, $group, $sort, $project, $lookup for complex data queries.'},
+  {d:141,t:'Indexing & Performance',s:'DB Integration',type:'learning',desc:'Creating indexes, compound indexes, explain plans, query optimization techniques.'},
+  {d:142,t:'Transactions',s:'DB Integration',type:'learning',desc:'Atomic operations, MongoDB sessions, rollback on failure, data consistency.'},
+  {d:143,t:'Data Validation',s:'DB Integration',type:'learning',desc:'Mongoose validators, custom validators, SQL constraints, data integrity rules.'},
+  {d:144,t:'Backup & Restore',s:'DB Integration',type:'learning',desc:'mongodump/restore, pg_dump/restore, automated backup scripts, Atlas backups.'},
+  {d:145,t:'Migrations',s:'DB Integration',type:'learning',desc:'Schema changes, Knex.js migrations, Mongoose migration plugins, version control.'},
+  {d:146,t:'Advanced Queries',s:'DB Integration',type:'learning',desc:'SQL subqueries, window functions, CTEs, complex MongoDB aggregations.'},
+  {d:147,t:'Full-Text Search',s:'DB Integration',type:'learning',desc:'MongoDB $text index, PostgreSQL tsvector/tsquery, search relevance ranking.'},
+  {d:148,t:'Data Seeding',s:'DB Integration',type:'learning',desc:'Seed scripts for initial data, faker.js for realistic test data, seed commands.'},
+  {d:149,t:'Database Security',s:'DB Integration',type:'learning',desc:'Auth configuration, TLS encryption, IP allowlists, least privilege principle.'},
+  {d:150,t:'Project: DB-Backed API',s:'DB Integration',type:'project',desc:'Complete API with database, auth, relations, aggregation, indexes, and seeding.',res:[]},
+  {d:151,t:'Frontend to Backend',s:'Full Stack',type:'learning',desc:'Connect React frontend to Express backend, fetch/axios, CORS setup, env variables.'},
+  {d:152,t:'State for API Data',s:'Full Stack',type:'learning',desc:'React Query or SWR for data fetching, caching, refetching, optimistic updates.'},
+  {d:153,t:'Auth Flow',s:'Full Stack',type:'learning',desc:'Login/register flow, JWT token storage, auto-login on refresh, protected routes.'},
+  {d:154,t:'File Upload Flow',s:'Full Stack',type:'learning',desc:'Frontend file preview, multer on backend, serving static files, cloud storage.'},
+  {d:155,t:'Real-time Features',s:'Full Stack',type:'learning',desc:'Socket.io on client and server, live notifications, chat, real-time data sync.'},
+  {d:156,t:'Project Planning',s:'Full Project',type:'learning',desc:'Feature list, wireframes, ER diagram for DB, API design, project board setup.'},
+  {d:157,t:'Monorepo Setup',s:'Full Project',type:'learning',desc:'Client and server folders, shared types, root package.json, npm workspaces.'},
+  {d:158,t:'Auth System',s:'Full Project',type:'learning',desc:'Registration, email verification, login, password reset, session management.'},
+  {d:159,t:'Dashboard & Analytics',s:'Full Project',type:'learning',desc:'User-specific data, charts from API data, summary stat cards, date ranges.'},
+  {d:160,t:'CRUD Features',s:'Full Project',type:'learning',desc:'Full CRUD for main resource, forms, data tables, detail views, confirmations.'},
+  {d:161,t:'Search & Filters',s:'Full Project',type:'learning',desc:'Debounced search, multi-criteria filters, URL-based state persistence.'},
+  {d:162,t:'Notifications System',s:'Full Project',type:'learning',desc:'In-app and email notifications, bell icon, unread count, real-time via sockets.'},
+  {d:163,t:'Admin Panel',s:'Full Project',type:'learning',desc:'Admin area with user management, content moderation, role-based access control.'},
+  {d:164,t:'User Settings',s:'Full Project',type:'learning',desc:'Profile editing, avatar upload, password change, notification preferences.'},
+  {d:165,t:'Social Features',s:'Full Project',type:'learning',desc:'Comments, likes, shares, follow system, activity feed, real-time updates.'},
+  {d:166,t:'Payment Integration',s:'Full Project',type:'learning',desc:'Stripe Checkout, payment webhooks, subscription management, invoice generation.'},
+  {d:167,t:'Testing & QA',s:'Full Project',type:'learning',desc:'Unit/integration/E2E tests with Playwright, manual QA checklist, bug tracking.'},
+  {d:168,t:'Performance',s:'Full Project',type:'learning',desc:'Core Web Vitals, bundle size reduction, API response time, lazy loading, CDN.'},
+  {d:169,t:'Security Audit',s:'Full Project',type:'learning',desc:'OWASP Top 10 review, security headers, vulnerability scanning, penetration testing.'},
+  {d:170,t:'Project: Full Stack App',s:'Full Project',type:'project',desc:'Polished capstone project with all features, clean code, full documentation.',res:['https://fullstackopen.com']},
+  {d:171,t:'Deployment Options',s:'Deployment',type:'learning',desc:'Vercel/Netlify for frontend, Railway/Render for backend, Atlas/Supabase for DB.'},
+  {d:172,t:'Deploy Frontend',s:'Deployment',type:'learning',desc:'Vercel/Netlify deployment, build settings, environment variables, custom domains.'},
+  {d:173,t:'Deploy Backend',s:'Deployment',type:'learning',desc:'Railway or Render deployment, environment variables, CORS config, health endpoints.'},
+  {d:174,t:'Database Deployment',s:'Deployment',type:'learning',desc:'MongoDB Atlas setup, Supabase, network access rules, automated backups.'},
+  {d:175,t:'CI/CD Pipeline',s:'Deployment',type:'learning',desc:'GitHub Actions workflows, automated test/build/deploy on push, branch protection.'},
+  {d:176,t:'Domain & SSL',s:'Deployment',type:'learning',desc:'Custom domain setup, DNS configuration, SSL/TLS certificates, HTTPS redirect.'},
+  {d:177,t:'Env Variables & Secrets',s:'Deployment',type:'learning',desc:'Secure secret management, platform secret managers, never commit secrets to git.'},
+  {d:178,t:'Monitoring',s:'Deployment',type:'learning',desc:'Sentry error tracking, LogRocket session replay, Google Analytics, uptime monitoring.'},
+  {d:179,t:'Launch Checklist',s:'Deployment',type:'learning',desc:'SEO meta tags, favicon, social preview images, error pages, legal pages, audit.'},
+  {d:180,t:'🎉 Live App Launch!',s:'Deployment',type:'project',desc:'Launch your production-ready full stack app! Write a case study and share your portfolio.',res:['https://pages.github.com']}
+];
+
+const TOTAL = 180;
+const PROJECT_DAYS = new Set([10,25,45,65,100,130,150,170,180]);
+
+const AI_TIPS = {
+  'HTML': 'HTML is the skeleton of the web. Focus on semantic meaning — use the right tag for the right job.',
+  'CSS': 'CSS is where design lives. Master Flexbox and Grid first, then everything else follows.',
+  'JavaScript Basics': 'JS is the brain. Understand how the event loop works early — it will save you many headaches.',
+  'Practice': 'Building projects is 10x more valuable than reading docs. Make something ugly but working!',
+  'Advanced JS': 'Async/await changed everything. Closures and prototypes unlock true JS mastery.',
+  'Mini Apps': 'Each mini app teaches a pattern you\'ll use forever. Don\'t rush — refactor and improve.',
+  'Tools + Git': 'Git is non-negotiable in professional dev. Commit early, commit often, write good messages.',
+  'React': 'Think in components and data flow. If something is hard, you\'re probably lifting state wrong.',
+  'React Practice': 'The React ecosystem is vast. Master the patterns, not just the libraries.',
+  'Backend': 'The backend is all about data and security. Never trust user input — always validate.',
+  'API Practice': 'Good API design is an art. Document everything like someone else will use your API.',
+  'Database': 'Choose your database based on your data shape. Indexes are the key to performance.',
+  'DB Integration': 'N+1 queries are the silent killer. Always think about aggregation and efficiency.',
+  'Full Stack': 'Now you\'re seeing the whole picture. Focus on the seams between frontend and backend.',
+  'Full Project': 'Ship something. A mediocre project launched beats a perfect project never finished.',
+  'Deployment': 'Deployment is where your code meets the real world. Set up monitoring from day one.'
+};
+
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+const State = {
+  _: {completed:[],current:1,checklistState:{},chatHistory:[]},
+
+  init(){
+    try{
+      const s=localStorage.getItem('dp180_v2');
+      if(s){
+        const p=JSON.parse(s);
+        this._.completed=p.completed||[];
+        this._.current=p.current||1;
+        this._.checklistState=p.checklistState||{};
+        this._.chatHistory=p.chatHistory||[];
+      }
+    }catch(e){this.reset();}
+    this._syncCurrent();
+    return this;
+  },
+
+  save(){
+    try{localStorage.setItem('dp180_v2',JSON.stringify(this._));}catch(e){}
+  },
+
+  reset(){
+    this._={completed:[],current:1,checklistState:{},chatHistory:[]};
+    this.save();
+  },
+
+  _syncCurrent(){
+    const s=[...this._.completed].sort((a,b)=>a-b);
+    let e=1;
+    for(const d of s){if(d===e)e++;else if(d>e)break;}
+    this._.current=Math.min(e,TOTAL);
+    this.save();
+  },
+
+  complete(d){
+    if(d<1||d>TOTAL||this._.completed.includes(d))return false;
+    this._.completed.push(d);
+    this._.completed.sort((a,b)=>a-b);
+    this._syncCurrent();
+    this.save();
+    return true;
+  },
+
+  isDone(d){return this._.completed.includes(d);},
+  isLocked(d){if(d===1)return false;if(this.isDone(d))return false;return!this.isDone(d-1);},
+
+  toggleCheck(dayNum,idx){
+    const k=`${dayNum}_${idx}`;
+    this._.checklistState[k]=!this._.checklistState[k];
+    this.save();
+    return this._.checklistState[k];
+  },
+
+  isChecked(dayNum,idx){return!!this._.checklistState[`${dayNum}_${idx}`];},
+
+  addChat(role,text){
+    this._.chatHistory.push({role,text,ts:Date.now()});
+    if(this._.chatHistory.length>40)this._.chatHistory=this._.chatHistory.slice(-40);
+    this.save();
+  },
+
+  get done(){return this._.completed.length;},
+  get current(){return this._.current;},
+  get pct(){return Math.round((this._.completed.length/TOTAL)*100);},
+  get projects(){return ROADMAP.filter(d=>d.type==='project'&&this.isDone(d.d)).length;}
+};
+
+// ══════════════════════════════════════════════
+// AI API
+// ══════════════════════════════════════════════
+const AI = {
+  async explain(dayData){
+    const prompt=`You are a friendly, concise coding instructor. Explain why Day ${dayData.d} "${dayData.t}" is important in the web development journey. Give 2-3 practical sentences. Mention what the student will be able to build after mastering it. Keep it motivating and under 60 words.`;
+    return this._call([{role:'user',content:prompt}]);
+  },
+
+  async chat(userMsg,dayContext){
+    const sysMsg=`You are DevPath AI, a helpful full-stack development tutor. The student is on Day ${State.current} of 180, having completed ${State.done} days. ${dayContext?'They are currently viewing: '+dayContext+'.':''} Be concise, practical, and encouraging. Answer in 2-4 sentences max.`;
+    const msgs=[];
+    const history=State._.chatHistory.slice(-6);
+    for(const h of history){msgs.push({role:h.role,content:h.text});}
+    msgs.push({role:'user',content:userMsg});
+    return this._call(msgs,sysMsg);
+  },
+
+  async _call(msgs,system){
+    try{
+      const body={
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:msgs
+      };
+      if(system)body.system=system;
+      const r=await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(body)
+      });
+      const data=await r.json();
+      if(data.content&&data.content[0])return data.content[0].text;
+      return 'Unable to get response. Try again!';
+    }catch(e){
+      return 'AI is temporarily unavailable. Keep learning!';
+    }
+  }
+};
+
+// ══════════════════════════════════════════════
+// UI
+// ══════════════════════════════════════════════
+let currentFilter='all';
+let expandAll=false;
+let currentModalDay=null;
+
+function $(id){return document.getElementById(id);}
+
+// ─── Render All ─────────────────────────────
+function render(){
+  renderStats();
+  renderProgress();
+  renderAiBar();
+  renderSidebar();
+  renderSections();
+}
+
+// ─── Stats ───────────────────────────────────
+function renderStats(){
+  const left=TOTAL-State.done;
+  $('stats').innerHTML=`
+    <div class="stat" style="--stat-color:#818cf8">
+      <div class="stat-label">Current Day</div>
+      <div class="stat-val">${State.current}</div>
+      <div class="stat-icon">📅</div>
+    </div>
+    <div class="stat" style="--stat-color:#06ffa5">
+      <div class="stat-label">Completed</div>
+      <div class="stat-val">${State.done}</div>
+      <div class="stat-icon">✅</div>
+    </div>
+    <div class="stat" style="--stat-color:#f59e0b">
+      <div class="stat-label">Remaining</div>
+      <div class="stat-val">${left}</div>
+      <div class="stat-icon">⏳</div>
+    </div>
+    <div class="stat" style="--stat-color:#f97316">
+      <div class="stat-label">Projects Done</div>
+      <div class="stat-val">${State.projects}</div>
+      <div class="stat-icon">🔥</div>
+    </div>
+  `;
+}
+
+// ─── Progress ────────────────────────────────
+function renderProgress(){
+  const pct=State.pct;
+  $('progressPct').textContent=pct+'%';
+  $('progressFill').style.width=pct+'%';
+  // Segments (one per section)
+  const segs=SECTIONS.map(s=>{
+    const days=ROADMAP.filter(d=>d.s===s);
+    const done=days.filter(d=>State.isDone(d.d)).length;
+    const cls=done===days.length?'done':done>0?'partial':'';
+    return`<div class="seg ${cls}" title="${s}: ${done}/${days.length}"></div>`;
+  });
+  $('progressSegs').innerHTML=segs.join('');
+}
+
+// ─── AI Bar ──────────────────────────────────
+function renderAiBar(){
+  const day=ROADMAP.find(d=>d.d===State.current);
+  if(!day){$('aiBarText').innerHTML='🎉 You completed all 180 days! Incredible!';return;}
+  const section=day.s;
+  const tip=AI_TIPS[section]||'Keep learning and building!';
+  $('aiBarText').innerHTML=`Next up: <span class="highlight">Day ${State.current} — ${day.t}</span>. 💡 ${tip}`;
+}
+
+// ─── Sidebar ─────────────────────────────────
+function renderSidebar(){
+  const left=TOTAL-State.done;
+  $('sidebarDaysLeft').textContent=`${left} days remaining`;
+  const html=SECTIONS.map(s=>{
+    const days=ROADMAP.filter(d=>d.s===s);
+    const done=days.filter(d=>State.isDone(d.d)).length;
+    const allDone=done===days.length;
+    const start=days[0].d,end=days[days.length-1].d;
+    const active=days.some(d=>d.d===State.current);
+    return`<div class="sidebar-section-link${active?' active':''}${allDone?' done-all':''}" 
+      data-section="${s}" onclick="jumpToSection('${s}')">
+      ${SECTION_ICONS[s]||'📁'} ${s}
+      <span class="prog-mini">${done}/${days.length}</span>
+    </div>`;
+  }).join('');
+  $('sidebarSections').innerHTML=html;
+}
+
+// ─── Sections ────────────────────────────────
+function renderSections(){
+  const groups={};
+  ROADMAP.forEach(d=>{
+    if(!groups[d.s])groups[d.s]=[];
+    groups[d.s].push(d);
+  });
+
+  let html='';
+  SECTIONS.forEach(name=>{
+    const days=groups[name]||[];
+    const done=days.filter(d=>State.isDone(d.d)).length;
+    const total=days.length;
+    const pct=total?Math.round(done/total*100):0;
+    const isActive=days.some(d=>d.d===State.current);
+    const isOpen=expandAll||isActive||(currentFilter!=='all'&&days.some(d=>{
+      const c=State.isDone(d.d);
+      if(currentFilter==='done')return c;
+      if(currentFilter==='pending')return!c;
+      if(currentFilter==='project')return d.type==='project';
+      return true;
+    }));
+
+    html+=`<div class="section${isOpen?' open':''}${isActive?' active-section':''}" data-section="${name}">
+      <div class="section-head" onclick="toggleSection(this.parentElement)">
+        <div class="section-icon">${SECTION_ICONS[name]||'📁'}</div>
+        <div class="section-info">
+          <div class="section-name">${name}</div>
+          <div class="section-meta">Days ${days[0].d}–${days[days.length-1].d} • ${done}/${total} done</div>
         </div>
-    </div>
-
-    <!-- TOAST -->
-    <div class="toast" id="toast" style="display:none"></div>
-
-    <script>
-    (function() {
-        'use strict';
-
-        // ============================================
-        // 1. DATA LAYER (Easily extensible)
-        // ============================================
-        const ROADMAP_DATA = [
-            // HTML (1-10)
-            { day:1, title:'Intro to Web Development', section:'HTML', type:'learning', desc:'Understand how the web works: clients, servers, HTTP, browsers. Set up VS Code and a browser.' },
-            { day:2, title:'HTML Document Structure', section:'HTML', type:'learning', desc:'Learn <!DOCTYPE>, <html>, <head>, <body>, meta tags, linking files.' },
-            { day:3, title:'Text Elements & Headings', section:'HTML', type:'learning', desc:'Master h1–h6, p, span, br, hr, strong, em, mark, small.' },
-            { day:4, title:'Links & Images', section:'HTML', type:'learning', desc:'Create <a> hyperlinks, <img> with src/alt, absolute vs relative paths.' },
-            { day:5, title:'Lists & Tables', section:'HTML', type:'learning', desc:'Build ul/ol/li, nested lists, <table> with thead/tbody/tr/th/td, colspan/rowspan.' },
-            { day:6, title:'Forms & Input Elements', section:'HTML', type:'learning', desc:'Create <form> with input types, textarea, select, radio, checkbox, submit.' },
-            { day:7, title:'Semantic HTML', section:'HTML', type:'learning', desc:'Use header, nav, main, article, section, aside, footer for SEO/accessibility.' },
-            { day:8, title:'HTML5 Features', section:'HTML', type:'learning', desc:'Explore audio, video, canvas, details/summary, progress, datalist.' },
-            { day:9, title:'Accessibility Basics', section:'HTML', type:'learning', desc:'ARIA labels, alt text, tabindex, role, skip navigation, screen-reader friendly.' },
-            { day:10, title:'Project: HTML Portfolio', section:'HTML', type:'project', desc:'Build a complete personal portfolio page using only semantic HTML.', resources:['https://developer.mozilla.org/en-US/docs/Learn/HTML'] },
-
-            // CSS (11-25)
-            { day:11, title:'CSS Syntax & Selectors', section:'CSS', type:'learning', desc:'Properties, values, rules, basic/combinator selectors, specificity.' },
-            { day:12, title:'Colors & Backgrounds', section:'CSS', type:'learning', desc:'Hex/rgb/hsl, gradients, background-image/size/position, multiple backgrounds.' },
-            { day:13, title:'The Box Model', section:'CSS', type:'learning', desc:'Margin, border, padding, content, box-sizing: border-box vs content-box.' },
-            { day:14, title:'Typography & Fonts', section:'CSS', type:'learning', desc:'font-family, size, weight, line-height, letter-spacing, Google Fonts.' },
-            { day:15, title:'Display & Positioning', section:'CSS', type:'learning', desc:'block/inline/inline-block/none, static/relative/absolute/fixed/sticky, z-index.' },
-            { day:16, title:'Flexbox Basics', section:'CSS', type:'learning', desc:'display:flex, flex-direction, justify-content, align-items, flex-wrap, gap.' },
-            { day:17, title:'Flexbox Advanced', section:'CSS', type:'learning', desc:'flex-grow/shrink/basis, align-self, order, nested flex containers.' },
-            { day:18, title:'CSS Grid Basics', section:'CSS', type:'learning', desc:'display:grid, grid-template-columns/rows, gap, grid-column/row placement.' },
-            { day:19, title:'CSS Grid Advanced', section:'CSS', type:'learning', desc:'grid areas, auto-fit/fill, minmax(), combining Grid + Flexbox.' },
-            { day:20, title:'Responsive Design', section:'CSS', type:'learning', desc:'Media queries, mobile-first, breakpoints, vw/vh/%, em/rem, responsive layouts.' },
-            { day:21, title:'Transitions & Animations', section:'CSS', type:'learning', desc:'transition, @keyframes, animation properties, smooth effects.' },
-            { day:22, title:'CSS Variables', section:'CSS', type:'learning', desc:'--custom-properties, :root, scope, inheritance, dynamic theming.' },
-            { day:23, title:'Pseudo-classes/Elements', section:'CSS', type:'learning', desc:':hover, :focus, :nth-child(), ::before, ::after, tooltips, custom UI.' },
-            { day:24, title:'CSS Best Practices', section:'CSS', type:'learning', desc:'BEM naming, organizing styles, specificity management, CSS resets, performance.' },
-            { day:25, title:'Project: Responsive Landing Page', section:'CSS', type:'project', desc:'Build a fully responsive landing page with hero, features, pricing, footer.', resources:['https://css-tricks.com'] },
-
-            // JavaScript Basics (26-37)
-            { day:26, title:'JavaScript Introduction', section:'JavaScript Basics', type:'learning', desc:'What is JS, include in HTML, browser console, console.log().' },
-            { day:27, title:'Variables & Data Types', section:'JavaScript Basics', type:'learning', desc:'var/let/const, string/number/boolean/null/undefined, type coercion.' },
-            { day:28, title:'Operators & Expressions', section:'JavaScript Basics', type:'learning', desc:'Arithmetic, assignment, comparison, logical, ternary, precedence.' },
-            { day:29, title:'Conditionals', section:'JavaScript Basics', type:'learning', desc:'if/else if/else, switch, truthy/falsy, comparison operators.' },
-            { day:30, title:'Loops', section:'JavaScript Basics', type:'learning', desc:'for, while, do...while, for...of, break, continue.' },
-            { day:31, title:'Functions Basics', section:'JavaScript Basics', type:'learning', desc:'Declare, invoke, parameters, arguments, return, declarations vs expressions.' },
-            { day:32, title:'Functions Advanced', section:'JavaScript Basics', type:'learning', desc:'Default params, rest, callbacks, higher-order functions, scope intro.' },
-            { day:33, title:'Arrays Basics', section:'JavaScript Basics', type:'learning', desc:'Create, access, .length, push/pop, shift/unshift, splice.' },
-            { day:34, title:'Array Methods', section:'JavaScript Basics', type:'learning', desc:'.map(), .filter(), .reduce(), .forEach(), .find(), .some(), .every().' },
-            { day:35, title:'Objects Basics', section:'JavaScript Basics', type:'learning', desc:'Create objects, dot/bracket notation, add/update/delete properties.' },
-            { day:36, title:'Object Methods & "this"', section:'JavaScript Basics', type:'learning', desc:'this keyword, Object.keys/values/entries, destructuring.' },
-            { day:37, title:'DOM Manipulation', section:'JavaScript Basics', type:'learning', desc:'querySelector, querySelectorAll, text/HTML/styles, create/append elements.' },
-
-            // Practice (38-45)
-            { day:38, title:'DOM Events', section:'Practice', type:'learning', desc:'click, submit, input, change, addEventListener, event bubbling/delegation.' },
-            { day:39, title:'Form Validation', section:'Practice', type:'learning', desc:'Validate inputs, empty fields, email format, custom error messages.' },
-            { day:40, title:'Local Storage Intro', section:'Practice', type:'learning', desc:'setItem/getItem/removeItem, JSON.stringify/parse for objects.' },
-            { day:41, title:'Build a Counter App', section:'Practice', type:'learning', desc:'Increment, decrement, reset buttons, DOM updates.' },
-            { day:42, title:'Build a To-Do List', section:'Practice', type:'learning', desc:'Add/complete/delete tasks, localStorage persistence, CRUD operations.' },
-            { day:43, title:'Build a Quiz App', section:'Practice', type:'learning', desc:'Multiple-choice quiz, score tracking, results display, retake option.' },
-            { day:44, title:'Build a Calculator', section:'Practice', type:'learning', desc:'Basic operations, decimal handling, clear, chained operations.' },
-            { day:45, title:'Project: Interactive Web App', section:'Practice', type:'project', desc:'Combine skills into a full app (expense tracker, habit tracker, etc.) with localStorage.' },
-
-            // Advanced JS (46-55)
-            { day:46, title:'ES6+ Overview', section:'Advanced JS', type:'learning', desc:'let/const, arrow functions, template literals, destructuring, spread/rest, modules.' },
-            { day:47, title:'Arrow Functions & Scope', section:'Advanced JS', type:'learning', desc:'Syntax, implicit return, lexical this, lexical scoping.' },
-            { day:48, title:'Template Literals', section:'Advanced JS', type:'learning', desc:'Backticks, interpolation, multi-line strings, tagged templates.' },
-            { day:49, title:'Destructuring & Spread', section:'Advanced JS', type:'learning', desc:'Array/object destructuring, spread (...), rest parameters.' },
-            { day:50, title:'Promises & Async/Await', section:'Advanced JS', type:'learning', desc:'Async JS, Promise, .then/.catch, async/await for cleaner code.' },
-            { day:51, title:'Fetch API', section:'Advanced JS', type:'learning', desc:'fetch() for HTTP requests, GET/POST/PUT/DELETE, JSON parsing, error handling.' },
-            { day:52, title:'Error Handling', section:'Advanced JS', type:'learning', desc:'try...catch...finally, custom errors, defensive programming.' },
-            { day:53, title:'Closures Deep Dive', section:'Advanced JS', type:'learning', desc:'Lexical environment, data privacy, memoization, partial application.' },
-            { day:54, title:'Prototypes & Classes', section:'Advanced JS', type:'learning', desc:'Prototypal inheritance, class syntax, constructor, extends, super.' },
-            { day:55, title:'Modules', section:'Advanced JS', type:'learning', desc:'ES modules, named/default exports/imports, module scope.' },
-
-            // Mini Apps (56-65)
-            { day:56, title:'Weather App', section:'Mini Apps', type:'learning', desc:'Build a weather app with a public API, display temperature and conditions.' },
-            { day:57, title:'Recipe Finder', section:'Mini Apps', type:'learning', desc:'Recipe search app with API, ingredients, instructions, images.' },
-            { day:58, title:'Expense Tracker', section:'Mini Apps', type:'learning', desc:'Income/expense entries, running balance, localStorage persistence.' },
-            { day:59, title:'Pomodoro Timer', section:'Mini Apps', type:'learning', desc:'Work/break intervals, notifications, session tracking.' },
-            { day:60, title:'Notes App', section:'Mini Apps', type:'learning', desc:'Create, edit, delete, search notes with localStorage.' },
-            { day:61, title:'Image Gallery', section:'Mini Apps', type:'learning', desc:'Responsive gallery with lightbox, lazy loading, grid layout.' },
-            { day:62, title:'Music Player UI', section:'Mini Apps', type:'learning', desc:'Play/pause, progress bar, volume, playlist with HTML5 Audio.' },
-            { day:63, title:'Chat Interface UI', section:'Mini Apps', type:'learning', desc:'Message bubbles, input, typing indicator, auto-scroll.' },
-            { day:64, title:'Dashboard UI', section:'Mini Apps', type:'learning', desc:'Admin dashboard with sidebar, stats cards, charts, data table.' },
-            { day:65, title:'Project: Mini App Suite', section:'Mini Apps', type:'project', desc:'Combine 2+ mini apps into one cohesive project with navigation.' },
-
-            // Tools + Git (66-70)
-            { day:66, title:'Git Basics', section:'Tools + Git', type:'learning', desc:'Install Git, git init, git status, .git folder, global config.' },
-            { day:67, title:'Git Commands', section:'Tools + Git', type:'learning', desc:'add, commit, log, diff, branch, checkout, merge, stash, staging area.' },
-            { day:68, title:'GitHub & Remote', section:'Tools + Git', type:'learning', desc:'Repos, push/pull/clone/fetch, pull requests, code review.' },
-            { day:69, title:'VS Code Extensions', section:'Tools + Git', type:'learning', desc:'Prettier, ESLint, Live Server, GitLens, shortcuts, settings.' },
-            { day:70, title:'Terminal & CLI', section:'Tools + Git', type:'learning', desc:'Shell commands, file ops, npm/yarn, useful CLI tools.' },
-
-            // React (71-83)
-            { day:71, title:'React Intro & Setup', section:'React', type:'learning', desc:'What is React? Vite/CRA setup, project structure.' },
-            { day:72, title:'JSX & Components', section:'React', type:'learning', desc:'JSX syntax, functional components, nesting, fragments, JSX rules.' },
-            { day:73, title:'Props & PropTypes', section:'React', type:'learning', desc:'Pass data via props, destructure, defaults, PropTypes validation.' },
-            { day:74, title:'State & useState', section:'React', type:'learning', desc:'useState hook, update state, batching, lift state up.' },
-            { day:75, title:'Event Handling', section:'React', type:'learning', desc:'onClick, onChange, onSubmit, arguments, preventDefault.' },
-            { day:76, title:'Conditional Rendering', section:'React', type:'learning', desc:'Ternary, &&, if/else patterns, loading/error/empty states.' },
-            { day:77, title:'Lists & Keys', section:'React', type:'learning', desc:'.map() rendering, unique keys for reconciliation.' },
-            { day:78, title:'Forms in React', section:'React', type:'learning', desc:'Controlled/uncontrolled forms, state management, validation.' },
-            { day:79, title:'useEffect Hook', section:'React', type:'learning', desc:'Side effects, dependency arrays, cleanup, data fetching.' },
-            { day:80, title:'useContext & Custom Hooks', section:'React', type:'learning', desc:'Global state with useContext, custom hooks for reusable logic.' },
-            { day:81, title:'React Router', section:'React', type:'learning', desc:'BrowserRouter, Routes, Route, Link, NavLink, URL params.' },
-            { day:82, title:'State Management', section:'React', type:'learning', desc:'Context API limits, Redux/Zustand/Jotai intro, choosing tools.' },
-            { day:83, title:'React Best Practices', section:'React', type:'learning', desc:'Folder structure, composition, React.memo/useMemo/useCallback.' },
-
-            // React Practice (84-100)
-            { day:84, title:'Building a Blog', section:'React Practice', type:'learning', desc:'Post listing, individual pages, CMS-like interface, Router.' },
-            { day:85, title:'E-commerce UI', section:'React Practice', type:'learning', desc:'Product listing, detail, cart, checkout UI, cart state.' },
-            { day:86, title:'Authentication UI', section:'React Practice', type:'learning', desc:'Login/register/profile pages, token storage, protected routes.' },
-            { day:87, title:'Dashboard with Charts', section:'React Practice', type:'learning', desc:'Analytics dashboard with Recharts/Chart.js integration.' },
-            { day:88, title:'Social Media Feed', section:'React Practice', type:'learning', desc:'Infinite-scroll feed, posts, likes, comments UI.' },
-            { day:89, title:'File Upload Component', section:'React Practice', type:'learning', desc:'Drag-and-drop upload, preview, progress bar, validation.' },
-            { day:90, title:'Search & Filter System', section:'React Practice', type:'learning', desc:'Debounced search, multi-filter, sorting, URL sync.' },
-            { day:91, title:'Infinite Scroll', section:'React Practice', type:'learning', desc:'Intersection Observer, chunked data loading, spinners.' },
-            { day:92, title:'Real-time Updates', section:'React Practice', type:'learning', desc:'setInterval/WebSocket simulation, live UI updates.' },
-            { day:93, title:'Animation (Framer Motion)', section:'React Practice', type:'learning', desc:'Page transitions, hover effects, list animations.' },
-            { day:94, title:'Testing React', section:'React Practice', type:'learning', desc:'Jest, React Testing Library, unit/integration tests.' },
-            { day:95, title:'Performance Optimization', section:'React Practice', type:'learning', desc:'Code splitting, React.lazy, memoization, bundle analysis.' },
-            { day:96, title:'Accessibility in React', section:'React Practice', type:'learning', desc:'ARIA, keyboard nav, focus management, screen readers.' },
-            { day:97, title:'Code Splitting', section:'React Practice', type:'learning', desc:'Route/component-based splitting, Suspense.' },
-            { day:98, title:'Progressive Web Apps', section:'React Practice', type:'learning', desc:'Service worker, manifest, offline support, install prompt.' },
-            { day:99, title:'React + TypeScript', section:'React Practice', type:'learning', desc:'Type props/state/events/hooks, static typing benefits.' },
-            { day:100, title:'Project: Full React App', section:'React Practice', type:'project', desc:'Complete React app with routing, state, API, polished UI.', resources:['https://react.dev'] },
-
-            // Backend (101-110)
-            { day:101, title:'Node.js Introduction', section:'Backend', type:'learning', desc:'Node runtime, event loop, npm, http module server.' },
-            { day:102, title:'Express.js Setup', section:'Backend', type:'learning', desc:'Express server, app.get(), app.listen(), routing, middleware.' },
-            { day:103, title:'Routing & Middleware', section:'Backend', type:'learning', desc:'Express Router, morgan/cors/body-parser, custom middleware.' },
-            { day:104, title:'Request & Response', section:'Backend', type:'learning', desc:'Params, query, body, JSON responses, status codes, headers.' },
-            { day:105, title:'REST API Design', section:'Backend', type:'learning', desc:'RESTful endpoints, HTTP methods, meaningful URLs.' },
-            { day:106, title:'Authentication (JWT)', section:'Backend', type:'learning', desc:'JWT auth, bcrypt, protected routes, login/register endpoints.' },
-            { day:107, title:'File Uploads', section:'Backend', type:'learning', desc:'Multer, local/cloud storage, file type/size validation.' },
-            { day:108, title:'Error Handling', section:'Backend', type:'learning', desc:'Global error middleware, try/catch async, consistent responses.' },
-            { day:109, title:'Security Best Practices', section:'Backend', type:'learning', desc:'XSS, CSRF, SQL injection, helmet, rate limiting, CORS.' },
-            { day:110, title:'Testing APIs', section:'Backend', type:'learning', desc:'Jest, Supertest, unit/integration tests, TDD.' },
-
-            // API Practice (111-130)
-            { day:111, title:'RESTful Routes', section:'API Practice', type:'learning', desc:'Full REST routes for a resource, naming/status standards.' },
-            { day:112, title:'CRUD Operations', section:'API Practice', type:'learning', desc:'Create/Read/Update/Delete, edge cases, validation.' },
-            { day:113, title:'Query Parameters', section:'API Practice', type:'learning', desc:'Filtering, searching, field selection via query params.' },
-            { day:114, title:'Pagination', section:'API Practice', type:'learning', desc:'Offset/cursor pagination, metadata in responses.' },
-            { day:115, title:'Sorting & Filtering', section:'API Practice', type:'learning', desc:'Multi-criteria sorting/filtering via query params.' },
-            { day:116, title:'API Versioning', section:'API Practice', type:'learning', desc:'URL vs header versioning, planning breaking changes.' },
-            { day:117, title:'Rate Limiting', section:'API Practice', type:'learning', desc:'express-rate-limit, abuse protection, per-endpoint limits.' },
-            { day:118, title:'CORS & Security', section:'API Practice', type:'learning', desc:'CORS config, preflight, allowed origins.' },
-            { day:119, title:'API Documentation', section:'API Practice', type:'learning', desc:'Swagger/OpenAPI, endpoint specs, example responses.' },
-            { day:120, title:'WebSockets Intro', section:'API Practice', type:'learning', desc:'Socket.io, real-time bidirectional communication.' },
-            { day:121, title:'Chat API', section:'API Practice', type:'learning', desc:'Rooms, message history, presence indicators.' },
-            { day:122, title:'Email Service', section:'API Practice', type:'learning', desc:'Nodemailer/SendGrid, password reset, verification.' },
-            { day:123, title:'Payment Integration', section:'API Practice', type:'learning', desc:'Stripe/PayPal, webhooks, checkout sessions.' },
-            { day:124, title:'Image Processing API', section:'API Practice', type:'learning', desc:'Upload, resize, crop, convert with Sharp.' },
-            { day:125, title:'PDF Generation', section:'API Practice', type:'learning', desc:'Puppeteer/PDFKit for invoices, reports.' },
-            { day:126, title:'Caching Strategies', section:'API Practice', type:'learning', desc:'Redis, in-memory cache, invalidation strategies.' },
-            { day:127, title:'Logging & Monitoring', section:'API Practice', type:'learning', desc:'Winston/Pino, request times, error rates, health.' },
-            { day:128, title:'Postman Testing', section:'API Practice', type:'learning', desc:'Collections, environments, automated test scripts.' },
-            { day:129, title:'GraphQL Intro', section:'API Practice', type:'learning', desc:'Apollo Server, schemas, resolvers, queries/mutations.' },
-            { day:130, title:'Project: Complete REST API', section:'API Practice', type:'project', desc:'Production-ready API with auth, CRUD, pagination, docs.', resources:['https://restfulapi.net'] },
-
-            // Database (131-136)
-            { day:131, title:'Database Concepts', section:'Database', type:'learning', desc:'Relational vs non-relational, ACID, CAP theorem.' },
-            { day:132, title:'MongoDB Setup', section:'Database', type:'learning', desc:'Local/Atlas setup, shell, Compass GUI, basic commands.' },
-            { day:133, title:'CRUD with MongoDB', section:'Database', type:'learning', desc:'insertOne, find, updateOne, deleteOne, BSON, ObjectId.' },
-            { day:134, title:'Mongoose ODM', section:'Database', type:'learning', desc:'Schemas, models, CRUD, middleware, validation.' },
-            { day:135, title:'SQL Basics', section:'Database', type:'learning', desc:'SELECT, INSERT, UPDATE, DELETE, JOIN, GROUP BY.' },
-            { day:136, title:'PostgreSQL Setup', section:'Database', type:'learning', desc:'Local setup, psql, databases, tables, pgAdmin.' },
-
-            // DB Integration (137-150)
-            { day:137, title:'Connect DB to API', section:'DB Integration', type:'learning', desc:'MongoDB/PostgreSQL connection, env variables, error handling.' },
-            { day:138, title:'User Model & Schema', section:'DB Integration', type:'learning', desc:'Fields: name, email, password (hashed), timestamps, roles.' },
-            { day:139, title:'Relationships', section:'DB Integration', type:'learning', desc:'1:1, 1:many, many:many, ObjectId refs, foreign keys.' },
-            { day:140, title:'Aggregation Pipelines', section:'DB Integration', type:'learning', desc:'$match, $group, $sort, $project, $lookup.' },
-            { day:141, title:'Indexing & Performance', section:'DB Integration', type:'learning', desc:'Indexes, compound indexes, explain plans, query optimization.' },
-            { day:142, title:'Transactions', section:'DB Integration', type:'learning', desc:'Atomic operations, rollback, data consistency.' },
-            { day:143, title:'Data Validation', section:'DB Integration', type:'learning', desc:'Mongoose validators, SQL constraints, data integrity.' },
-            { day:144, title:'Backup & Restore', section:'DB Integration', type:'learning', desc:'mongodump/restore, pg_dump/restore, automation.' },
-            { day:145, title:'Migrations', section:'DB Integration', type:'learning', desc:'Schema changes, Knex.js, Mongoose migration plugins.' },
-            { day:146, title:'Advanced Queries', section:'DB Integration', type:'learning', desc:'Subqueries, window functions, optimization.' },
-            { day:147, title:'Full-Text Search', section:'DB Integration', type:'learning', desc:'$text in MongoDB, tsvector in PostgreSQL.' },
-            { day:148, title:'Data Seeding', section:'DB Integration', type:'learning', desc:'Seed scripts for initial/demo data.' },
-            { day:149, title:'Database Security', section:'DB Integration', type:'learning', desc:'Auth, TLS, IP restrictions, least privilege.' },
-            { day:150, title:'Project: DB-Backed API', section:'DB Integration', type:'project', desc:'Complete API with DB, auth, relations, aggregation, indexes.' },
-
-            // Full Stack (151-155)
-            { day:151, title:'Frontend to Backend', section:'Full Stack', type:'learning', desc:'Connect React to Express, fetch/axios, CORS, env variables.' },
-            { day:152, title:'State for API Data', section:'Full Stack', type:'learning', desc:'React Query/SWR for caching, refetching, optimistic updates.' },
-            { day:153, title:'Auth Flow', section:'Full Stack', type:'learning', desc:'Login/register, token storage, auto-login, logout, route protection.' },
-            { day:154, title:'File Upload Flow', section:'Full Stack', type:'learning', desc:'Frontend preview, multer backend, serving files.' },
-            { day:155, title:'Real-time Features', section:'Full Stack', type:'learning', desc:'Socket.io on client+server, live notifications/chat.' },
-
-            // Full Project (156-170)
-            { day:156, title:'Project Planning', section:'Full Project', type:'learning', desc:'Features, wireframes, DB schema, project board.' },
-            { day:157, title:'Monorepo Setup', section:'Full Project', type:'learning', desc:'Client/server folders, shared types, root package.json.' },
-            { day:158, title:'Auth System', section:'Full Project', type:'learning', desc:'Registration, email verify, login, password reset, sessions.' },
-            { day:159, title:'Dashboard & Analytics', section:'Full Project', type:'learning', desc:'User-specific data, charts, summary cards from API.' },
-            { day:160, title:'CRUD Features', section:'Full Project', type:'learning', desc:'Full CRUD for main resource, forms/tables/detail views.' },
-            { day:161, title:'Search & Filters', section:'Full Project', type:'learning', desc:'Debounced search, multi-filter, URL-based state.' },
-            { day:162, title:'Notifications System', section:'Full Project', type:'learning', desc:'In-app + email, bell icon, unread count, real-time.' },
-            { day:163, title:'Admin Panel', section:'Full Project', type:'learning', desc:'Admin area, user management, role-based access control.' },
-            { day:164, title:'User Settings', section:'Full Project', type:'learning', desc:'Profile, avatar, password, preferences, notifications.' },
-            { day:165, title:'Social Features', section:'Full Project', type:'learning', desc:'Comments, likes, shares, real-time updates.' },
-            { day:166, title:'Payment Integration', section:'Full Project', type:'learning', desc:'Stripe/PayPal, checkout, webhooks, subscriptions.' },
-            { day:167, title:'Testing & QA', section:'Full Project', type:'learning', desc:'Unit/integration/E2E tests, manual QA, bug fixing.' },
-            { day:168, title:'Performance', section:'Full Project', type:'learning', desc:'Load times, bundle size, API response, lazy loading, caching.' },
-            { day:169, title:'Security Audit', section:'Full Project', type:'learning', desc:'OWASP top 10, security headers, vulnerability check.' },
-            { day:170, title:'Project: Full Stack App', section:'Full Project', type:'project', desc:'Polished capstone project, all features, clean code, documented.', resources:['https://fullstackopen.com'] },
-
-            // Deployment (171-180)
-            { day:171, title:'Deployment Options', section:'Deployment', type:'learning', desc:'Vercel/Netlify (frontend), Railway/Render (backend), Atlas/Supabase (DB).' },
-            { day:172, title:'Deploy Frontend', section:'Deployment', type:'learning', desc:'Vercel/Netlify, build settings, env variables, custom domains.' },
-            { day:173, title:'Deploy Backend', section:'Deployment', type:'learning', desc:'Railway/Render, env variables, CORS, endpoint testing.' },
-            { day:174, title:'Database Deployment', section:'Deployment', type:'learning', desc:'MongoDB Atlas/Supabase, network access, backups.' },
-            { day:175, title:'CI/CD Pipeline', section:'Deployment', type:'learning', desc:'GitHub Actions, auto test/build/deploy on push.' },
-            { day:176, title:'Domain & SSL', section:'Deployment', type:'learning', desc:'Custom domain, DNS, SSL certificates.' },
-            { day:177, title:'Env Variables & Secrets', section:'Deployment', type:'learning', desc:'Secure management, platform secret managers.' },
-            { day:178, title:'Monitoring', section:'Deployment', type:'learning', desc:'Sentry, LogRocket, Google Analytics, error/performance tracking.' },
-            { day:179, title:'Launch Checklist', section:'Deployment', type:'learning', desc:'SEO, favicon, social previews, error pages, legal, audit.' },
-            { day:180, title:'🎉 Project: Live App', section:'Deployment', type:'project', desc:'Launch your production-ready app! Portfolio, case study, share.', resources:['https://pages.github.com'] }
-        ];
-
-        const TOTAL_DAYS = 180;
-        const PROJECT_DAYS = new Set([10, 25, 45, 65, 100, 130, 150, 170, 180]);
-        const SECTION_ORDER = [
-            'HTML', 'CSS', 'JavaScript Basics', 'Practice', 'Advanced JS', 'Mini Apps',
-            'Tools + Git', 'React', 'React Practice', 'Backend', 'API Practice',
-            'Database', 'DB Integration', 'Full Stack', 'Full Project', 'Deployment'
-        ];
-
-        // ============================================
-        // 2. STATE MANAGEMENT LAYER
-        // ============================================
-        const StateManager = {
-            _state: {
-                completedDays: [],
-                currentDay: 1,
-                lastVisitedPage: 'dashboard'
-            },
-
-            init() {
-                this.load();
-                this.syncCurrentDay();
-                return this;
-            },
-
-            load() {
-                try {
-                    const saved = localStorage.getItem('devpath180_state');
-                    if (saved) {
-                        const parsed = JSON.parse(saved);
-                        this._state.completedDays = parsed.completedDays || [];
-                        this._state.currentDay = parsed.currentDay || 1;
-                        this._state.lastVisitedPage = parsed.lastVisitedPage || 'dashboard';
-                    }
-                } catch (e) {
-                    console.warn('State load failed, using defaults.');
-                    this.reset();
-                }
-            },
-
-            save() {
-                try {
-                    localStorage.setItem('devpath180_state', JSON.stringify(this._state));
-                } catch (e) {
-                    console.error('State save failed:', e);
-                }
-            },
-
-            reset() {
-                this._state.completedDays = [];
-                this._state.currentDay = 1;
-                this.save();
-            },
-
-            syncCurrentDay() {
-                const sorted = [...this._state.completedDays].sort((a, b) => a - b);
-                let expected = 1;
-                for (const day of sorted) {
-                    if (day === expected) expected++;
-                    else if (day > expected) break;
-                }
-                this._state.currentDay = Math.min(expected, TOTAL_DAYS);
-                this.save();
-            },
-
-            get completedDays() { return this._state.completedDays; },
-            get currentDay() { return this._state.currentDay; },
-            get lastVisitedPage() { return this._state.lastVisitedPage; },
-
-            set lastVisitedPage(page) {
-                this._state.lastVisitedPage = page;
-                this.save();
-            },
-
-            completeDay(day) {
-                if (day < 1 || day > TOTAL_DAYS) return false;
-                if (this._state.completedDays.includes(day)) return false;
-                this._state.completedDays.push(day);
-                this._state.completedDays.sort((a, b) => a - b);
-                this.syncCurrentDay();
-                this.save();
-                return true;
-            },
-
-            isDayCompleted(day) {
-                return this._state.completedDays.includes(day);
-            },
-
-            isDayLocked(day) {
-                if (day === 1) return false;
-                if (this.isDayCompleted(day)) return false;
-                return !this.isDayCompleted(day - 1);
-            }
-        };
-
-        // ============================================
-        // 3. PROGRESS CALCULATOR
-        // ============================================
-        const ProgressCalculator = {
-            getPercentage() {
-                return Math.round((StateManager.completedDays.length / TOTAL_DAYS) * 100);
-            },
-
-            getCompletedCount() {
-                return StateManager.completedDays.length;
-            },
-
-            getProjectCompletedCount() {
-                return ROADMAP_DATA.filter(d => d.type === 'project' && StateManager.isDayCompleted(d.day)).length;
-            },
-
-            getCurrentDay() {
-                return StateManager.currentDay;
-            }
-        };
-
-        // ============================================
-        // 4. UI RENDERER
-        // ============================================
-        const UIRenderer = {
-            elements: {},
-
-            cache() {
-                this.elements = {
-                    statsGrid: document.getElementById('statsGrid'),
-                    progressPercent: document.getElementById('progressPercent'),
-                    progressBar: document.getElementById('progressBar'),
-                    sectionsContainer: document.getElementById('sectionsContainer'),
-                    modalOverlay: document.getElementById('modalOverlay'),
-                    modalTitle: document.getElementById('modalTitle'),
-                    modalBody: document.getElementById('modalBody'),
-                    modalCompleteBtn: document.getElementById('modalCompleteBtn'),
-                    modalCloseBtn: document.getElementById('modalCloseBtn'),
-                    toast: document.getElementById('toast'),
-                    sidebarNav: document.getElementById('sidebarNav')
-                };
-            },
-
-            renderStats() {
-                const currentDay = ProgressCalculator.getCurrentDay();
-                const completed = ProgressCalculator.getCompletedCount();
-                const percent = ProgressCalculator.getPercentage();
-                const projects = ProgressCalculator.getProjectCompletedCount();
-
-                this.elements.statsGrid.innerHTML = `
-                    <div class="stat-card">
-                        <div class="stat-icon purple">📅</div>
-                        <div><div class="stat-value">${currentDay}</div><div class="stat-label">Today</div></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon green">✅</div>
-                        <div><div class="stat-value">${completed}</div><div class="stat-label">Done</div></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon orange">📈</div>
-                        <div><div class="stat-value">${percent}%</div><div class="stat-label">Progress</div></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon red">🔥</div>
-                        <div><div class="stat-value">${projects}</div><div class="stat-label">Projects</div></div>
-                    </div>
-                `;
-            },
-
-            renderProgressBar() {
-                const percent = ProgressCalculator.getPercentage();
-                this.elements.progressPercent.textContent = percent + '%';
-                this.elements.progressBar.style.width = percent + '%';
-            },
-
-            renderSections(filter = 'all') {
-                const groups = {};
-                ROADMAP_DATA.forEach(day => {
-                    if (!groups[day.section]) groups[day.section] = [];
-                    groups[day.section].push(day);
-                });
-
-                const orderedSections = SECTION_ORDER.filter(s => groups[s]);
-                let html = '';
-
-                orderedSections.forEach(sectionName => {
-                    const days = groups[sectionName];
-                    const startDay = days[0].day;
-                    const endDay = days[days.length - 1].day;
-                    const completedInSection = days.filter(d => StateManager.isDayCompleted(d.day)).length;
-                    const totalInSection = days.length;
-
-                    let isOpen = days.some(d => d.day === StateManager.currentDay);
-                    if (filter !== 'all') {
-                        const hasVisible = days.some(d => {
-                            const done = StateManager.isDayCompleted(d.day);
-                            return filter === 'completed' ? done : !done;
-                        });
-                        if (hasVisible) isOpen = true;
-                    }
-
-                    html += `<div class="section-group${isOpen ? ' open' : ''}" data-section="${sectionName}">`;
-                    html += `<div class="section-header">`;
-                    html += `<span class="section-title">📁 ${sectionName} <span class="section-range">(${startDay}–${endDay})</span></span>`;
-                    html += `<span style="font-size:0.7rem;color:var(--text-secondary)">${completedInSection}/${totalInSection}</span>`;
-                    html += `<span class="section-arrow">▼</span></div>`;
-                    html += `<div class="section-days">`;
-
-                    days.forEach(day => {
-                        let cls = 'day-cell';
-                        if (StateManager.isDayCompleted(day.day)) cls += ' completed';
-                        if (day.day === StateManager.currentDay && !StateManager.isDayCompleted(day.day)) cls += ' current';
-                        if (day.type === 'project') cls += ' project-day';
-                        if (StateManager.isDayLocked(day.day)) cls += ' locked';
-
-                        const done = StateManager.isDayCompleted(day.day);
-                        if (filter === 'completed' && !done) cls += ' hidden-by-filter';
-                        if (filter === 'pending' && done) cls += ' hidden-by-filter';
-
-                        html += `<div class="${cls}" data-day="${day.day}" title="Day ${day.day}: ${day.title}">${day.day}</div>`;
-                    });
-
-                    html += `</div></div>`;
-                });
-
-                this.elements.sectionsContainer.innerHTML = html;
-                this._attachSectionListeners();
-                this._attachDayListeners();
-            },
-
-            _attachSectionListeners() {
-                document.querySelectorAll('.section-header').forEach(header => {
-                    header.addEventListener('click', () => {
-                        header.parentElement.classList.toggle('open');
-                    });
-                });
-            },
-
-            _attachDayListeners() {
-                document.querySelectorAll('.day-cell:not(.locked)').forEach(cell => {
-                    cell.addEventListener('click', () => {
-                        this.openModal(parseInt(cell.dataset.day));
-                    });
-                });
-                document.querySelectorAll('.day-cell.locked').forEach(cell => {
-                    cell.addEventListener('click', () => {
-                        this.openModal(parseInt(cell.dataset.day), true);
-                    });
-                });
-            },
-
-            openModal(dayNum, locked = false) {
-                const day = ROADMAP_DATA.find(d => d.day === dayNum);
-                if (!day) return;
-
-                this._currentModalDay = dayNum;
-                const isProject = day.type === 'project';
-                const isCompleted = StateManager.isDayCompleted(dayNum);
-
-                this.elements.modalTitle.innerHTML = `
-                    Day ${day.day}: ${day.title}
-                    ${isProject ? '<span class="project-badge">🔥 Project</span>' : ''}
-                `;
-
-                let body = `
-                    <div style="color:var(--text-secondary);font-size:0.8rem;margin-bottom:6px">
-                        📂 ${day.section} | ${isProject ? 'Project' : 'Learning'}
-                    </div>
-                    <div class="modal-desc">${day.desc}</div>
-                `;
-
-                if (day.resources) {
-                    body += `<div class="modal-resources">📚 Resources: ${day.resources.map(u => `<a href="${u}" target="_blank">${u}</a>`).join(', ')}</div>`;
-                }
-
-                if (isCompleted) {
-                    body += '<p style="color:var(--success);margin-top:8px">✅ Already completed</p>';
-                }
-
-                if (locked) {
-                    const prevDay = ROADMAP_DATA.find(d => d.day === dayNum - 1);
-                    body += `<div class="lock-reason">🔒 Locked until you complete Day ${dayNum-1}${prevDay ? ': ' + prevDay.title : ''}</div>`;
-                }
-
-                this.elements.modalBody.innerHTML = body;
-
-                if (isCompleted || locked) {
-                    this.elements.modalCompleteBtn.textContent = locked ? '🔒 Locked' : '✅ Done';
-                    this.elements.modalCompleteBtn.style.opacity = '0.5';
-                    this.elements.modalCompleteBtn.style.pointerEvents = 'none';
-                } else {
-                    this.elements.modalCompleteBtn.textContent = '✅ Mark Complete';
-                    this.elements.modalCompleteBtn.style.opacity = '1';
-                    this.elements.modalCompleteBtn.style.pointerEvents = 'auto';
-                    this.elements.modalCompleteBtn.onclick = () => this._completeDay(dayNum);
-                }
-
-                this.elements.modalOverlay.style.display = 'flex';
-                document.body.style.overflow = 'hidden';
-            },
-
-            _completeDay(dayNum) {
-                if (StateManager.completeDay(dayNum)) {
-                    this.closeModal();
-                    this.refreshAll();
-                    this.showToast('✅ Day ' + dayNum + ' completed!');
-                }
-            },
-
-            closeModal() {
-                this.elements.modalOverlay.style.display = 'none';
-                document.body.style.overflow = '';
-                this._currentModalDay = null;
-            },
-
-            showToast(msg) {
-                const toast = this.elements.toast;
-                toast.textContent = msg;
-                toast.style.display = 'block';
-                setTimeout(() => { toast.style.display = 'none'; }, 2000);
-            },
-
-            refreshAll() {
-                this.renderStats();
-                this.renderProgressBar();
-                const activeFilter = document.querySelector('.filter-pill.active');
-                this.renderSections(activeFilter ? activeFilter.dataset.filter : 'all');
-            },
-
-            renderSidebar() {
-                if (!this.elements.sidebarNav) return;
-                let html = '';
-                SECTION_ORDER.forEach(section => {
-                    html += `<a href="#" data-section="${section}">📁 ${section}</a>`;
-                });
-                this.elements.sidebarNav.innerHTML = html;
-
-                this.elements.sidebarNav.querySelectorAll('a').forEach(link => {
-                    link.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        const sectionEl = document.querySelector(`.section-group[data-section="${link.dataset.section}"]`);
-                        if (sectionEl) {
-                            sectionEl.classList.add('open');
-                            sectionEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }
-                    });
-                });
-            }
-        };
-
-        // ============================================
-        // 5. APP CONTROLLER
-        // ============================================
-        const App = {
-            init() {
-                StateManager.init();
-                UIRenderer.cache();
-                UIRenderer.renderSidebar();
-                this.bindEvents();
-                this.refreshUI();
-                this.restoreLastPage();
-                console.log('🚀 DevPath 180 ready •', ProgressCalculator.getCompletedCount(), 'days completed');
-            },
-
-            refreshUI() {
-                UIRenderer.refreshAll();
-            },
-
-            bindEvents() {
-                // Continue button
-                document.getElementById('btnContinue').addEventListener('click', () => {
-                    UIRenderer.openModal(StateManager.currentDay);
-                });
-
-                // Jump to current day
-                document.getElementById('btnJumpCurrent').addEventListener('click', () => {
-                    const dayData = ROADMAP_DATA.find(d => d.day === StateManager.currentDay);
-                    if (dayData) {
-                        const sectionEl = document.querySelector(`.section-group[data-section="${dayData.section}"]`);
-                        if (sectionEl) {
-                            sectionEl.classList.add('open');
-                            sectionEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            setTimeout(() => {
-                                const cell = document.querySelector(`.day-cell[data-day="${StateManager.currentDay}"]`);
-                                if (cell) cell.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            }, 300);
-                        }
-                    }
-                });
-
-                // Reset
-                document.getElementById('btnReset').addEventListener('click', () => {
-                    if (confirm('Reset all progress? This cannot be undone.')) {
-                        StateManager.reset();
-                        this.refreshUI();
-                        UIRenderer.showToast('🔄 Progress reset');
-                    }
-                });
-
-                // Filter pills
-                document.querySelectorAll('.filter-pill').forEach(pill => {
-                    pill.addEventListener('click', () => {
-                        document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
-                        pill.classList.add('active');
-                        UIRenderer.renderSections(pill.dataset.filter);
-                    });
-                });
-
-                // Modal close
-                document.getElementById('modalCloseBtn').addEventListener('click', () => UIRenderer.closeModal());
-                document.getElementById('modalOverlay').addEventListener('click', (e) => {
-                    if (e.target === e.currentTarget) UIRenderer.closeModal();
-                });
-
-                // Keyboard
-                document.addEventListener('keydown', (e) => {
-                    if (e.key === 'Escape') UIRenderer.closeModal();
-                    if (e.key === 'ArrowRight' && UIRenderer._currentModalDay) {
-                        const next = UIRenderer._currentModalDay + 1;
-                        if (next <= TOTAL_DAYS) UIRenderer.openModal(next, StateManager.isDayLocked(next));
-                    }
-                    if (e.key === 'ArrowLeft' && UIRenderer._currentModalDay) {
-                        const prev = UIRenderer._currentModalDay - 1;
-                        if (prev >= 1) UIRenderer.openModal(prev, StateManager.isDayLocked(prev));
-                    }
-                });
-
-                // Save page before unload
-                window.addEventListener('beforeunload', () => {
-                    StateManager.lastVisitedPage = 'dashboard';
-                });
-            },
-
-            restoreLastPage() {
-                // On dashboard, nothing special needed—already rendering dashboard
-            }
-        };
-
-        // ============================================
-        // 6. BOOTSTRAP
-        // ============================================
-        document.addEventListener('DOMContentLoaded', () => App.init());
-
-    })();
-    </script>
+        <div class="section-prog">
+          <div class="section-prog-bar"><div class="section-prog-fill" style="width:${pct}%"></div></div>
+          <div class="section-prog-text">${pct}%</div>
+        </div>
+        <div class="section-chevron">▼</div>
+      </div>
+      <div class="section-body">
+        <div class="days-grid">${days.map(d=>renderDay(d)).join('')}</div>
+      </div>
+    </div>`;
+  });
+
+  $('sections').innerHTML=html;
+}
+
+function renderDay(d){
+  let cls='day';
+  const done=State.isDone(d.d);
+  const locked=State.isLocked(d.d);
+  const cur=d.d===State.current&&!done;
+  if(done)cls+=' done';
+  if(cur)cls+=' current';
+  if(d.type==='project')cls+=' project';
+  if(locked)cls+=' locked';
+
+  // Filter
+  if(currentFilter==='done'&&!done)cls+=' filter-hidden';
+  if(currentFilter==='pending'&&done)cls+=' filter-hidden';
+  if(currentFilter==='project'&&d.type!=='project')cls+=' filter-hidden';
+
+  return`<div class="${cls}" data-day="${d.d}" 
+    title="Day ${d.d}: ${d.t}"
+    onclick="openModal(${d.d},${locked})">${d.d}</div>`;
+}
+
+function toggleSection(el){
+  el.classList.toggle('open');
+}
+
+function jumpToSection(name){
+  const el=document.querySelector(`.section[data-section="${name}"]`);
+  if(!el)return;
+  el.classList.add('open');
+  el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ─── Modal ───────────────────────────────────
+async function openModal(dayNum, locked=false){
+  const d=ROADMAP.find(x=>x.d===dayNum);
+  if(!d)return;
+  currentModalDay=dayNum;
+
+  const done=State.isDone(dayNum);
+  const isProject=d.type==='project';
+
+  // Tags
+  let tags='';
+  tags+=`<span class="tag tag-section">${d.s}</span>`;
+  if(isProject)tags+=`<span class="tag tag-project">🔥 Project</span>`;
+  if(done)tags+=`<span class="tag tag-done">✅ Completed</span>`;
+  if(locked)tags+=`<span class="tag tag-locked">🔒 Locked</span>`;
+
+  $('modalTags').innerHTML=tags;
+  $('modalTitle').textContent=d.t;
+  $('modalDayNum').textContent=`Day ${d.d} of ${TOTAL}`;
+  $('modalDesc').textContent=d.desc;
+
+  // Resources
+  if(d.res&&d.res.length){
+    $('modalResources').classList.remove('hidden');
+    $('modalResourcesList').innerHTML=d.res.map(u=>`<a href="${u}" target="_blank" rel="noopener">${u}</a>`).join('');
+  }else{
+    $('modalResources').classList.add('hidden');
+  }
+
+  // Checklist
+  const cl=CHECKLISTS[d.type]||CHECKLISTS.learning;
+  $('checklistItems').innerHTML=cl.map((item,i)=>{
+    const checked=State.isChecked(dayNum,i);
+    return`<div class="checklist-item${checked?' checked':''}" onclick="toggleCheck(${dayNum},${i},this)">
+      <div class="check-box">${checked?'✓':''}</div>${item}
+    </div>`;
+  }).join('');
+
+  // Complete button
+  const completeBtn=$('modalComplete');
+  if(done){
+    completeBtn.textContent='✅ Completed!';
+    completeBtn.style.opacity='.5';
+    completeBtn.style.pointerEvents='none';
+  }else if(locked){
+    completeBtn.textContent='🔒 Locked';
+    completeBtn.style.opacity='.5';
+    completeBtn.style.pointerEvents='none';
+  }else{
+    completeBtn.textContent='✅ Mark Complete';
+    completeBtn.style.opacity='1';
+    completeBtn.style.pointerEvents='auto';
+  }
+
+  // Nav buttons
+  $('modalPrev').disabled=dayNum<=1;
+  $('modalNext').disabled=dayNum>=TOTAL;
+
+  // Show overlay
+  $('overlay').classList.remove('hidden');
+  document.body.style.overflow='hidden';
+
+  // AI Explanation
+  $('aiExplainText').innerHTML=`<span class="loading"><span class="typing-dots"><span></span><span></span><span></span></span>&nbsp;Generating explanation...</span>`;
+  try{
+    const explanation=await AI.explain(d);
+    $('aiExplainText').textContent=explanation;
+  }catch(e){
+    $('aiExplainText').textContent='Focus on the fundamentals and build something small with this topic!';
+  }
+}
+
+function closeModal(){
+  $('overlay').classList.add('hidden');
+  document.body.style.overflow='';
+  currentModalDay=null;
+}
+
+window.toggleCheck=function(dayNum,idx,el){
+  const checked=State.toggleCheck(dayNum,idx);
+  el.classList.toggle('checked',checked);
+  el.querySelector('.check-box').textContent=checked?'✓':'';
+};
+
+// ─── Toast ───────────────────────────────────
+function toast(msg,type='success'){
+  const el=document.createElement('div');
+  el.className=`toast ${type}`;
+  el.textContent=msg;
+  $('toastWrap').appendChild(el);
+  setTimeout(()=>{
+    el.style.opacity='0';el.style.transform='translateX(20px)';
+    el.style.transition='.3s';
+    setTimeout(()=>el.remove(),300);
+  },2500);
+}
+
+// ─── Achievement ─────────────────────────────
+function showAchievement(icon,title,text){
+  $('achIcon').textContent=icon;
+  $('achTitle').textContent=title;
+  $('achText').textContent=text;
+  const el=$('achievement');
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),3000);
+}
+
+// ─── Complete Day ────────────────────────────
+function completeDay(dayNum){
+  if(!State.complete(dayNum))return;
+  closeModal();
+  render();
+  toast(`✅ Day ${dayNum} completed!`,'success');
+
+  const milestones={
+    10:['🏗️','HTML Master!','You\'ve completed the HTML section!'],
+    25:['🎨','CSS Artist!','Responsive design is your superpower now.'],
+    45:['⚡','JS Practitioner!','You\'re building real things with JavaScript!'],
+    65:['📱','App Builder!','Six mini apps under your belt!'],
+    100:['⚛️','React Developer!','You\'ve mastered modern React!'],
+    130:['🔌','API Engineer!','Your backend skills are solid!'],
+    150:['🗄️','Database Expert!','You speak fluent SQL and NoSQL!'],
+    170:['🌐','Full Stack Developer!','You can build anything end-to-end!'],
+    180:['🏆','LEGEND!','180 days. Full Stack Developer. You did it!']
+  };
+
+  if(milestones[dayNum]){
+    setTimeout(()=>showAchievement(...milestones[dayNum]),500);
+  }else if(dayNum%10===0){
+    setTimeout(()=>showAchievement('🎯',`Day ${dayNum}!`,`${dayNum} days done — you\'re unstoppable!`),400);
+  }
+}
+
+// ─── Chat ────────────────────────────────────
+function addChatMsg(role,text){
+  const msgs=$('chatMsgs');
+  const d=ROADMAP.find(x=>x.d===State.current);
+  const div=document.createElement('div');
+  div.className=`chat-msg ${role}`;
+  div.innerHTML=`
+    <div class="chat-avatar ${role}">${role==='ai'?'🤖':'👤'}</div>
+    <div class="chat-bubble">${text.replace(/\n/g,'<br>')}</div>
+  `;
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+  State.addChat(role,text);
+}
+
+async function sendChat(){
+  const input=$('chatInput');
+  const msg=input.value.trim();
+  if(!msg)return;
+  input.value='';
+  $('chatSend').disabled=true;
+
+  addChatMsg('user',msg);
+
+  // Loading
+  const loading=document.createElement('div');
+  loading.className='chat-msg ai loading';
+  loading.innerHTML=`<div class="chat-avatar ai">🤖</div><div class="chat-bubble"><span class="typing-dots"><span></span><span></span><span></span></span></div>`;
+  $('chatMsgs').appendChild(loading);
+  $('chatMsgs').scrollTop=$('chatMsgs').scrollHeight;
+
+  const d=ROADMAP.find(x=>x.d===State.current);
+  const context=d?`Day ${d.d}: ${d.t} (${d.s})`:null;
+  const reply=await AI.chat(msg,context);
+  loading.remove();
+  addChatMsg('ai',reply);
+  $('chatSend').disabled=false;
+}
+
+// ─── Events ──────────────────────────────────
+window.openModal=openModal;
+
+document.addEventListener('DOMContentLoaded',()=>{
+  State.init();
+  render();
+
+  // Restore chat history
+  if(State._.chatHistory.length===0){
+    addChatMsg('ai',`Hey! I'm DevPath AI 🤖 I'm here to help you on your 180-day journey. You're on Day ${State.current}. Ask me anything about web development!`);
+  }else{
+    State._.chatHistory.forEach(m=>addChatMsg(m.role,m.text));
+  }
+
+  // Continue
+  $('btnContinue').onclick=()=>openModal(State.current);
+
+  // Jump to today
+  $('btnJump').onclick=()=>{
+    const d=ROADMAP.find(x=>x.d===State.current);
+    if(!d)return;
+    const sec=document.querySelector(`.section[data-section="${d.s}"]`);
+    if(sec){sec.classList.add('open');sec.scrollIntoView({behavior:'smooth',block:'start'});}
+    setTimeout(()=>{
+      const cell=document.querySelector(`.day[data-day="${State.current}"]`);
+      if(cell)cell.scrollIntoView({behavior:'smooth',block:'center'});
+    },350);
+  };
+
+  // Expand all
+  $('btnExpand').onclick=()=>{
+    expandAll=!expandAll;
+    $('btnExpand').textContent=expandAll?'📂 Collapse All':'📂 Expand All';
+    renderSections();
+  };
+
+  // Reset
+  $('btnReset').onclick=()=>{
+    if(confirm('Reset all progress? This cannot be undone.')){
+      State.reset();
+      render();
+      toast('↺ Progress reset','info');
+    }
+  };
+
+  // Filter tabs
+  document.querySelectorAll('.tab').forEach(tab=>{
+    tab.onclick=()=>{
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      tab.classList.add('active');
+      currentFilter=tab.dataset.filter;
+      renderSections();
+    };
+  });
+
+  // Modal complete
+  $('modalComplete').onclick=()=>{if(currentModalDay)completeDay(currentModalDay);};
+
+  // Modal close
+  $('modalClose').onclick=closeModal;
+  $('overlay').onclick=(e)=>{if(e.target===$('overlay'))closeModal();};
+
+  // Modal nav
+  $('modalPrev').onclick=()=>{
+    if(currentModalDay>1)openModal(currentModalDay-1,State.isLocked(currentModalDay-1));
+  };
+  $('modalNext').onclick=()=>{
+    if(currentModalDay<TOTAL)openModal(currentModalDay+1,State.isLocked(currentModalDay+1));
+  };
+
+  // AI Chat
+  $('btnAiChat').onclick=()=>{
+    const panel=$('aiChatPanel');
+    panel.classList.toggle('open');
+    if(panel.classList.contains('open'))$('chatInput').focus();
+  };
+
+  $('chatSend').onclick=sendChat;
+  $('chatInput').onkeydown=(e)=>{if(e.key==='Enter'&&!e.shiftKey)sendChat();};
+
+  // Keyboard
+  document.onkeydown=(e)=>{
+    if(e.key==='Escape')closeModal();
+    if(e.key==='ArrowRight'&&currentModalDay&&currentModalDay<TOTAL)
+      openModal(currentModalDay+1,State.isLocked(currentModalDay+1));
+    if(e.key==='ArrowLeft'&&currentModalDay&&currentModalDay>1)
+      openModal(currentModalDay-1,State.isLocked(currentModalDay-1));
+  };
+
+  // Hamburger (mobile)
+  $('hamburger')&&($('hamburger').onclick=()=>{
+    $('sidebar').style.display=$('sidebar').style.display==='flex'?'none':'flex';
+  });
+});
+})();
+</script>
+
 </body>
 </html>
