@@ -252,7 +252,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script>
 (function(){
-  const STORE = 'dpn_v18';
+  const STORE = 'dpn_v19';
   let notes = JSON.parse(localStorage.getItem(STORE)||'[]');
   let currentId = null;
   let filterLang = 'all';
@@ -359,7 +359,8 @@
     renderHome();
   }
 
-  function saveCurrent() {
+  // حفظ والعودة إلى الصفحة الرئيسية
+  function saveAndClose() {
     if (!currentId) return;
     const note = notes.find(n => n.id === currentId);
     if (!note) return;
@@ -369,7 +370,7 @@
     note.updated = Date.now();
     persist();
     toast('Saved');
-    renderHome();
+    closeEditor();
   }
 
   function deleteCurrent() {
@@ -389,7 +390,6 @@
     updateStats();
     drawLineNumbers();
     updateUndoRedoButtons();
-    // إخفاء لوحة المفاتيح بعد تنفيذ الأمر
     setTimeout(() => $('codeTextarea').blur(), 50);
   }
 
@@ -404,7 +404,6 @@
   }
 
   function updateUndoRedoButtons() {
-    // نفعل الأزرار طالما أن textarea موجود (قد لا نتمكن من تتبع التاريخ بدقة)
     if ($('codeTextarea')) {
       undoBtn.disabled = false;
       redoBtn.disabled = false;
@@ -516,7 +515,7 @@
   // ══════ EVENTS ══════
   $('homeNewBtn').addEventListener('click', openNewNote);
   $('editorBackBtn').addEventListener('click', closeEditor);
-  $('saveBtn').addEventListener('click', saveCurrent);
+  $('saveBtn').addEventListener('click', saveAndClose);  // ← تعديل: زر الحفظ يحفظ ويعود للقائمة
   $('deleteBtn').addEventListener('click', deleteCurrent);
   $('copyBtn').addEventListener('click', copyCode);
   $('selectAllBtn').addEventListener('click', selectAllCode);
@@ -621,7 +620,7 @@
   });
 
   document.addEventListener('keydown', e => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); saveCurrent(); }
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); saveAndClose(); }  // Ctrl+S يحفظ ويعود
     if ((e.ctrlKey || e.metaKey) && e.key === 'n') { e.preventDefault(); openNewNote(); }
     if ((e.ctrlKey || e.metaKey) && e.key === 'p') { e.preventDefault(); isPreview ? switchToCode() : switchToPreview(); }
     if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); performUndo(); }
