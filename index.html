@@ -807,7 +807,7 @@
   $('resetBtn').addEventListener('click', () => {
     if (confirm(t('reset_confirm'))) {
       State.completed = [];
-      State.current = 1;
+      State.current = 0;
       State.save();
       renderAll();
     }
