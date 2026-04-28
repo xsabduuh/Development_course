@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0a0a14">
+  <title>DevPath 180 • Code Notes Pro</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a14;
+      --surface: #0f0f1f;
+      --surface2: #16162a;
+      --surface3: #1e1e3a;
+      --border: #252545;
+      --border2: #333360;
+      --text: #e0e0f0;
+      --text2: #9090b0;
+      --text3: #606080;
+      --accent: #5b5bf0;
+      --accent2: #7b7bff;
+      --success: #2dd4bf;
+      --danger: #f87171;
+      --warning: #fbbf24;
+      --radius: 16px;
+      --radius-sm: 12px;
+      --radius-xs: 8px;
+      --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      --font: 'DM Sans', -apple-system, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+      --shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      height: 100dvh;
+      display: flex;
+      overflow: hidden;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 10px; }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      width: 320px; min-width: 320px;
+      height: 100dvh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      transition: transform 0.35s ease;
+      z-index: 20;
+    }
+
+    .sidebar-header {
+      padding: 20px 16px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .logo {
+      font-family: var(--mono);
+      font-weight: 700; font-size: 1rem;
+      color: var(--success);
+      display: flex; align-items: center; gap: 8px;
+      text-decoration: none;
+    }
+    .logo svg { width: 24px; height: 24px; }
+
+    .btn-new {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 9px 16px;
+      border-radius: var(--radius-xs);
+      font-weight: 600;
+      cursor: pointer;
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.8rem;
+      font-family: var(--font);
+      transition: all var(--transition);
+    }
+    .btn-new:hover { background: var(--accent2); transform: translateY(-1px); }
+    .btn-new:active { transform: scale(0.97); }
+    .btn-new svg { width: 18px; height: 18px; }
+
+    .filter-bar {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex; gap: 6px; flex-wrap: wrap;
+    }
+    .filter-chip {
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text2);
+      cursor: pointer;
+      font-size: 0.7rem;
+      font-weight: 600;
+      font-family: var(--font);
+      transition: all var(--transition);
+    }
+    .filter-chip.active {
+      background: rgba(91,91,240,0.15);
+      border-color: var(--accent);
+      color: var(--accent2);
+    }
+
+    .notes-list {
+      flex: 1; overflow-y: auto; padding: 8px;
+    }
+
+    .note-item {
+      padding: 14px 16px; margin: 4px 0;
+      border-radius: var(--radius-xs);
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all var(--transition);
+      position: relative;
+    }
+    .note-item:hover { background: rgba(255,255,255,0.02); border-color: var(--border); }
+    .note-item.active { background: rgba(91,91,240,0.08); border-color: rgba(91,91,240,0.3); }
+    .note-item-title {
+      font-weight: 600; font-size: 0.85rem;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .note-item-lang {
+      font-size: 0.65rem; color: var(--accent2);
+      background: rgba(91,91,240,0.15);
+      padding: 3px 10px; border-radius: 4px;
+      font-family: var(--mono);
+    }
+    .note-item-delete {
+      position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: var(--text3);
+      cursor: pointer; font-size: 1rem; opacity: 0;
+      transition: all var(--transition);
+    }
+    .note-item:hover .note-item-delete { opacity: 1; color: var(--danger); }
+
+    .sidebar-footer {
+      padding: 14px 16px;
+      border-top: 1px solid var(--border);
+      font-size: 0.65rem; color: var(--text3);
+      text-align: center;
+    }
+
+    /* ===== MAIN EDITOR ===== */
+    .main {
+      flex: 1; height: 100dvh;
+      display: flex; flex-direction: column;
+      background: var(--bg); min-width: 0;
+    }
+
+    .editor-toolbar {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10,10,20,0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 10;
+      flex-wrap: wrap;
+    }
+
+    .title-input {
+      flex: 1; min-width: 150px;
+      background: transparent; border: none;
+      font-size: 1.3rem; font-weight: 700;
+      color: #fff; font-family: var(--font); outline: none;
+    }
+    .title-input::placeholder { color: var(--text3); }
+
+    .lang-select {
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text2); padding: 8px 14px;
+      border-radius: var(--radius-xs); font-size: 0.8rem;
+      outline: none; cursor: pointer; font-family: var(--font);
+    }
+    .lang-select:focus { border-color: var(--accent); }
+
+    .btn {
+      padding: 8px 14px; border-radius: var(--radius-xs);
+      border: none; font-weight: 600; cursor: pointer;
+      font-size: 0.8rem; display: inline-flex;
+      align-items: center; gap: 6px;
+      transition: all var(--transition);
+      white-space: nowrap; font-family: var(--font);
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text2); }
+    .btn-ghost:hover { border-color: var(--border2); color: #fff; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent2); }
+    .btn-danger { background: transparent; border: 1px solid rgba(248,113,113,0.3); color: var(--danger); }
+    .btn-danger:hover { background: rgba(248,113,113,0.1); }
+
+    .editor-area {
+      flex: 1; display: flex; flex-direction: column;
+      position: relative; overflow: hidden;
+    }
+
+    .code-wrapper {
+      flex: 1; position: relative; display: flex; overflow: hidden;
+    }
+
+    .code-textarea {
+      flex: 1; background: transparent; border: none;
+      padding: 18px 20px;
+      color: transparent; caret-color: #fff;
+      font-family: var(--mono); font-size: 0.9rem;
+      line-height: 1.7; resize: none; outline: none;
+      z-index: 2; position: relative;
+      white-space: pre; overflow: auto; tab-size: 2;
+    }
+    .code-textarea::selection { background: rgba(91,91,240,0.3); }
+
+    .code-preview {
+      position: absolute; inset: 0;
+      padding: 18px 20px;
+      font-family: var(--mono); font-size: 0.9rem;
+      line-height: 1.7; white-space: pre;
+      pointer-events: none; z-index: 1; overflow: hidden;
+    }
+    .code-preview code { background: transparent !important; padding: 0 !important; }
+
+    .copy-btn {
+      position: absolute; top: 14px; right: 20px;
+      padding: 7px 14px; border-radius: var(--radius-xs);
+      border: 1px solid var(--border);
+      background: rgba(15,15,31,0.9);
+      color: var(--text2); cursor: pointer;
+      font-size: 0.75rem; font-weight: 600;
+      display: flex; align-items: center; gap: 6px;
+      transition: all var(--transition);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      font-family: var(--font); z-index: 5;
+    }
+    .copy-btn:hover { border-color: var(--accent); color: #fff; }
+    .copy-btn.copied { border-color: var(--success); color: var(--success); }
+    .copy-btn svg { width: 14px; height: 14px; }
+
+    .editor-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 20px; border-top: 1px solid var(--border);
+      font-size: 0.75rem; color: var(--text3);
+      background: var(--surface); font-family: var(--mono);
+    }
+
+    .toast-container {
+      position: fixed; bottom: 24px; right: 24px;
+      z-index: 300; display: flex; flex-direction: column; gap: 8px;
+      pointer-events: none;
+    }
+    .toast {
+      background: var(--surface); border: 1px solid var(--border2);
+      color: var(--text); padding: 12px 20px;
+      border-radius: var(--radius-xs); font-weight: 600;
+      font-size: 0.85rem; box-shadow: var(--shadow);
+      animation: toastSlide 0.35s ease;
+      display: flex; align-items: center; gap: 10px;
+      pointer-events: auto; font-family: var(--font);
+    }
+    .toast.success { border-color: var(--success); color: var(--success); }
+    .toast.error { border-color: var(--danger); color: var(--danger); }
+
+    @keyframes toastSlide { from { opacity: 0; transform: translateX(30px) scale(0.95); } to { opacity: 1; transform: none; } }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .sidebar { position: fixed; left: 0; top: 0; transform: translateX(-100%); width: 85vw; max-width: 340px; }
+      .sidebar.open { transform: translateX(0); }
+      .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 30; }
+      .sidebar-overlay.show { display: block; }
+      .menu-toggle { display: flex !important; }
+      .editor-toolbar { padding: 12px 16px; }
+      .code-textarea, .code-preview { padding: 14px 16px; font-size: 0.85rem; }
+    }
+    .menu-toggle {
+      display: none; position: fixed; top: 14px; left: 14px;
+      z-index: 50; background: var(--surface); border: 1px solid var(--border);
+      color: #fff; width: 42px; height: 42px; border-radius: var(--radius-xs);
+      align-items: center; justify-content: center; cursor: pointer; font-size: 1.3rem;
+    }
+  </style>
+</head>
+<body>
+
+<button class="menu-toggle" id="menuToggle" aria-label="Open menu">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <a href="index.html" class="logo" title="Back to Dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="4 17 10 11 4 5"></polyline>
+        <line x1="8" y1="11" x2="20" y2="11"></line>
+        <polyline points="14 17 20 11 14 5"></polyline>
+      </svg>
+      Code Notes
+    </a>
+    <button class="btn-new" id="newNoteBtn" title="New Note (Ctrl+N)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New
+    </button>
+  </div>
+
+  <div class="filter-bar" id="filterBar">
+    <button class="filter-chip active" data-cat="all">All</button>
+    <button class="filter-chip" data-cat="html">HTML</button>
+    <button class="filter-chip" data-cat="css">CSS</button>
+    <button class="filter-chip" data-cat="javascript">JS</button>
+    <button class="filter-chip" data-cat="jsx">React</button>
+    <button class="filter-chip" data-cat="python">Python</button>
+    <button class="filter-chip" data-cat="sql">SQL</button>
+  </div>
+
+  <div class="notes-list" id="notesList"></div>
+  <div class="sidebar-footer"><span id="noteCount">0 notes</span></div>
+</aside>
+
+<!-- ===== MAIN EDITOR ===== -->
+<main class="main">
+  <div class="editor-toolbar">
+    <input type="text" class="title-input" id="editorTitle" placeholder="Note title..." aria-label="Note title">
+    <select class="lang-select" id="editorLang" aria-label="Programming language">
+      <option value="html">HTML</option>
+      <option value="css">CSS</option>
+      <option value="javascript">JavaScript</option>
+      <option value="jsx">React JSX</option>
+      <option value="typescript">TypeScript</option>
+      <option value="json">JSON</option>
+      <option value="python">Python</option>
+      <option value="sql">SQL</option>
+      <option value="bash">Bash</option>
+      <option value="plaintext">Plain Text</option>
+    </select>
+  </div>
+
+  <div class="editor-area" id="editorArea">
+    <div style="display:flex; flex:1; align-items:center; justify-content:center; color:var(--text3); flex-direction:column;" id="emptyState">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/>
+        <line x1="16" y1="17" x2="8" y2="17"/>
+      </svg>
+      <h3 style="font-size:1.1rem;color:var(--text2);margin:12px 0 8px;">No note selected</h3>
+      <p style="font-size:0.85rem;max-width:300px;line-height:1.6;">Select a note from the sidebar or create a new one to start coding.</p>
+    </div>
+
+    <div class="code-wrapper" id="codeWrapper" style="display:none;">
+      <textarea class="code-textarea" id="codeTextarea" placeholder="// Write your code here..." spellcheck="false" wrap="off" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
+      <pre class="code-preview" id="codePreview"><code class="hljs" id="codeHighlight"></code></pre>
+      <button class="copy-btn" id="copyBtn" title="Copy all code (Ctrl+Shift+C)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        Copy
+      </button>
+    </div>
+  </div>
+
+  <div class="editor-footer">
+    <span id="charCounter">0 chars</span>
+    <div style="display:flex; gap:8px;">
+      <button class="btn btn-danger" id="deleteNoteBtn" style="display:none;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+        Delete
+      </button>
+      <button class="btn btn-primary" id="saveNoteBtn" title="Save (Ctrl+S)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Save
+      </button>
+    </div>
+  </div>
+</main>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+(function() {
+  'use strict';
+
+  const STORAGE_KEY = 'dp_notes_db_v3';
+  const $ = (id) => document.getElementById(id);
+
+  // State
+  let notes = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  let currentId = null;
+  let activeFilter = 'all';
+  let autoSaveTimer = null;
+
+  // Save helper
+  const saveNotes = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+
+  // Render sidebar
+  function renderSidebar() {
+    let filtered = notes;
+    if (activeFilter !== 'all') filtered = filtered.filter(n => n.lang === activeFilter);
+    filtered.sort((a, b) => b.updatedAt - a.updatedAt);
+
+    $('notesList').innerHTML = filtered.map(note => `
+      <div class="note-item ${note.id === currentId ? 'active' : ''}" data-id="${note.id}">
+        <div class="note-item-title">${escapeHtml(note.title || 'Untitled')}</div>
+        <span class="note-item-lang">${note.lang || 'text'}</span>
+        <button class="note-item-delete" data-del="${note.id}">✕</button>
+      </div>
+    `).join('');
+
+    $('notesList').querySelectorAll('.note-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        if (e.target.closest('[data-del]')) return;
+        openNote(item.dataset.id);
+      });
+    });
+
+    $('notesList').querySelectorAll('[data-del]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (confirm('Delete this note?')) deleteNote(btn.dataset.del);
+      });
+    });
+
+    $('noteCount').textContent = `${filtered.length} note${filtered.length !== 1 ? 's' : ''}`;
+  }
+
+  // Open note
+  function openNote(id) {
+    if (currentId && currentId !== id) saveCurrent(true);
+    const note = notes.find(n => n.id === id);
+    if (!note) return;
+    currentId = id;
+    $('editorTitle').value = note.title || '';
+    $('codeTextarea').value = note.content || '';
+    $('editorLang').value = note.lang || 'plaintext';
+    document.getElementById('emptyState').style.display = 'none';
+    $('codeWrapper').style.display = 'flex';
+    $('deleteNoteBtn').style.display = 'inline-flex';
+    updateHighlight();
+    updateCharCount();
+    renderSidebar();
+    $('sidebar').classList.remove('open');
+    $('sidebarOverlay').classList.remove('show');
+    setTimeout(() => $('codeTextarea').focus(), 100);
+  }
+
+  // Save current note
+  function saveCurrent(silent) {
+    if (!currentId) return;
+    const note = notes.find(n => n.id === currentId);
+    if (!note) return;
+    note.title = $('editorTitle').value.trim();
+    note.content = $('codeTextarea').value;
+    note.lang = $('editorLang').value;
+    note.updatedAt = Date.now();
+    saveNotes();
+    if (!silent) showToast('💾 Saved', 'success');
+    renderSidebar();
+  }
+
+  // New note
+  function newNote() {
+    saveCurrent(true);
+    const note = {
+      id: Date.now().toString(36) + Math.random().toString(36).substr(2, 7),
+      title: '', content: '', lang: 'html',
+      createdAt: Date.now(), updatedAt: Date.now()
+    };
+    notes.unshift(note);
+    saveNotes();
+    openNote(note.id);
+    showToast('✨ New note created', 'success');
+  }
+
+  // Delete note
+  function deleteNote(id) {
+    notes = notes.filter(n => n.id !== id);
+    saveNotes();
+    if (currentId === id) { currentId = null; clearEditor(); }
+    renderSidebar();
+    showToast('🗑️ Note deleted', 'success');
+  }
+
+  function clearEditor() {
+    $('editorTitle').value = '';
+    $('codeTextarea').value = '';
+    $('codeHighlight').textContent = '';
+    currentId = null;
+    document.getElementById('emptyState').style.display = 'flex';
+    $('codeWrapper').style.display = 'none';
+    $('deleteNoteBtn').style.display = 'none';
+    updateCharCount();
+  }
+
+  // Syntax highlighting
+  function updateHighlight() {
+    const code = $('codeTextarea').value;
+    const lang = $('editorLang').value;
+    let highlighted = '';
+    if (lang === 'plaintext') {
+      highlighted = escapeHtml(code);
+    } else {
+      try {
+        const result = hljs.highlight(code, { language: lang, ignoreIllegals: true });
+        highlighted = result.value;
+      } catch (e) { highlighted = escapeHtml(code); }
+    }
+    $('codeHighlight').innerHTML = highlighted;
+    $('codePreview').scrollTop = $('codeTextarea').scrollTop;
+  }
+
+  // Copy full code
+  async function copyCode() {
+    const code = $('codeTextarea').value;
+    if (!code.trim()) { showToast('⚠️ Nothing to copy', 'warning'); return; }
+    try {
+      await navigator.clipboard.writeText(code);
+      const btn = $('copyBtn');
+      btn.classList.add('copied');
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Copied!`;
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy`;
+      }, 2000);
+      showToast('📋 Code copied to clipboard', 'success');
+    } catch (err) { showToast('⚠️ Copy failed', 'error'); }
+  }
+
+  // Char count
+  function updateCharCount() {
+    $('charCounter').textContent = `${$('codeTextarea').value.length} chars`;
+  }
+
+  // Toast
+  function showToast(msg, type = 'info') {
+    const container = $('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = msg;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 2500);
+  }
+
+  // Escape HTML
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // Auto-save
+  function autoSave() {
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(() => { if (currentId) saveCurrent(true); }, 1500);
+  }
+
+  // ===== EVENT LISTENERS =====
+  $('newNoteBtn').addEventListener('click', newNote);
+  $('saveNoteBtn').addEventListener('click', () => saveCurrent());
+  $('deleteNoteBtn').addEventListener('click', () => { if (currentId) deleteNote(currentId); });
+  $('copyBtn').addEventListener('click', copyCode);
+
+  $('editorTitle').addEventListener('input', autoSave);
+  $('codeTextarea').addEventListener('input', () => { updateHighlight(); updateCharCount(); autoSave(); });
+  $('codeTextarea').addEventListener('scroll', () => { $('codePreview').scrollTop = $('codeTextarea').scrollTop; });
+  $('editorLang').addEventListener('change', () => { updateHighlight(); autoSave(); });
+
+  // Filters
+  $('filterBar').addEventListener('click', (e) => {
+    const chip = e.target.closest('.filter-chip');
+    if (!chip) return;
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    activeFilter = chip.dataset.cat;
+    renderSidebar();
+  });
+
+  // Mobile
+  $('menuToggle').addEventListener('click', () => {
+    $('sidebar').classList.toggle('open');
+    $('sidebarOverlay').classList.toggle('show');
+  });
+  $('sidebarOverlay').addEventListener('click', () => {
+    $('sidebar').classList.remove('open');
+    $('sidebarOverlay').classList.remove('show');
+  });
+
+  // Tab key support
+  $('codeTextarea').addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const ta = $('codeTextarea');
+      const start = ta.selectionStart;
+      ta.value = ta.value.substring(0, start) + '  ' + ta.value.substring(ta.selectionEnd);
+      ta.selectionStart = ta.selectionEnd = start + 2;
+      updateHighlight();
+    }
+  });
+
+  // Shortcuts
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); saveCurrent(); }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'n') { e.preventDefault(); newNote(); }
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'C') { e.preventDefault(); copyCode(); }
+  });
+
+  // Init
+  renderSidebar();
+  if (notes.length > 0) openNote(notes[0].id);
+})();
+</script>
+</body>
+</html>
