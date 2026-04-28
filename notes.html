@@ -2,207 +2,238 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DevPath 180 - نظام الملاحظات</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>DevPath 180 • Notes</title>
+    <!-- أيقونة SVG للنظام -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📝</text></svg>">
+    <!-- الخطوط -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0f0f14;
-            --surface: #1a1a24;
-            --surface-hover: #22222f;
-            --border: #2a2a3a;
-            --text: #e0e0e0;
-            --text-secondary: #a0a0b8;
-            --accent: #6c5ce7;
+            --bg: #070710;
+            --surface: #0d0d1f;
+            --surface-hover: #12122a;
+            --border: #1e1e40;
+            --border2: #2a2a55;
+            --text: #e8e8ff;
+            --text2: #7878aa;
+            --text3: #4a4a7a;
+            --accent: #4f46e5;
+            --accent2: #818cf8;
             --accent-glow: #8b7cf0;
-            --success: #2ecc71;
-            --danger: #e74c3c;
-            --warning: #f39c12;
-            --radius: 10px;
-            --radius-sm: 6px;
-            --transition: 0.25s ease;
-            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+            --success: #06ffa5;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --transition: 0.2s ease;
+            --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.6);
+            --font: 'DM Sans', sans-serif;
+            --font-mono: 'Space Mono', monospace;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Segoe UI', Tahoma, sans-serif;
+            font-family: var(--font);
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
-            line-height: 1.6;
             display: flex;
             flex-direction: column;
             align-items: center;
             padding: 16px;
+            background-image:
+                radial-gradient(circle at 30% 10%, rgba(79, 70, 229, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 70% 90%, rgba(6, 255, 165, 0.04) 0%, transparent 50%);
+            background-attachment: fixed;
         }
 
-        .container {
-            width: 100%;
-            max-width: 900px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 24px;
-            box-shadow: var(--shadow-lg);
-            margin-top: 20px;
-        }
-
-        /* شريط التنقل العلوي */
-        .nav-bar {
+        .app-shell {
             width: 100%;
             max-width: 900px;
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        /* شريط التنقل */
+        .navbar {
+            display: flex;
             align-items: center;
+            justify-content: space-between;
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--radius);
             padding: 12px 20px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
             flex-wrap: wrap;
             gap: 12px;
         }
 
         .logo {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--accent-glow);
-            text-decoration: none;
-        }
-
-        .nav-links {
             display: flex;
-            gap: 12px;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-mono);
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--success);
+            text-decoration: none;
+            letter-spacing: -0.5px;
         }
+        .logo svg { width: 28px; height: 28px; }
+
+        .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
 
         .btn {
-            padding: 8px 16px;
+            padding: 8px 18px;
             border-radius: var(--radius-sm);
-            border: 1.5px solid var(--border);
+            border: 1px solid var(--border);
             cursor: pointer;
             font-size: 0.85rem;
             font-weight: 600;
             background: transparent;
-            color: var(--text);
+            color: var(--text2);
             transition: all var(--transition);
             text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            white-space: nowrap;
         }
+        .btn svg { width: 16px; height: 16px; }
 
         .btn:hover {
             border-color: var(--accent);
-            color: var(--accent-glow);
-            background: rgba(108, 92, 231, 0.06);
+            color: white;
+            background: rgba(79, 70, 229, 0.08);
         }
 
         .btn-primary {
             background: var(--accent);
-            color: #fff;
+            color: white;
             border-color: var(--accent);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
         }
-
-        .btn-primary:hover {
-            background: var(--accent-glow);
-        }
-
-        .btn-danger {
-            border-color: var(--danger);
-            color: var(--danger);
-        }
-
-        .btn-danger:hover {
-            background: rgba(231, 76, 60, 0.1);
-        }
+        .btn-primary:hover { background: var(--accent2); border-color: var(--accent2); }
 
         /* علامات التبويب */
         .tabs {
             display: flex;
             flex-wrap: wrap;
-            gap: 6px;
-            margin-block: 20px 16px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 8px;
-        }
-
-        .tab-btn {
-            padding: 8px 16px;
-            border-radius: 20px;
+            gap: 8px;
+            background: var(--surface);
             border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 6px;
+            width: fit-content;
+        }
+        .tab-btn {
+            padding: 8px 18px;
+            border-radius: 20px;
+            border: 1px solid transparent;
             background: transparent;
-            color: var(--text-secondary);
+            color: var(--text2);
             cursor: pointer;
             font-size: 0.85rem;
-            font-weight: 500;
+            font-weight: 600;
             transition: all var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
-
+        .tab-btn svg { width: 16px; height: 16px; }
         .tab-btn.active {
             background: var(--accent);
-            color: #fff;
+            color: white;
             border-color: var(--accent);
+            box-shadow: 0 2px 12px rgba(79, 70, 229, 0.4);
         }
-
         .tab-btn:hover:not(.active) {
-            background: var(--surface-hover);
             color: var(--text);
+            background: var(--surface-hover);
         }
 
-        /* منطقة المحرر */
+        /* المحرر */
+        .editor-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
         .editor-header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            justify-content: space-between;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 12px;
         }
 
         .tab-title {
-            font-weight: 600;
-            font-size: 1rem;
-            color: var(--accent-glow);
+            font-family: var(--font-mono);
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--accent2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
+        .tab-title svg { width: 20px; height: 20px; }
 
-        .word-count {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
+        .title-input {
             background: var(--bg);
-            padding: 4px 10px;
-            border-radius: 12px;
             border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            color: white;
+            font-size: 0.95rem;
+            width: 250px;
+            font-family: var(--font);
+            font-weight: 600;
+            outline: none;
+            transition: border-color var(--transition);
         }
+        .title-input:focus { border-color: var(--accent); }
 
         textarea {
             width: 100%;
-            height: 400px;
+            height: 380px;
             background: var(--bg);
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
             color: var(--text);
-            padding: 14px;
-            font-size: 1rem;
-            line-height: 1.7;
+            padding: 16px;
+            font-size: 0.95rem;
+            line-height: 1.8;
             resize: vertical;
-            font-family: 'Consolas', 'Courier New', monospace;
-            transition: border var(--transition);
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            outline: none;
+            transition: border-color var(--transition), box-shadow var(--transition);
+        }
+        textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
         }
 
-        textarea:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 12px rgba(108, 92, 231, 0.15);
+        .editor-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
         .actions {
             display: flex;
-            gap: 10px;
-            margin-top: 12px;
+            gap: 8px;
             flex-wrap: wrap;
         }
 
@@ -210,119 +241,175 @@
             background: var(--bg);
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
-            padding: 8px 12px;
-            color: var(--text);
+            padding: 8px 14px;
+            color: white;
             font-size: 0.85rem;
-            width: 200px;
-            transition: border var(--transition);
-        }
-
-        .search-box:focus {
+            width: 180px;
             outline: none;
-            border-color: var(--accent);
+        }
+        .search-box:focus { border-color: var(--accent); }
+
+        .word-count {
+            font-size: 0.75rem;
+            color: var(--text3);
+            background: rgba(255,255,255,0.03);
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
         }
 
+        .auto-save-badge {
+            font-size: 0.75rem;
+            color: var(--success);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .pulse-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse 1.8s infinite;
+        }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        /* Toast */
         .toast {
             position: fixed;
             bottom: 24px;
-            left: 24px;
+            right: 24px;
             background: var(--surface);
             border: 1px solid var(--success);
             color: var(--success);
-            padding: 12px 20px;
+            padding: 12px 24px;
             border-radius: var(--radius-sm);
             font-weight: 600;
             font-size: 0.85rem;
             z-index: 300;
-            animation: slideInLeft 0.3s ease, fadeOut 0.3s ease 1.8s forwards;
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            animation: slideUp 0.3s ease, fadeOutToast 0.4s ease 1.8s forwards;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-
-        @keyframes slideInLeft {
-            from { transform: translateX(-120px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes fadeOut {
-            to { opacity: 0; transform: translateY(10px); }
-        }
-
-        .highlight {
-            background-color: rgba(255, 107, 107, 0.3);
-            border-radius: 2px;
-        }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: none; opacity: 1; } }
+        @keyframes fadeOutToast { to { opacity: 0; transform: translateY(10px); } }
 
         @media (max-width: 600px) {
-            .container { padding: 16px; }
-            textarea { height: 300px; }
-            .search-box { width: 100%; }
+            .editor-card { padding: 16px; }
+            textarea { height: 280px; }
+            .title-input { width: 100%; }
+            .search-box { width: 140px; }
         }
     </style>
 </head>
 <body>
-
+<div class="app-shell">
     <!-- شريط التنقل -->
-    <div class="nav-bar">
-        <a href="index.html" class="logo">🛤️ DevPath 180</a>
+    <nav class="navbar">
+        <a href="index.html" class="logo">
+            <!-- أيقونة المسار -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="4 17 10 11 4 5"></polyline>
+                <line x1="8" y1="11" x2="20" y2="11"></line>
+                <polyline points="14 17 20 11 14 5"></polyline>
+            </svg>
+            DevPath 180
+        </a>
         <div class="nav-links">
-            <a href="index.html" class="btn">📊 لوحة التحكم</a>
-            <a href="notes.html" class="btn btn-primary">📝 الملاحظات</a>
+            <a href="index.html" class="btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                Dashboard
+            </a>
+            <a href="notes.html" class="btn btn-primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Notes
+            </a>
         </div>
+    </nav>
+
+    <!-- علامات التبويب -->
+    <div class="tabs" id="tabsContainer">
+        <button class="tab-btn active" data-tab="html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            HTML
+        </button>
+        <button class="tab-btn" data-tab="css">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            CSS
+        </button>
+        <button class="tab-btn" data-tab="js">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M8 16l-2-2 2-2"/><path d="M16 8l2 2-2 2"/></svg>
+            JavaScript
+        </button>
+        <button class="tab-btn" data-tab="react">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2"/><path d="M12 2a10 10 0 00-5 18.66 10 10 0 0010 0A10 10 0 0012 2z"/></svg>
+            React
+        </button>
+        <button class="tab-btn" data-tab="backend">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><circle cx="6" cy="6" r="1"/><circle cx="6" cy="18" r="1"/></svg>
+            Backend
+        </button>
     </div>
 
-    <!-- حاوية المحرر -->
-    <div class="container">
-        <!-- علامات التبويب -->
-        <div class="tabs" id="tabsContainer">
-            <button class="tab-btn active" data-tab="html">HTML</button>
-            <button class="tab-btn" data-tab="css">CSS</button>
-            <button class="tab-btn" data-tab="js">JavaScript</button>
-            <button class="tab-btn" data-tab="react">React</button>
-            <button class="tab-btn" data-tab="backend">Backend</button>
-        </div>
-
-        <!-- رأس المحرر -->
+    <!-- المحرر -->
+    <div class="editor-card">
         <div class="editor-header">
-            <span class="tab-title" id="tabTitle">📝 ملاحظات HTML</span>
-            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                <input type="text" class="search-box" id="searchInput" placeholder="🔍 بحث داخل النص...">
-                <span class="word-count" id="wordCount">0 كلمة</span>
+            <span class="tab-title" id="tabTitle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                HTML Notes
+            </span>
+            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                <input type="text" class="search-box" id="searchInput" placeholder="Search in notes...">
+                <span class="word-count" id="wordCount">0 words</span>
             </div>
         </div>
-
-        <!-- مربع النص -->
-        <textarea id="noteTextarea" placeholder="اكتب ملاحظاتك هنا..."></textarea>
-
-        <!-- أزرار التحكم -->
-        <div class="actions">
-            <button class="btn btn-primary" id="saveBtn">💾 حفظ</button>
-            <button class="btn btn-danger" id="clearBtn">🗑️ مسح</button>
-            <span style="font-size:0.8rem; color: var(--text-secondary); margin-right: auto;">
-                ⏱️ حفظ تلقائي كل 5 ثوانٍ
-            </span>
+        <input type="text" class="title-input" id="noteTitle" placeholder="Enter note title...">
+        <textarea id="noteTextarea" placeholder="Start writing your notes here..."></textarea>
+        <div class="editor-footer">
+            <div class="actions">
+                <button class="btn btn-primary" id="saveBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    Save
+                </button>
+                <button class="btn" id="clearBtn" style="color:var(--danger); border-color: rgba(239,68,68,0.3);">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                    Clear
+                </button>
+            </div>
+            <span class="auto-save-badge"><span class="pulse-dot"></span> Auto-saving every 5s</span>
         </div>
     </div>
+</div>
 
-    <script>
-        // =============================================
-        // نظام الملاحظات (Notes System)
-        // =============================================
-
-        // مفاتيح التخزين المحلي
+<script>
+    (function() {
+        // ---------- STORAGE KEYS ----------
         const STORAGE_KEYS = {
-            html: 'notes_html',
-            css: 'notes_css',
-            js: 'notes_js',
-            react: 'notes_react',
-            backend: 'notes_backend'
+            html: { content: 'notes_html_content', title: 'notes_html_title' },
+            css:  { content: 'notes_css_content', title: 'notes_css_title' },
+            js:   { content: 'notes_js_content', title: 'notes_js_title' },
+            react:{ content: 'notes_react_content', title: 'notes_react_title' },
+            backend: { content: 'notes_backend_content', title: 'notes_backend_title' }
         };
 
-        // الحالة الحالية
+        const TAB_ICONS = {
+            html: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`,
+            css: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>`,
+            js: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M8 16l-2-2 2-2"/><path d="M16 8l2 2-2 2"/></svg>`,
+            react: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="2"/><path d="M12 2a10 10 0 00-5 18.66 10 10 0 0010 0A10 10 0 0012 2z"/></svg>`,
+            backend: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><circle cx="6" cy="6" r="1"/><circle cx="6" cy="18" r="1"/></svg>`
+        };
+
+        // ---------- STATE ----------
         let currentTab = 'html';
         let autoSaveInterval;
         let lastSavedContent = '';
+        let lastSavedTitle = '';
 
-        // عناصر DOM
+        // DOM elements
         const textarea = document.getElementById('noteTextarea');
+        const titleInput = document.getElementById('noteTitle');
         const tabTitle = document.getElementById('tabTitle');
         const wordCountEl = document.getElementById('wordCount');
         const searchInput = document.getElementById('searchInput');
@@ -330,127 +417,106 @@
         const clearBtn = document.getElementById('clearBtn');
         const tabs = document.querySelectorAll('.tab-btn');
 
-        // تحميل الملاحظة المحفوظة للتاب الحالي
+        // ---------- FUNCTIONS ----------
         function loadNote(tab) {
-            const key = STORAGE_KEYS[tab];
-            const saved = localStorage.getItem(key) || '';
-            textarea.value = saved;
-            lastSavedContent = saved;
+            const keys = STORAGE_KEYS[tab];
+            const savedContent = localStorage.getItem(keys.content) || '';
+            const savedTitle = localStorage.getItem(keys.title) || '';
+            textarea.value = savedContent;
+            titleInput.value = savedTitle;
+            lastSavedContent = savedContent;
+            lastSavedTitle = savedTitle;
             updateWordCount();
-            updateTabTitle(tab);
-            clearHighlights();
+            updateTabUI(tab);
+            searchInput.value = '';
         }
 
-        // حفظ الملاحظة الحالية
-        function saveNote() {
-            const key = STORAGE_KEYS[currentTab];
+        function saveNote(silent = false) {
+            const keys = STORAGE_KEYS[currentTab];
             const content = textarea.value;
-            localStorage.setItem(key, content);
+            const title = titleInput.value;
+            localStorage.setItem(keys.content, content);
+            localStorage.setItem(keys.title, title);
             lastSavedContent = content;
-            showToast('✔ تم الحفظ بنجاح');
+            lastSavedTitle = title;
+            if (!silent) showToast('✔ Saved successfully', 'success');
         }
 
-        // مسح الملاحظة الحالية
         function clearNote() {
-            if (confirm('هل أنت متأكد من مسح جميع ملاحظات هذا القسم؟')) {
+            if (confirm('Delete all notes in this section?')) {
                 textarea.value = '';
-                saveNote(); // يحفظ المحتوى الفارغ
+                titleInput.value = '';
+                saveNote(true);
                 updateWordCount();
-                clearHighlights();
-                showToast('🗑️ تم مسح الملاحظات');
+                showToast('🗑 Notes cleared', 'info');
             }
         }
 
-        // تحديث عدد الكلمات
         function updateWordCount() {
             const text = textarea.value.trim();
             const words = text ? text.split(/\s+/).length : 0;
-            wordCountEl.textContent = words + ' كلمة';
+            wordCountEl.textContent = `${words} word${words !== 1 ? 's' : ''}`;
         }
 
-        // تحديث عنوان التبويب
-        function updateTabTitle(tab) {
+        function updateTabUI(tab) {
             const titles = {
-                html: '📝 ملاحظات HTML',
-                css: '🎨 ملاحظات CSS',
-                js: '📜 ملاحظات JavaScript',
-                react: '⚛️ ملاحظات React',
-                backend: '🖥️ ملاحظات Backend'
+                html: 'HTML Notes',
+                css: 'CSS Notes',
+                js: 'JavaScript Notes',
+                react: 'React Notes',
+                backend: 'Backend Notes'
             };
-            tabTitle.textContent = titles[tab] || 'ملاحظات';
+            tabTitle.innerHTML = `${TAB_ICONS[tab] || ''} ${titles[tab] || 'Notes'}`;
+            tabs.forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
         }
 
-        // وظيفة البحث مع التظليل
-        function searchAndHighlight() {
-            const query = searchInput.value.trim();
-            // إزالة التظليل السابق
-            clearHighlights();
-
-            if (!query) return;
-
-            const textareaEl = textarea;
-            const text = textareaEl.value;
-            const regex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
-            const matches = [];
-            let match;
-            while ((match = regex.exec(text)) !== null) {
-                matches.push({ start: match.index, end: match.index + match[0].length });
-            }
-
-            if (matches.length === 0) return;
-
-            // لا يمكن تظليل الـ textarea مباشرة، ولكن يمكننا عرض عدد التطابقات
-            // بدلاً من ذلك نستخدم canvas أو div overlays؟ الأمر معقد. سنقوم بتظليل بسيط عبر استبدال النص بمؤشرات
-            // لكن الأسهل: نبرز العدد وننبه المستخدم. سنقوم بتظليل عبر إضافة علامات HTML مؤقتة ولكن النص سيتغير.
-            // الأفضل: استخدام مؤشر التمرير إلى أول تطابق مع إشعار.
-            // سنقوم ببساطة بتحديد أول تطابق وتغيير موضع المؤشر.
-            if (matches.length > 0) {
-                textareaEl.focus();
-                textareaEl.setSelectionRange(matches[0].start, matches[0].end);
-                // تنبيه المستخدم بعدد المطابقات
-                showToast(`🔍 تم العثور على ${matches.length} تطابق`);
-            }
-        }
-
-        // إزالة أي تظليل (إعادة تعيين المؤشر)
-        function clearHighlights() {
-            // لا يوجد تظليل فعلي في textarea، فقط نعيد المؤشر
-            textarea.setSelectionRange(0, 0);
-        }
-
-        // عرض رسالة نخب
-        function showToast(message) {
-            const existing = document.querySelector('.toast');
-            if (existing) existing.remove();
-
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.textContent = message;
-            document.body.appendChild(toast);
-
-            setTimeout(() => toast.remove(), 2200);
-        }
-
-        // التبديل بين التبويبات
         function switchTab(tab) {
+            if (currentTab === tab) return;
+            // حفظ التبويب الحالي قبل الانتقال
+            if (textarea.value !== lastSavedContent || titleInput.value !== lastSavedTitle) {
+                saveNote(true);
+            }
             currentTab = tab;
-            // تحديث الـ UI للتبويبات
-            tabs.forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.tab === tab);
-            });
-            // تحميل الملاحظات
             loadNote(tab);
-            // مسح البحث
-            searchInput.value = '';
             textarea.focus();
         }
 
-        // بدء الحفظ التلقائي (كل 5 ثواني)
+        // ---------- SEARCH ----------
+        function searchAndHighlight() {
+            const query = searchInput.value.trim();
+            if (!query) {
+                textarea.focus();
+                return;
+            }
+            const text = textarea.value;
+            const regex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+            const match = regex.exec(text);
+            if (match) {
+                textarea.focus();
+                textarea.setSelectionRange(match.index, match.index + match[0].length);
+                showToast(`🔍 Found "${query}"`, 'info');
+            } else {
+                showToast('❌ Not found', 'info');
+            }
+        }
+
+        // ---------- TOAST ----------
+        function showToast(message, type = 'success') {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2200);
+        }
+
+        // ---------- AUTO SAVE ----------
         function startAutoSave() {
-            stopAutoSave(); // إيقاف السابق إن وجد
+            stopAutoSave();
             autoSaveInterval = setInterval(() => {
-                if (textarea.value !== lastSavedContent) {
-                    saveNote();
+                if (textarea.value !== lastSavedContent || titleInput.value !== lastSavedTitle) {
+                    saveNote(true);
                 }
             }, 5000);
         }
@@ -459,27 +525,22 @@
             if (autoSaveInterval) clearInterval(autoSaveInterval);
         }
 
-        // ربط الأحداث
+        // ---------- EVENTS ----------
         tabs.forEach(btn => {
-            btn.addEventListener('click', () => {
-                switchTab(btn.dataset.tab);
-            });
+            btn.addEventListener('click', () => switchTab(btn.dataset.tab));
         });
 
-        saveBtn.addEventListener('click', saveNote);
+        saveBtn.addEventListener('click', () => saveNote());
         clearBtn.addEventListener('click', clearNote);
-
         textarea.addEventListener('input', updateWordCount);
+        titleInput.addEventListener('input', updateWordCount);
 
-        searchInput.addEventListener('input', () => {
-            // تنفيذ البحث عند الكتابة (مع تأخير بسيط)
-            clearTimeout(searchInput.searchTimeout);
-            searchInput.searchTimeout = setTimeout(() => {
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
                 searchAndHighlight();
-            }, 400);
+            }
         });
 
-        // اختصار Ctrl+S للحفظ
         document.addEventListener('keydown', (e) => {
             if ((e.ctrlKey || e.metaKey) && e.key === 's') {
                 e.preventDefault();
@@ -487,25 +548,17 @@
             }
         });
 
-        // عند الخروج من الصفحة، حفظ سريع
         window.addEventListener('beforeunload', () => {
-            if (textarea.value !== lastSavedContent) {
-                saveNote();
+            if (textarea.value !== lastSavedContent || titleInput.value !== lastSavedTitle) {
+                saveNote(true);
             }
         });
 
-        // التهيئة الأولية
-        function init() {
-            loadNote(currentTab);
-            startAutoSave();
-            textarea.focus();
-        }
-
-        init();
-
-        console.log('📝 نظام الملاحظات جاهز!');
-        console.log('💡 اختصارات: Ctrl+S للحفظ الفوري');
-        console.log('⏱️ الحفظ التلقائي نشط كل 5 ثوانٍ');
-    </script>
+        // ---------- INIT ----------
+        loadNote(currentTab);
+        startAutoSave();
+        textarea.focus();
+    })();
+</script>
 </body>
 </html>
