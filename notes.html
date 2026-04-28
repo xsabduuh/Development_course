@@ -4,8 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>DevPath 180 • Code Notes Pro</title>
-  <!-- highlight.js for syntax coloring -->
+  <!-- highlight.js CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #0a0a14;
@@ -27,218 +29,427 @@
       --font: 'DM Sans', 'Segoe UI', sans-serif;
       --mono: 'JetBrains Mono', 'Space Mono', 'Consolas', monospace;
     }
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{
-      font-family:var(--font);
-      background:var(--bg);
-      color:var(--text);
-      height:100vh;
-      display:flex;
-      overflow:hidden;
-      user-select:none;
-      -webkit-user-select:none;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+      user-select: none;
     }
-    /* ===== SIDEBAR ===== */
-    .sidebar{
-      width:300px;min-width:300px;
-      height:100vh;
-      background:var(--surface);
-      border-right:1px solid var(--border);
-      display:flex;flex-direction:column;
-      transition:transform 0.3s;
-      z-index:20;
+    /* ========== SIDEBAR ========== */
+    .sidebar {
+      width: 300px; min-width: 300px;
+      height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      transition: transform 0.3s ease;
+      z-index: 20;
     }
-    .sidebar-header{
-      padding:20px;
-      border-bottom:1px solid var(--border);
-      display:flex;align-items:center;gap:10px;
+    .sidebar-header {
+      padding: 20px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px;
     }
-    .logo{
-      font-family:var(--mono);font-weight:700;font-size:1rem;
-      color:var(--success);
-      display:flex;align-items:center;gap:6px;
-      text-decoration:none;
+    .logo {
+      font-family: var(--mono);
+      font-weight: 700; font-size: 1rem;
+      color: var(--success);
+      display: flex; align-items: center; gap: 8px;
+      text-decoration: none;
     }
-    .logo svg{width:22px;height:22px}
-    .btn-new{
-      margin-left:auto;
-      background:var(--accent);color:#fff;
-      border:none;padding:8px 14px;border-radius:var(--radius-sm);
-      font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;
-      font-size:0.8rem;
+    .logo svg { width: 24px; height: 24px; }
+    .btn-new {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      cursor: pointer;
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.8rem;
+      transition: background var(--transition);
     }
-    .btn-new:hover{background:var(--accent2)}
-    .btn-new svg{width:18px;height:18px}
-    .filter-bar{
-      padding:10px 16px;display:flex;gap:6px;flex-wrap:wrap;
-      border-bottom:1px solid var(--border);
-    }
-    .filter-chip{
-      padding:5px 12px;border-radius:20px;border:1px solid var(--border);
-      background:transparent;color:var(--text2);cursor:pointer;
-      font-size:0.7rem;font-weight:600;transition:0.2s;
-    }
-    .filter-chip.active{background:rgba(91,91,240,0.15);border-color:var(--accent);color:var(--accent2)}
-    .notes-list{
-      flex:1;overflow-y:auto;padding:8px;
-    }
-    .note-item{
-      padding:12px 14px;margin:3px 0;border-radius:var(--radius-sm);
-      cursor:pointer;border:1px solid transparent;transition:0.2s;
-      position:relative;
-    }
-    .note-item:hover{background:rgba(255,255,255,0.02)}
-    .note-item.active{
-      background:rgba(91,91,240,0.08);
-      border-color:rgba(91,91,240,0.3);
-    }
-    .note-item-title{font-weight:600;font-size:0.85rem;margin-bottom:3px}
-    .note-item-lang{
-      font-size:0.65rem;color:var(--accent2);
-      background:rgba(91,91,240,0.15);padding:2px 8px;border-radius:4px;
-    }
-    .note-item-delete{
-      position:absolute;right:10px;top:50%;transform:translateY(-50%);
-      background:none;border:none;color:var(--text3);cursor:pointer;
-      font-size:1rem;opacity:0;transition:0.2s;
-    }
-    .note-item:hover .note-item-delete{opacity:1;color:var(--danger)}
+    .btn-new:hover { background: var(--accent2); }
+    .btn-new svg { width: 18px; height: 18px; }
 
-    /* ===== MAIN EDITOR ===== */
-    .main{
-      flex:1;height:100vh;display:flex;flex-direction:column;
-      background:var(--bg);min-width:0;
+    .filter-bar {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex; gap: 6px; flex-wrap: wrap;
     }
-    .editor-toolbar{
-      display:flex;align-items:center;gap:10px;
-      padding:14px 20px;border-bottom:1px solid var(--border);
+    .filter-chip {
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text2);
+      cursor: pointer;
+      font-size: 0.7rem;
+      font-weight: 600;
+      transition: all var(--transition);
+      white-space: nowrap;
     }
-    .title-input{
-      flex:1;background:transparent;border:none;
-      font-size:1.2rem;font-weight:700;color:#fff;
-      font-family:var(--font);outline:none;
+    .filter-chip.active {
+      background: rgba(91,91,240,0.15);
+      border-color: var(--accent);
+      color: var(--accent2);
     }
-    .title-input::placeholder{color:var(--text3)}
-    .lang-select{
-      background:var(--surface2);border:1px solid var(--border);
-      color:var(--text2);padding:6px 12px;border-radius:8px;
-      font-size:0.8rem;outline:none;cursor:pointer;
+    .filter-chip:hover:not(.active) {
+      border-color: var(--border2);
+      color: var(--text);
     }
-    .btn{
-      padding:8px 14px;border-radius:8px;border:none;font-weight:600;
-      cursor:pointer;font-size:0.8rem;display:inline-flex;align-items:center;gap:6px;
-      transition:0.2s;
-    }
-    .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text2)}
-    .btn-ghost:hover{border-color:var(--border2);color:#fff}
-    .btn-primary{background:var(--accent);color:#fff}
-    .btn-primary:hover{background:var(--accent2)}
 
-    .editor-area{
-      flex:1;display:flex;flex-direction:column;position:relative;
+    .notes-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
     }
-    .code-wrapper{
-      flex:1;position:relative;display:flex;
-    }
-    .code-textarea{
-      flex:1;background:transparent;border:none;padding:18px 20px;
-      color:transparent;caret-color:#fff;
-      font-family:var(--mono);font-size:0.9rem;line-height:1.7;
-      resize:none;outline:none;z-index:2;position:relative;
-      white-space:pre-wrap;overflow:auto;
-    }
-    .code-preview{
-      position:absolute;inset:0;padding:18px 20px;
-      font-family:var(--mono);font-size:0.9rem;line-height:1.7;
-      white-space:pre-wrap;pointer-events:none;z-index:1;
-      overflow:hidden;
-    }
-    .code-preview code{background:transparent!important}
-    .floating-btns{
-      position:absolute;top:10px;right:16px;display:flex;gap:6px;z-index:5;
-    }
-    .copy-btn,.run-btn{
-      padding:5px 10px;border-radius:6px;border:1px solid var(--border);
-      background:var(--surface);color:var(--text2);cursor:pointer;
-      font-size:0.7rem;display:flex;align-items:center;gap:4px;
-    }
-    .copy-btn:hover,.run-btn:hover{border-color:var(--accent);color:#fff}
-    .copy-btn.copied{border-color:var(--success);color:var(--success)}
+    .notes-list::-webkit-scrollbar { width: 4px; }
+    .notes-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
 
-    .editor-footer{
-      display:flex;align-items:center;justify-content:space-between;
-      padding:10px 20px;border-top:1px solid var(--border);
+    .note-item {
+      padding: 12px 14px;
+      margin: 3px 0;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all var(--transition);
+      position: relative;
     }
-    .char-count{font-size:0.7rem;color:var(--text3)}
+    .note-item:hover { background: rgba(255,255,255,0.02); }
+    .note-item.active {
+      background: rgba(91,91,240,0.08);
+      border-color: rgba(91,91,240,0.3);
+    }
+    .note-item-title {
+      font-weight: 600;
+      font-size: 0.85rem;
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .note-item-lang {
+      font-size: 0.65rem;
+      color: var(--accent2);
+      background: rgba(91,91,240,0.15);
+      padding: 2px 8px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+    .note-item-delete {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text3);
+      cursor: pointer;
+      font-size: 1rem;
+      opacity: 0;
+      transition: opacity var(--transition), color var(--transition);
+    }
+    .note-item:hover .note-item-delete { opacity: 1; }
+    .note-item-delete:hover { color: var(--danger); }
 
-    /* Run modal */
-    .run-modal{
-      position:fixed;inset:0;background:rgba(0,0,0,0.85);
-      display:none;align-items:center;justify-content:center;z-index:100;
+    .sidebar-footer {
+      padding: 14px 16px;
+      border-top: 1px solid var(--border);
+      font-size: 0.65rem;
+      color: var(--text3);
+      text-align: center;
     }
-    .run-frame{width:90%;height:85%;background:#fff;border-radius:var(--radius);border:none}
 
-    /* Toast */
-    .toast{
-      position:fixed;bottom:24px;right:24px;
-      background:var(--surface);border:1px solid var(--success);
-      color:var(--success);padding:12px 20px;border-radius:var(--radius-sm);
-      font-weight:600;z-index:300;box-shadow:0 8px 24px rgba(0,0,0,0.5);
-      animation:toastIn 0.3s ease;
+    /* ========== MAIN EDITOR ========== */
+    .main {
+      flex: 1;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+      min-width: 0;
     }
-    @keyframes toastIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+    .editor-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .title-input {
+      flex: 1;
+      min-width: 150px;
+      background: transparent;
+      border: none;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #fff;
+      font-family: var(--font);
+      outline: none;
+    }
+    .title-input::placeholder { color: var(--text3); }
+    .lang-select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text2);
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      outline: none;
+      cursor: pointer;
+      transition: border-color var(--transition);
+    }
+    .lang-select:focus { border-color: var(--accent); }
 
-    @media(max-width:680px){
-      .sidebar{position:fixed;left:0;top:0;transform:translateX(-100%)}
-      .sidebar.open{transform:translateX(0)}
-      .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:30}
-      .sidebar-overlay.show{display:block}
-      .menu-toggle{display:flex!important}
+    .btn {
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all var(--transition);
+      white-space: nowrap;
     }
-    .menu-toggle{
-      display:none;position:fixed;top:14px;left:14px;
-      z-index:50;background:var(--surface);border:1px solid var(--border);
-      color:#fff;width:40px;height:40px;border-radius:8px;
-      align-items:center;justify-content:center;cursor:pointer;font-size:1.2rem;
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text2);
+    }
+    .btn-ghost:hover { border-color: var(--border2); color: #fff; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent2); }
+
+    .editor-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .code-wrapper {
+      flex: 1;
+      position: relative;
+      display: flex;
+    }
+    .code-textarea {
+      flex: 1;
+      background: transparent;
+      border: none;
+      padding: 18px 20px;
+      color: transparent;
+      caret-color: #fff;
+      font-family: var(--mono);
+      font-size: 0.9rem;
+      line-height: 1.7;
+      resize: none;
+      outline: none;
+      z-index: 2;
+      position: relative;
+      white-space: pre-wrap;
+      overflow: auto;
+    }
+    .code-preview {
+      position: absolute;
+      inset: 0;
+      padding: 18px 20px;
+      font-family: var(--mono);
+      font-size: 0.9rem;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+    .code-preview code { background: transparent !important; }
+
+    .floating-btns {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      display: flex;
+      gap: 8px;
+      z-index: 5;
+    }
+    .copy-btn, .run-btn {
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text2);
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all var(--transition);
+    }
+    .copy-btn:hover, .run-btn:hover { border-color: var(--accent); color: #fff; }
+    .copy-btn.copied { border-color: var(--success); color: var(--success); background: rgba(45,212,191,0.1); }
+    .copy-btn svg, .run-btn svg { width: 14px; height: 14px; }
+
+    .editor-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      border-top: 1px solid var(--border);
+      font-size: 0.75rem;
+      color: var(--text3);
+    }
+    .char-count { font-family: var(--mono); }
+
+    /* ========== RUN MODAL ========== */
+    .run-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .run-frame {
+      width: 90%;
+      height: 85%;
+      background: #fff;
+      border-radius: var(--radius);
+      border: none;
+    }
+    .close-run-btn {
+      position: absolute;
+      top: 24px;
+      right: 32px;
+      background: var(--danger);
+      color: #fff;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      z-index: 5;
+      font-family: var(--font);
+    }
+
+    /* ========== TOAST ========== */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--surface);
+      border: 1px solid var(--success);
+      color: var(--success);
+      padding: 12px 20px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      z-index: 300;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      animation: toastIn 0.3s ease;
+      font-family: var(--font);
+    }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+
+    /* ========== MOBILE ========== */
+    @media (max-width: 700px) {
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        transform: translateX(-100%);
+      }
+      .sidebar.open { transform: translateX(0); }
+      .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.6);
+        z-index: 30;
+      }
+      .sidebar-overlay.show { display: block; }
+      .menu-toggle {
+        display: flex !important;
+      }
+      .editor-toolbar { gap: 8px; }
+      .btn { padding: 8px 12px; font-size: 0.75rem; }
+    }
+    .menu-toggle {
+      display: none;
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      z-index: 50;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: #fff;
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.3rem;
     }
   </style>
 </head>
 <body>
 
+<!-- زر القائمة للموبايل -->
 <button class="menu-toggle" id="menuToggle">☰</button>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-<!-- SIDEBAR -->
+<!-- ========== SIDEBAR ========== -->
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <a href="index.html" class="logo">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="8" y1="11" x2="20" y2="11"/><polyline points="14 17 20 11 14 5"/></svg>
+    <a href="index.html" class="logo" title="العودة إلى لوحة التحكم">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="4 17 10 11 4 5"></polyline>
+        <line x1="8" y1="11" x2="20" y2="11"></line>
+        <polyline points="14 17 20 11 14 5"></polyline>
+      </svg>
       Code Notes
     </a>
-    <button class="btn-new" id="newNoteBtn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    <button class="btn-new" id="newNoteBtn" title="ملاحظة جديدة (Ctrl+N)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       New
     </button>
   </div>
+
+  <!-- فلاتر التصنيف -->
   <div class="filter-bar" id="filterBar">
     <button class="filter-chip active" data-cat="all">All</button>
     <button class="filter-chip" data-cat="html">HTML</button>
     <button class="filter-chip" data-cat="css">CSS</button>
     <button class="filter-chip" data-cat="javascript">JS</button>
-    <button class="filter-chip" data-cat="react">React</button>
+    <button class="filter-chip" data-cat="jsx">React</button>
+    <button class="filter-chip" data-cat="python">Python</button>
+    <button class="filter-chip" data-cat="sql">SQL</button>
     <button class="filter-chip" data-cat="backend">Backend</button>
   </div>
+
+  <!-- قائمة الملاحظات -->
   <div class="notes-list" id="notesList"></div>
-  <div style="padding:14px;border-top:1px solid var(--border);font-size:0.65rem;color:var(--text3);text-align:center">
+
+  <div class="sidebar-footer">
     <span id="noteCount">0 notes</span>
   </div>
 </aside>
 
-<!-- MAIN -->
-<main class="main">
+<!-- ========== MAIN EDITOR ========== -->
+<main class="main" id="mainEditor">
   <div class="editor-toolbar">
-    <input type="text" class="title-input" id="editorTitle" placeholder="Note title...">
-    <select class="lang-select" id="editorLang">
+    <input type="text" class="title-input" id="editorTitle" placeholder="Note title..." aria-label="عنوان الملاحظة">
+    <select class="lang-select" id="editorLang" aria-label="لغة البرمجة">
       <option value="html">HTML</option>
       <option value="css">CSS</option>
       <option value="javascript">JavaScript</option>
@@ -251,296 +462,443 @@
       <option value="plaintext">Plain Text</option>
     </select>
   </div>
+
   <div class="editor-area" id="editorArea">
+    <!-- محرر الكود -->
     <div class="code-wrapper" id="codeWrapper" style="display:none;">
-      <textarea class="code-textarea" id="codeTextarea" placeholder="Write your code..." spellcheck="false"></textarea>
+      <textarea class="code-textarea" id="codeTextarea" placeholder="// اكتب كودك هنا..." spellcheck="false" wrap="off"></textarea>
       <pre class="code-preview" id="codePreview"><code class="hljs" id="codeHighlight"></code></pre>
+
+      <!-- أزرار عائمة -->
       <div class="floating-btns">
-        <button class="copy-btn" id="copyBtn">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy
+        <button class="copy-btn" id="copyBtn" title="نسخ الكود كاملاً">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy
         </button>
-        <button class="run-btn" id="runBtn">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg> Run
+        <button class="run-btn" id="runBtn" title="تشغيل HTML/CSS/JS">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Run
         </button>
       </div>
     </div>
-    <div id="emptyState" style="display:flex;flex:1;align-items:center;justify-content:center;color:var(--text3);flex-direction:column;">
+
+    <!-- حالة فارغة -->
+    <div id="emptyState" style="display:flex; flex:1; align-items:center; justify-content:center; color:var(--text3); flex-direction:column;">
       <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-      <p style="margin-top:12px;">Select a note or create new</p>
+      <p style="margin-top:12px;">Select a note or create new (Ctrl+N)</p>
     </div>
   </div>
+
   <div class="editor-footer">
     <span class="char-count" id="charCounter">0 chars</span>
-    <div style="display:flex;gap:8px;">
-      <button class="btn btn-ghost" id="deleteNoteBtn" style="display:none;color:var(--danger);border-color:rgba(248,113,113,0.3);">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Delete
+    <div style="display:flex; gap:8px;">
+      <button class="btn btn-ghost" id="deleteNoteBtn" style="display:none; color:var(--danger); border-color:rgba(248,113,113,0.3);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+        Delete
       </button>
-      <button class="btn btn-primary" id="saveNoteBtn">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save
+      <button class="btn btn-primary" id="saveNoteBtn" title="حفظ (Ctrl+S)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Save
       </button>
     </div>
   </div>
 </main>
 
-<!-- RUN MODAL -->
+<!-- ========== RUN MODAL ========== -->
 <div class="run-modal" id="runModal">
-  <button style="position:absolute;top:20px;right:30px;background:var(--danger);color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;z-index:5;" id="closeRunModal">Close</button>
-  <iframe class="run-frame" id="runFrame"></iframe>
+  <button class="close-run-btn" id="closeRunModal">✕ Close</button>
+  <iframe class="run-frame" id="runFrame" sandbox="allow-scripts allow-modals"></iframe>
 </div>
 
+<!-- highlight.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
 <script>
-(function(){
-  const STORAGE = 'dp_notes_v5';
+(function() {
+  'use strict';
 
-  // State
-  let notes = JSON.parse(localStorage.getItem(STORAGE) || '[]');
-  let currentId = null;
-  let activeFilter = 'all';
-  let autoSaveTimer = null;
+  // ────────────────────────────────────────
+  // 1. الثوابت و localStorage
+  // ────────────────────────────────────────
+  const STORAGE_KEY = 'dp_notes_db_v1';
 
-  // DOM
-  const $ = id => document.getElementById(id);
-  const notesList = $('notesList');
-  const editorTitle = $('editorTitle');
-  const codeTextarea = $('codeTextarea');
-  const codeHighlight = $('codeHighlight');
-  const codePreview = $('codePreview');
-  const codeWrapper = $('codeWrapper');
-  const editorLang = $('editorLang');
-  const emptyState = $('emptyState');
-  const deleteNoteBtn = $('deleteNoteBtn');
-  const charCounter = $('charCounter');
-  const noteCountSpan = $('noteCount');
-  const copyBtn = $('copyBtn');
-  const runBtn = $('runBtn');
-  const runModal = $('runModal');
-  const runFrame = $('runFrame');
+  const getNotes = () => {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+    catch(e) { return []; }
+  };
 
-  function saveNotes() { localStorage.setItem(STORAGE, JSON.stringify(notes)); }
+  const saveNotes = (notes) => {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(notes)); }
+    catch(e) { console.warn('localStorage full'); }
+  };
 
-  // Render sidebar
+  // ────────────────────────────────────────
+  // 2. الحالة العامة
+  // ────────────────────────────────────────
+  let notes = getNotes();
+  let currentNoteId = null;        // المعرف الحالي
+  let activeFilter = 'all';        // التصفية النشطة
+  let autoSaveTimer = null;        // مؤقت الحفظ التلقائي
+  let isTyping = false;
+
+  // ────────────────────────────────────────
+  // 3. اختصارات DOM
+  // ────────────────────────────────────────
+  const $ = (id) => document.getElementById(id);
+
+  // Sidebar
+  const notesListEl    = $('notesList');
+  const noteCountEl    = $('noteCount');
+  const newNoteBtn     = $('newNoteBtn');
+  const filterBar      = $('filterBar');
+
+  // Editor
+  const editorTitle    = $('editorTitle');
+  const codeTextarea   = $('codeTextarea');
+  const codeHighlight  = $('codeHighlight');
+  const codePreview    = $('codePreview');
+  const codeWrapper    = $('codeWrapper');
+  const editorLang     = $('editorLang');
+  const emptyState     = $('emptyState');
+  const deleteNoteBtn  = $('deleteNoteBtn');
+  const saveNoteBtn    = $('saveNoteBtn');
+  const charCounter    = $('charCounter');
+  const copyBtn        = $('copyBtn');
+  const runBtn         = $('runBtn');
+
+  // Mobile
+  const menuToggle     = $('menuToggle');
+  const sidebarEl      = $('sidebar');
+  const sidebarOverlay = $('sidebarOverlay');
+
+  // Run modal
+  const runModal       = $('runModal');
+  const runFrame       = $('runFrame');
+  const closeRunBtn    = $('closeRunModal');
+
+  // ────────────────────────────────────────
+  // 4. دوال العرض (UI)
+  // ────────────────────────────────────────
+
+  // عرض القائمة الجانبية
   function renderSidebar() {
     let filtered = notes;
-    if (activeFilter !== 'all') filtered = notes.filter(n => n.lang === activeFilter);
-    filtered.sort((a,b) => b.updatedAt - a.updatedAt);
+    if (activeFilter !== 'all') {
+      filtered = notes.filter(n => n.lang === activeFilter);
+    }
+    // ترتيب تنازلي حسب تاريخ التحديث
+    filtered.sort((a, b) => b.updatedAt - a.updatedAt);
 
-    notesList.innerHTML = filtered.map(n => `
-      <div class="note-item ${n.id === currentId ? 'active' : ''}" data-id="${n.id}">
-        <div class="note-item-title">${escapeHtml(n.title || 'Untitled')}</div>
-        <span class="note-item-lang">${n.lang || 'text'}</span>
-        <button class="note-item-delete" data-del="${n.id}">✕</button>
+    notesListEl.innerHTML = filtered.map(note => `
+      <div class="note-item ${note.id === currentNoteId ? 'active' : ''}" data-id="${note.id}">
+        <div class="note-item-title">${escapeHtml(note.title || 'Untitled')}</div>
+        <span class="note-item-lang">${note.lang || 'text'}</span>
+        <button class="note-item-delete" data-del="${note.id}" title="حذف">✕</button>
       </div>
     `).join('');
 
-    notesList.querySelectorAll('.note-item').forEach(item => {
+    // أحداث الضغط على العناصر
+    notesListEl.querySelectorAll('.note-item').forEach(item => {
       item.addEventListener('click', (e) => {
         if (e.target.closest('[data-del]')) return;
-        openNote(item.dataset.id);
+        const id = item.dataset.id;
+        if (id) openNote(id);
       });
     });
-    notesList.querySelectorAll('[data-del]').forEach(btn => {
+
+    // أحداث الحذف
+    notesListEl.querySelectorAll('[data-del]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         deleteNote(btn.dataset.del);
       });
     });
-    noteCountSpan.textContent = `${filtered.length} note${filtered.length !== 1 ? 's' : ''}`;
+
+    noteCountEl.textContent = `${filtered.length} note${filtered.length !== 1 ? 's' : ''}`;
   }
 
-  function escapeHtml(str) {
-    const d = document.createElement('div');
-    d.textContent = str;
-    return d.innerHTML;
-  }
-
+  // فتح ملاحظة
   function openNote(id) {
-    saveCurrent(true); // save previously opened
+    // حفظ الملاحظة الحالية قبل الانتقال (إذا كانت موجودة)
+    if (currentNoteId) saveCurrentNote(true);
+
     const note = notes.find(n => n.id === id);
     if (!note) return;
-    currentId = id;
+
+    currentNoteId = id;
     editorTitle.value = note.title || '';
     codeTextarea.value = note.content || '';
     editorLang.value = note.lang || 'plaintext';
     emptyState.style.display = 'none';
     codeWrapper.style.display = 'flex';
     deleteNoteBtn.style.display = 'inline-flex';
-    updateHighlight();
+
+    updateHighlighting();
     updateCharCount();
     renderSidebar();
     codeTextarea.focus();
   }
 
-  function newNote() {
-    saveCurrent(true);
-    const note = {
-      id: Date.now().toString(36) + Math.random().toString(36).substr(2,5),
+  // إنشاء ملاحظة جديدة
+  function createNewNote() {
+    saveCurrentNote(true);
+    const newNote = {
+      id: generateId(),
       title: '',
       content: '',
       lang: 'html',
       createdAt: Date.now(),
       updatedAt: Date.now()
     };
-    notes.unshift(note);
-    saveNotes();
-    openNote(note.id);
+    notes.unshift(newNote);
+    saveNotes(notes);
+    openNote(newNote.id);
+    showToast('✨ New note created');
   }
 
+  // حذف ملاحظة
   function deleteNote(id) {
-    if (!confirm('Delete this note?')) return;
+    if (!confirm('Delete this note permanently?')) return;
     notes = notes.filter(n => n.id !== id);
-    saveNotes();
-    if (currentId === id) {
-      currentId = null;
+    saveNotes(notes);
+    if (currentNoteId === id) {
+      currentNoteId = null;
       clearEditor();
     }
     renderSidebar();
-    showToast('Note deleted');
+    showToast('🗑️ Note deleted');
   }
 
+  // مسح المحرر
   function clearEditor() {
     editorTitle.value = '';
     codeTextarea.value = '';
     codeHighlight.textContent = '';
-    currentId = null;
+    currentNoteId = null;
     emptyState.style.display = 'flex';
     codeWrapper.style.display = 'none';
     deleteNoteBtn.style.display = 'none';
     updateCharCount();
-  }
-
-  function saveCurrent(silent) {
-    if (!currentId) return;
-    const note = notes.find(n => n.id === currentId);
-    if (!note) return;
-    note.title = editorTitle.value;
-    note.content = codeTextarea.value;
-    note.lang = editorLang.value;
-    note.updatedAt = Date.now();
-    saveNotes();
-    if (!silent) showToast('Saved');
     renderSidebar();
   }
 
-  function autoSave() {
-    clearTimeout(autoSaveTimer);
-    autoSaveTimer = setTimeout(() => saveCurrent(true), 2000);
+  // ────────────────────────────────────────
+  // 5. الحفظ والتحديث
+  // ────────────────────────────────────────
+  function saveCurrentNote(silent = false) {
+    if (!currentNoteId) return;
+    const note = notes.find(n => n.id === currentNoteId);
+    if (!note) return;
+
+    note.title = editorTitle.value.trim();
+    note.content = codeTextarea.value;
+    note.lang = editorLang.value;
+    note.updatedAt = Date.now();
+
+    saveNotes(notes);
+    if (!silent) showToast('💾 Saved');
+    renderSidebar();
   }
 
-  // Highlighting
-  function updateHighlight() {
+  // حفظ تلقائي بعد توقف الكتابة
+  function autoSave() {
+    if (!currentNoteId) return;
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(() => {
+      if (isTyping) {
+        saveCurrentNote(true);
+        isTyping = false;
+      }
+    }, 2000);
+  }
+
+  // ────────────────────────────────────────
+  // 6. تمييز الكود (Syntax Highlighting)
+  // ────────────────────────────────────────
+  function updateHighlighting() {
     const code = codeTextarea.value;
     const lang = editorLang.value;
-    try {
-      if (lang === 'plaintext') codeHighlight.textContent = code;
-      else {
+
+    let highlighted = '';
+    if (lang === 'plaintext' || !lang) {
+      highlighted = escapeHtml(code);
+    } else {
+      try {
         const result = hljs.highlight(code, { language: lang, ignoreIllegals: true });
-        codeHighlight.innerHTML = result.value;
+        highlighted = result.value;
+      } catch (e) {
+        highlighted = escapeHtml(code);
       }
-    } catch(e) {
-      codeHighlight.textContent = code;
     }
-    // sync scroll
+    codeHighlight.innerHTML = highlighted;
+
+    // مزامنة التمرير
+    syncScroll();
+  }
+
+  function syncScroll() {
     codePreview.scrollTop = codeTextarea.scrollTop;
     codePreview.scrollLeft = codeTextarea.scrollLeft;
   }
 
-  function updateCharCount() {
-    charCounter.textContent = `${codeTextarea.value.length} chars`;
-  }
-
-  // Copy code
-  async function copyCode() {
+  // ────────────────────────────────────────
+  // 7. نسخ الكود
+  // ────────────────────────────────────────
+  async function copyFullCode() {
     try {
       await navigator.clipboard.writeText(codeTextarea.value);
       copyBtn.classList.add('copied');
-      copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+      copyBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!`;
       setTimeout(() => {
         copyBtn.classList.remove('copied');
-        copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy';
+        copyBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy`;
       }, 2000);
-    } catch(e) {
-      showToast('Copy failed');
+    } catch (err) {
+      showToast('⚠️ Copy failed');
     }
   }
 
-  // Run HTML/CSS/JS
+  // ────────────────────────────────────────
+  // 8. تشغيل الكود
+  // ────────────────────────────────────────
   function runCode() {
     const code = codeTextarea.value;
     const lang = editorLang.value;
+
     let html = code;
-    if (lang === 'css') html = `<html><head><style>${code}</style></head><body></body></html>`;
-    else if (lang === 'javascript') html = `<html><body><script>${code}<\/script></body></html>`;
+    if (lang === 'css') {
+      html = `<!DOCTYPE html><html><head><style>${code}</style></head><body></body></html>`;
+    } else if (lang === 'javascript') {
+      html = `<!DOCTYPE html><html><body><script>${code}<\/script></body></html>`;
+    }
+
     const blob = new Blob([html], { type: 'text/html' });
-    runFrame.src = URL.createObjectURL(blob);
+    const url = URL.createObjectURL(blob);
+    runFrame.src = url;
     runModal.style.display = 'flex';
   }
 
+  // ────────────────────────────────────────
+  // 9. أدوات مساعدة
+  // ────────────────────────────────────────
+  function generateId() {
+    return Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function updateCharCount() {
+    const len = codeTextarea.value.length;
+    charCounter.textContent = `${len} character${len !== 1 ? 's' : ''}`;
+  }
+
   function showToast(msg) {
-    const existing = document.querySelector('.toast');
-    if (existing) existing.remove();
+    const old = document.querySelector('.toast');
+    if (old) old.remove();
+
     const toast = document.createElement('div');
     toast.className = 'toast';
     toast.textContent = msg;
     document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 2000);
+    setTimeout(() => toast.remove(), 2200);
   }
 
-  // Event listeners
-  $('newNoteBtn').addEventListener('click', newNote);
-  $('saveNoteBtn').addEventListener('click', () => saveCurrent());
-  $('deleteNoteBtn').addEventListener('click', () => { if (currentId) deleteNote(currentId); });
-  $('copyBtn').addEventListener('click', copyCode);
-  $('runBtn').addEventListener('click', runCode);
-  $('closeRunModal').addEventListener('click', () => {
+  // ────────────────────────────────────────
+  // 10. ربط الأحداث
+  // ────────────────────────────────────────
+
+  // Sidebar & Mobile
+  newNoteBtn.addEventListener('click', createNewNote);
+  menuToggle.addEventListener('click', () => {
+    sidebarEl.classList.toggle('open');
+    sidebarOverlay.classList.toggle('show');
+  });
+  sidebarOverlay.addEventListener('click', () => {
+    sidebarEl.classList.remove('open');
+    sidebarOverlay.classList.remove('show');
+  });
+
+  // Filter
+  filterBar.addEventListener('click', (e) => {
+    const chip = e.target.closest('.filter-chip');
+    if (!chip) return;
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    activeFilter = chip.dataset.cat;
+    renderSidebar();
+  });
+
+  // Editor buttons
+  saveNoteBtn.addEventListener('click', () => saveCurrentNote());
+  deleteNoteBtn.addEventListener('click', () => {
+    if (currentNoteId) deleteNote(currentNoteId);
+  });
+  copyBtn.addEventListener('click', copyFullCode);
+  runBtn.addEventListener('click', runCode);
+
+  // Run modal
+  closeRunBtn.addEventListener('click', () => {
     runModal.style.display = 'none';
     runFrame.src = '';
   });
 
-  editorTitle.addEventListener('input', autoSave);
+  // Keyboard shortcuts
+  document.addEventListener('keydown', (e) => {
+    // Ctrl+S
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault();
+      saveCurrentNote();
+    }
+    // Ctrl+N
+    if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+      e.preventDefault();
+      createNewNote();
+    }
+    // Escape for run modal
+    if (e.key === 'Escape' && runModal.style.display === 'flex') {
+      runModal.style.display = 'none';
+      runFrame.src = '';
+    }
+  });
+
+  // Input events
+  editorTitle.addEventListener('input', () => {
+    isTyping = true;
+    autoSave();
+  });
+
   codeTextarea.addEventListener('input', () => {
-    updateHighlight();
+    isTyping = true;
+    updateHighlighting();
     updateCharCount();
     autoSave();
   });
-  codeTextarea.addEventListener('scroll', () => {
-    codePreview.scrollTop = codeTextarea.scrollTop;
-    codePreview.scrollLeft = codeTextarea.scrollLeft;
-  });
+
+  codeTextarea.addEventListener('scroll', syncScroll);
+
   editorLang.addEventListener('change', () => {
-    updateHighlight();
+    updateHighlighting();
     autoSave();
   });
 
-  // Filters
-  document.querySelectorAll('.filter-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-      activeFilter = chip.dataset.cat;
-      renderSidebar();
-    });
-  });
+  // ────────────────────────────────────────
+  // 11. التهيئة الأولية
+  // ────────────────────────────────────────
+  function init() {
+    renderSidebar();
+    if (notes.length > 0) {
+      // فتح آخر ملاحظة تم تعديلها
+      const latest = notes.reduce((a, b) => a.updatedAt > b.updatedAt ? a : b);
+      openNote(latest.id);
+    }
+  }
 
-  // Mobile sidebar
-  $('menuToggle').addEventListener('click', () => {
-    $('sidebar').classList.toggle('open');
-    $('sidebarOverlay').classList.toggle('show');
-  });
-  $('sidebarOverlay').addEventListener('click', () => {
-    $('sidebar').classList.remove('open');
-    $('sidebarOverlay').classList.remove('show');
-  });
+  init();
 
-  // Keyboard shortcuts
-  document.addEventListener('keydown', e => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); saveCurrent(); }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'n') { e.preventDefault(); newNote(); }
-  });
-
-  // Init
-  renderSidebar();
-  if (notes.length > 0) openNote(notes[0].id);
 })();
 </script>
 </body>
