@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
   <title>DevPath 180 • Full Stack Roadmap</title>
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -290,9 +291,9 @@
 
 <script>
 (function() {
-  // ⚠️ مفتاح API مخفي عبر رموز ASCII
-  const GROQ_API_KEY = [103,115,107,95,80,121,84,80,71,86,122,79,70,65,102,89,86,102,117,65,106,113,113,121,87,71,100,121,98,51,70,89,89,100,78,114,88,101,53,52,55,54,84,115,118,88,113,120,66,99,84,108,109,98,112,101].map(c => String.fromCharCode(c)).join('');
-  const GROQ_MODEL = 'llama3-8b-8192';
+  // مفتاح Gemini API مخفي
+  const GEMINI_API_KEY = [65,73,122,97,83,121,66,85,67,107,88,55,54,115,108,45,48,82,53,122,50,73,72,89,115,97,81,108,101,116,67,74,56,104,119,73,119,67,119].map(c => String.fromCharCode(c)).join('');
+  const GEMINI_MODEL = 'gemini-2.5-flash'; // نموذج سريع ومجاني
   const TOTAL_DAYS = 180;
   const SECTIONS = [
     'HTML','CSS','JavaScript Basics','Practice','Advanced JS','Mini Apps',
@@ -524,34 +525,49 @@
     get projects() { return ROADMAP.filter(d => d.type === 'project' && this.isDone(d.d)).length; }
   };
 
+  // توجيه البوت (System Prompt)
   const SYSTEM_PROMPT = `You are DevPath AI, a world-class full-stack development tutor built into the DevPath 180 learning tracker. The user is on a 180-day journey to become a full-stack developer. Your role is to guide, motivate, and explain concepts related to web development (HTML, CSS, JavaScript, React, Node.js, databases, etc.). Keep responses under 80 words, encouraging and practical. Use emojis occasionally. If asked about progress, refer to the current day and completed days. Never break character.`;
 
-  async function callGroq(messages) {
+  // دالة استدعاء Gemini
+  async function callGemini(messages) {
     try {
-      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      // تحويل المحادثة إلى تنسيق Gemini
+      const contents = messages.map(m => ({
+        role: m.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: m.content }]
+      }));
+
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${GROQ_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: GROQ_MODEL,
-          messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages],
-          max_tokens: 200,
-          temperature: 0.7
+          contents: contents,
+          systemInstruction: {
+            parts: [{ text: SYSTEM_PROMPT }]
+          },
+          generationConfig: {
+            maxOutputTokens: 200,
+            temperature: 0.7
+          }
         })
       });
-      
+
       const data = await res.json();
-      console.log('Groq response:', data);
-      
-      if (data.choices && data.choices[0] && data.choices[0].message) {
-        return data.choices[0].message.content;
-      } else if (data.error) {
-        console.error('Groq API error:', data.error);
-        return 'Sorry, I encountered an error. Please try again.';
+      console.log('Gemini API response:', data);
+
+      if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+        const parts = data.candidates[0].content.parts;
+        if (parts && parts.length > 0) {
+          return parts[0].text;
+        }
       }
-      return 'I need a moment...';
+      
+      if (data.error) {
+        console.error('Gemini API error:', data.error);
+        return 'API error: ' + data.error.message;
+      }
+      
+      return 'I couldn\'t generate a response. Please try again.';
     } catch (error) {
       console.error('Network error:', error);
       return 'Network error. Please check your connection.';
@@ -652,7 +668,7 @@
     const day = ROADMAP.find(d => d.d === State.current);
     if (!day) return;
     try {
-      const tip = await callGroq([{ role: 'user', content: `Give a one-sentence motivational tip for Day ${State.current}: ${day.t} (${day.s}).` }]);
+      const tip = await callGemini([{ role: 'user', content: `Give a one-sentence motivational tip for Day ${State.current}: ${day.t} (${day.s}).` }]);
       document.getElementById('aiTip').textContent = tip;
     } catch(e) {
       document.getElementById('aiTip').textContent = 'Keep building, keep growing! 🚀';
@@ -686,7 +702,7 @@
     };
 
     try {
-      const explanation = await callGroq([{ role: 'user', content: `Explain in 2 sentences why Day ${dayNum} "${day.t}" is important for a full-stack developer.` }]);
+      const explanation = await callGemini([{ role: 'user', content: `Explain in 2 sentences why Day ${dayNum} "${day.t}" is important for a full-stack developer.` }]);
       document.getElementById('aiExplain').textContent = '🤖 ' + explanation;
     } catch(e) {
       document.getElementById('aiExplain').textContent = '🤖 Focus on mastering this concept before moving forward.';
@@ -709,11 +725,11 @@
     updateAiTip();
   }
 
-  // Init
+  // بدء التطبيق
   State.init();
   renderAll();
 
-  // Drawer toggle
+  // أحداث الدرج
   document.getElementById('menuBtn').addEventListener('click', () => {
     document.getElementById('drawer').classList.toggle('open');
     document.getElementById('drawerOverlay').classList.toggle('show');
@@ -723,7 +739,7 @@
     document.getElementById('drawerOverlay').classList.remove('show');
   });
 
-  // Continue
+  // متابعة
   document.getElementById('continueBtn').addEventListener('click', () => openDayModal(State.current));
   document.getElementById('expandBtn').addEventListener('click', () => {
     document.querySelectorAll('.section-group').forEach(g => g.classList.add('open'));
@@ -737,7 +753,7 @@
     }
   });
 
-  // Chat
+  // المحادثة
   document.getElementById('chatToggleBtn').addEventListener('click', () => {
     document.getElementById('chatOverlay').style.display = 'flex';
   });
@@ -755,7 +771,7 @@
     sendBtn.textContent = '...';
     sendBtn.disabled = true;
     try {
-      const reply = await callGroq([{ role: 'user', content: msg }]);
+      const reply = await callGemini([{ role: 'user', content: msg }]);
       messagesDiv.innerHTML += `<div style="align-self:flex-start; background:var(--surface); padding:8px; border-radius:8px; max-width:80%;">${reply}</div>`;
     } catch(e) {
       messagesDiv.innerHTML += `<div style="align-self:flex-start; background:var(--surface); padding:8px; border-radius:8px; max-width:80%;">Sorry, AI is unavailable.</div>`;
