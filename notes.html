@@ -84,14 +84,13 @@
       border:none; 
       outline:none; 
       background:transparent; 
-      will-change: transform; /* تحسين الأداء */
     }
     .code-textarea{ 
       color:transparent; 
       caret-color:var(--accent); 
       resize:none; 
       z-index:2; 
-      -webkit-text-fill-color: transparent; /* مهم جداً لجعل النص شفافاً */
+      -webkit-text-fill-color: transparent;
     }
     .code-textarea::selection{ background:rgba(10,132,255,0.3); }
     .code-preview{ 
@@ -238,7 +237,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script>
 (function(){
-  const STORE = 'dpn_v14';
+  const STORE = 'dpn_v15';
   let notes = JSON.parse(localStorage.getItem(STORE)||'[]');
   let currentId = null;
   let filterLang = 'all';
@@ -251,6 +250,13 @@
   const livePreview = $('livePreview');
   const codeStage = $('codeStage');
   const previewBtn = $('previewBtn');
+
+  // أداء: مؤقتات للتخفيف
+  let highlightTimer = null;
+  let lineNumbersTimer = null;
+  let previewTimer = null;
+  let scrollTimer = null;
+  let statsTimer = null;
 
   function persist() { localStorage.setItem(STORE, JSON.stringify(notes)); }
 
@@ -310,6 +316,7 @@
     switchToCode();
     refreshHighlight();
     updateStats();
+    drawLineNumbers();
   }
 
   function openNewNote() {
@@ -363,9 +370,7 @@
     previewBtn.classList.add('active');
     previewBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> Code';
     livePreview.srcdoc = '';
-    requestAnimationFrame(() => {
-        updatePreview();
-    });
+    requestAnimationFrame(updatePreview);
   }
 
   function switchToCode() {
@@ -395,17 +400,20 @@
     livePreview.srcdoc = html;
   }
 
-  // ══════ SYNTAX ══════
+  // ══════ SYNTAX (محسّن للأداء) ══════
   function refreshHighlight() {
-    const code = $('codeTextarea').value;
-    const lang = $('langPicker').value;
-    let out;
-    try {
-      out = lang === 'plaintext' ? esc(code) : hljs.highlight(code, { language: lang, ignoreIllegals: true }).value;
-    } catch(e) { out = esc(code); }
-    $('codeHighlight').innerHTML = out;
-    syncScroll();
-    drawLineNumbers();
+    // استخدام debounce لتجنب التظليل عند كل حرف
+    clearTimeout(highlightTimer);
+    highlightTimer = setTimeout(() => {
+      const code = $('codeTextarea').value;
+      const lang = $('langPicker').value;
+      let out;
+      try {
+        out = lang === 'plaintext' ? esc(code) : hljs.highlight(code, { language: lang, ignoreIllegals: true }).value;
+      } catch(e) { out = esc(code); }
+      $('codeHighlight').innerHTML = out;
+      syncScroll();
+    }, 100); // 100ms تأخير كافي
   }
 
   function syncScroll() {
@@ -461,14 +469,33 @@
     isPreview ? switchToCode() : switchToPreview();
   });
 
+  // معالجة الإدخال بشكل محسّن
   $('codeTextarea').addEventListener('input', () => {
+    // تحديث التظليل مؤجل (debounce)
     refreshHighlight();
-    updateStats();
+    // تحديث الإحصائيات مؤجل
+    clearTimeout(statsTimer);
+    statsTimer = setTimeout(updateStats, 200);
+    // تحديث أرقام الأسطر مؤجل أكثر
+    clearTimeout(lineNumbersTimer);
+    lineNumbersTimer = setTimeout(drawLineNumbers, 300);
+    
     if (currentId) {
       const note = notes.find(n => n.id === currentId);
       if (note) { note.content = $('codeTextarea').value; note.updated = Date.now(); persist(); }
     }
-    if (isPreview) updatePreview();
+    // تحديث المعاينة مؤجل
+    if (isPreview) {
+      clearTimeout(previewTimer);
+      previewTimer = setTimeout(updatePreview, 300);
+    }
+  });
+
+  // التمرير: تحديث فوري للمزامنة، ومؤجل للأرقام
+  $('codeTextarea').addEventListener('scroll', () => {
+    syncScroll();
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(drawLineNumbers, 150);
   });
 
   $('homeSearch').addEventListener('input', (e) => { searchTerm = e.target.value; renderHome(); });
@@ -497,8 +524,6 @@
     }
     if (isPreview) updatePreview();
   });
-
-  $('codeTextarea').addEventListener('scroll', () => { syncScroll(); drawLineNumbers(); });
 
   $('codeTextarea').addEventListener('keydown', e => {
     if (e.key === 'Tab') {
