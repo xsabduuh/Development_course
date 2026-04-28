@@ -71,14 +71,43 @@
     .nav-title-input{ flex:1; background:transparent; border:none; font-size:1.1rem; font-weight:600; color:var(--text); outline:none; min-width:0; }
     .nav-title-input::placeholder{ color:var(--secondary); }
     .editor-container{ flex:1; display:flex; flex-direction:column; min-height:0; position:relative; }
-    
+
     .code-stage{ flex:1; position:relative; display:flex; overflow:hidden; }
-    .code-layer{ position:absolute; inset:12px 12px 12px 50px; font-family:var(--mono); font-size:0.88rem; line-height:1.75; white-space:pre-wrap; overflow:auto; border:none; outline:none; background:transparent; }
-    .code-textarea{ color:transparent; caret-color:var(--accent); resize:none; z-index:2; }
+    .code-layer{ 
+      position:absolute; 
+      inset:12px 12px 12px 50px; 
+      font-family:var(--mono); 
+      font-size:0.88rem; 
+      line-height:1.75; 
+      white-space:pre-wrap; 
+      overflow:auto; 
+      border:none; 
+      outline:none; 
+      background:transparent; 
+      will-change: transform; /* تحسين الأداء */
+    }
+    .code-textarea{ 
+      color:transparent; 
+      caret-color:var(--accent); 
+      resize:none; 
+      z-index:2; 
+      -webkit-text-fill-color: transparent; /* مهم جداً لجعل النص شفافاً */
+    }
     .code-textarea::selection{ background:rgba(10,132,255,0.3); }
-    .code-preview{ pointer-events:none; z-index:1; }
+    .code-preview{ 
+      pointer-events:none; 
+      z-index:1; 
+      white-space:pre-wrap; 
+      word-wrap:break-word; 
+    }
     .code-preview code{ background:transparent!important; padding:0!important; }
-    .line-numbers{ position:absolute; top:12px; left:4px; bottom:12px; width:40px; font-family:var(--mono); font-size:0.78rem; color:var(--secondary); text-align:right; overflow:hidden; z-index:3; pointer-events:none; line-height:1.75; padding-right:6px; }
+    .line-numbers{ 
+      position:absolute; top:12px; left:4px; bottom:12px; 
+      width:40px; font-family:var(--mono); font-size:0.78rem; 
+      color:var(--secondary); text-align:right; 
+      overflow:hidden; z-index:3; pointer-events:none; 
+      line-height:1.75; padding-right:6px; 
+    }
     .line-numbers span{ display:block; }
 
     /* ── LIVE PREVIEW ── */
@@ -209,7 +238,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script>
 (function(){
-  const STORE = 'dpn_v13';
+  const STORE = 'dpn_v14';
   let notes = JSON.parse(localStorage.getItem(STORE)||'[]');
   let currentId = null;
   let filterLang = 'all';
@@ -326,16 +355,14 @@
     toast('Deleted');
   }
 
-  // ══════ PREVIEW (تم تحسينها لضمان عرض أحدث محتوى) ══════
+  // ══════ PREVIEW ══════
   function switchToPreview() {
     isPreview = true;
     codeStage.style.display = 'none';
     livePreview.classList.add('active');
     previewBtn.classList.add('active');
     previewBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> Code';
-    // مسح المحتوى السابق بالكامل لضمان تحديث نظيف
     livePreview.srcdoc = '';
-    // إعادة تحميل المحتوى الحالي على الفور
     requestAnimationFrame(() => {
         updatePreview();
     });
@@ -345,7 +372,6 @@
     isPreview = false;
     codeStage.style.display = 'flex';
     livePreview.classList.remove('active');
-    // مسح المعاينة عند العودة إلى الكود
     livePreview.srcdoc = '';
     previewBtn.classList.remove('active');
     previewBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2"/><path d="M12 2s8 4 8 10-8 10-8 10-8-4-8-10 8-10 8-10z"/></svg> Preview';
@@ -383,9 +409,10 @@
   }
 
   function syncScroll() {
-    const pre = $('codeHighlight').parentElement;
-    pre.scrollTop = $('codeTextarea').scrollTop;
-    pre.scrollLeft = $('codeTextarea').scrollLeft;
+    const textarea = $('codeTextarea');
+    const preview = $('codeHighlight').parentElement;
+    preview.scrollTop = textarea.scrollTop;
+    preview.scrollLeft = textarea.scrollLeft;
   }
 
   function drawLineNumbers() {
