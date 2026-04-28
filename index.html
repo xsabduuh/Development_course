@@ -290,7 +290,7 @@
 
 <script>
 (function() {
-  // مفتاح API مخفي عبر رموز ASCII
+  // ⚠️ مفتاح API مخفي عبر رموز ASCII
   const GROQ_API_KEY = [103,115,107,95,80,121,84,80,71,86,122,79,70,65,102,89,86,102,117,65,106,113,113,121,87,71,100,121,98,51,70,89,89,100,78,114,88,101,53,52,55,54,84,115,118,88,113,120,66,99,84,108,109,98,112,101].map(c => String.fromCharCode(c)).join('');
   const GROQ_MODEL = 'llama3-8b-8192';
   const TOTAL_DAYS = 180;
@@ -526,14 +526,36 @@
 
   const SYSTEM_PROMPT = `You are DevPath AI, a world-class full-stack development tutor built into the DevPath 180 learning tracker. The user is on a 180-day journey to become a full-stack developer. Your role is to guide, motivate, and explain concepts related to web development (HTML, CSS, JavaScript, React, Node.js, databases, etc.). Keep responses under 80 words, encouraging and practical. Use emojis occasionally. If asked about progress, refer to the current day and completed days. Never break character.`;
 
-  async function callGroq(messages, system = SYSTEM_PROMPT) {
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: GROQ_MODEL, messages: [{ role: 'system', content: system }, ...messages], max_tokens: 200, temperature: 0.7 })
-    });
-    const data = await res.json();
-    return data.choices?.[0]?.message?.content || 'I need a moment...';
+  async function callGroq(messages) {
+    try {
+      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${GROQ_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: GROQ_MODEL,
+          messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages],
+          max_tokens: 200,
+          temperature: 0.7
+        })
+      });
+      
+      const data = await res.json();
+      console.log('Groq response:', data);
+      
+      if (data.choices && data.choices[0] && data.choices[0].message) {
+        return data.choices[0].message.content;
+      } else if (data.error) {
+        console.error('Groq API error:', data.error);
+        return 'Sorry, I encountered an error. Please try again.';
+      }
+      return 'I need a moment...';
+    } catch (error) {
+      console.error('Network error:', error);
+      return 'Network error. Please check your connection.';
+    }
   }
 
   function renderStats() {
@@ -729,12 +751,17 @@
     const messagesDiv = document.getElementById('chatMessages');
     messagesDiv.innerHTML += `<div style="align-self:flex-end; background:var(--accent); padding:8px; border-radius:8px; max-width:80%;">${msg}</div>`;
     input.value = '';
+    const sendBtn = document.getElementById('sendChatBtn');
+    sendBtn.textContent = '...';
+    sendBtn.disabled = true;
     try {
       const reply = await callGroq([{ role: 'user', content: msg }]);
       messagesDiv.innerHTML += `<div style="align-self:flex-start; background:var(--surface); padding:8px; border-radius:8px; max-width:80%;">${reply}</div>`;
     } catch(e) {
       messagesDiv.innerHTML += `<div style="align-self:flex-start; background:var(--surface); padding:8px; border-radius:8px; max-width:80%;">Sorry, AI is unavailable.</div>`;
     }
+    sendBtn.textContent = 'Send';
+    sendBtn.disabled = false;
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
   });
 
