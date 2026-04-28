@@ -27,14 +27,20 @@
       --shadow: 0 2px 20px rgba(0,0,0,0.5);
     }
     *{margin:0;padding:0;box-sizing:border-box}
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      overscroll-behavior-y: auto; /* يسمح بالسحب للتحديث */
+    }
     body{
       font-family:var(--font);
       background:var(--bg);
       color:var(--text);
-      height:100dvh;display:flex;overflow:hidden;
+      display:flex;
       -webkit-font-smoothing:antialiased;
       -webkit-user-select:none;user-select:none;
       -webkit-tap-highlight-color:transparent;
+      position: relative;
     }
     ::-webkit-scrollbar{width:3px}
     ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
@@ -140,12 +146,14 @@
     /* ===== MAIN ===== */
     .main{
       flex:1;display:flex;flex-direction:column;min-width:0;
+      /* يسمح بتمرير الجسم بأكمله عند الحاجة */
+      max-height: 100vh;
     }
 
     .navbar{
       padding:12px 16px;display:flex;align-items:center;
       gap:10px;border-bottom:1px solid var(--border);
-      min-height:52px;
+      min-height:52px;flex-shrink:0;
     }
     .menu-btn{
       width:36px;height:36px;border-radius:50%;
@@ -163,7 +171,7 @@
 
     .editor-container{
       flex:1;display:flex;flex-direction:column;
-      position:relative;
+      position:relative;min-height:0;
     }
     .empty-view{
       flex:1;display:flex;align-items:center;justify-content:center;
@@ -178,6 +186,7 @@
 
     .code-stage{
       flex:1;position:relative;display:flex;overflow:hidden;
+      min-height:0;
     }
     .code-layer{
       position:absolute;inset:12px 12px 12px 50px;
@@ -207,7 +216,7 @@
     .bottom-toolbar {
       display:flex;align-items:center;gap:8px;
       padding:10px 14px;border-top:1px solid var(--border);
-      background:var(--bg);
+      background:var(--bg);flex-shrink:0;
       flex-wrap:wrap;
     }
     .lang-picker{
@@ -238,7 +247,7 @@
       border:none;padding:10px 18px;border-radius:25px;
       font-weight:600;cursor:pointer;font-size:0.85rem;
       text-decoration:none;
-      white-space:nowrap;
+      white-space:nowrap;flex-shrink:0;
     }
     .dashboard-fab:hover { background:var(--accent2); }
 
@@ -274,7 +283,6 @@
 </head>
 <body>
 
-<!-- ===== SHEET ===== -->
 <div class="sheet-overlay" id="sheetOverlay"></div>
 <aside class="sheet" id="sheet">
   <div class="sheet-handle"></div>
@@ -292,7 +300,6 @@
   </div>
 </aside>
 
-<!-- ===== MAIN ===== -->
 <main class="main">
   <div class="navbar">
     <button class="menu-btn" id="menuBtn">☰</button>
@@ -353,7 +360,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script>
 (function(){
-  const STORE = 'dpn_v6';
+  const STORE = 'dpn_v7';
   let notes = JSON.parse(localStorage.getItem(STORE)||'[]');
   let currentId = null;
   let autoTimer = null;
@@ -459,7 +466,7 @@
 
   function autoSave(){
     clearTimeout(autoTimer);
-    autoTimer=setTimeout(()=>{if(currentId)saveCurrent(true)},2000);
+    autoTimer=setTimeout(()=>{if(currentId)saveCurrent(true);},2000);
   }
 
   // ===== SYNTAX =====
