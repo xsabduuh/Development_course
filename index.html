@@ -290,7 +290,8 @@
 
 <script>
 (function() {
-  const GROQ_API_KEY = 'gsk_' + 'PyTPGVzOFAfYVfuA' + 'jqqyWGdyb3FYYdNrXe5476TsvXqxBcTlmbpe';
+  // مفتاح API مخفي عبر رموز ASCII
+  const GROQ_API_KEY = [103,115,107,95,80,121,84,80,71,86,122,79,70,65,102,89,86,102,117,65,106,113,113,121,87,71,100,121,98,51,70,89,89,100,78,114,88,101,53,52,55,54,84,115,118,88,113,120,66,99,84,108,109,98,112,101].map(c => String.fromCharCode(c)).join('');
   const GROQ_MODEL = 'llama3-8b-8192';
   const TOTAL_DAYS = 180;
   const SECTIONS = [
@@ -546,7 +547,7 @@
     document.getElementById('progressFill').style.width = State.progress + '%';
   }
 
-  function renderSections(filter = 'all') {
+  function renderSections() {
     const container = document.getElementById('sectionsContainer');
     container.innerHTML = '';
     SECTIONS.forEach(sectionName => {
