@@ -165,7 +165,7 @@
         <textarea class="code-layer code-textarea" id="codeTextarea" placeholder="Write code…" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
         <pre class="code-layer code-preview"><code class="hljs" id="codeHighlight"></code></pre>
       </div>
-      <!-- Live Preview iframe using srcdoc for instant updates -->
+      <!-- Live Preview iframe -->
       <iframe class="live-preview" id="livePreview" sandbox="allow-scripts allow-same-origin" title="Live Preview"></iframe>
     </div>
     <div class="bottom-toolbar">
@@ -209,7 +209,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script>
 (function(){
-  const STORE = 'dpn_v12';
+  const STORE = 'dpn_v13';
   let notes = JSON.parse(localStorage.getItem(STORE)||'[]');
   let currentId = null;
   let filterLang = 'all';
@@ -326,21 +326,27 @@
     toast('Deleted');
   }
 
-  // ══════ PREVIEW ══════
+  // ══════ PREVIEW (تم تحسينها لضمان عرض أحدث محتوى) ══════
   function switchToPreview() {
     isPreview = true;
     codeStage.style.display = 'none';
     livePreview.classList.add('active');
     previewBtn.classList.add('active');
     previewBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> Code';
-    updatePreview();
+    // مسح المحتوى السابق بالكامل لضمان تحديث نظيف
+    livePreview.srcdoc = '';
+    // إعادة تحميل المحتوى الحالي على الفور
+    requestAnimationFrame(() => {
+        updatePreview();
+    });
   }
 
   function switchToCode() {
     isPreview = false;
     codeStage.style.display = 'flex';
     livePreview.classList.remove('active');
-    livePreview.srcdoc = ''; // clear preview content
+    // مسح المعاينة عند العودة إلى الكود
+    livePreview.srcdoc = '';
     previewBtn.classList.remove('active');
     previewBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2"/><path d="M12 2s8 4 8 10-8 10-8 10-8-4-8-10 8-10 8-10z"/></svg> Preview';
   }
