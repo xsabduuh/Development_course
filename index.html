@@ -28,21 +28,26 @@
       --shadow: 0 2px 20px rgba(0,0,0,0.5);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html { height: 100%; overflow: hidden; }
+    html {
+      height: 100%;
+      overflow-x: hidden;
+      overflow-y: hidden;
+    }
     body {
       font-family: var(--font);
       background: var(--bg);
       color: var(--text);
       height: 100%;
       display: flex;
-      overflow: auto;
+      overflow-x: hidden;
+      overflow-y: auto;
       -webkit-overflow-scrolling: touch;
       overscroll-behavior-y: auto;
       -webkit-font-smoothing: antialiased;
       user-select: none;
       -webkit-user-select: none;
       -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
+      touch-action: pan-y; /* يسمح فقط بالتمرير العمودي */
     }
     .app-container {
       width: 100%;
@@ -52,6 +57,7 @@
       display: flex;
       flex-direction: column;
       min-height: 100%;
+      overflow-x: hidden;
     }
     ::-webkit-scrollbar { width: 3px; }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
@@ -128,6 +134,7 @@
 
     /* ── SECTION TABS ── */
     .section-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 8px; scrollbar-width: none; }
+    .section-tabs::-webkit-scrollbar { display: none; }
     .section-tab { flex-shrink: 0; padding: 8px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--card); color: var(--secondary); font-size: 0.8rem; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
     .section-tab svg { width: 16px; height: 16px; opacity: 0.8; }
     .section-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
@@ -202,7 +209,6 @@
           DevPath 180
         </a>
         <div class="top-actions">
-          <span style="font-size:0.8rem;color:var(--secondary);" id="userEmailDisplay"></span>
           <a href="notes.html" class="notes-link">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Notes
           </a>
@@ -529,7 +535,6 @@
     if (user) {
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('mainContent').style.display = 'flex';
-      document.getElementById('userEmailDisplay').textContent = user.email;
       await loadProgress();
     } else {
       document.getElementById('loginScreen').style.display = 'flex';
