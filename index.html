@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>DevPath 180 • Dashboard</title>
+  <title>DevPath 180 • Full Stack Learning Path</title>
+  <!-- Firebase SDKs (Compat) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -22,79 +23,149 @@
       --red: #ff453a;
       --orange: #ff9f0a;
       --radius: 14px;
+      --radius-lg: 22px;
       --font: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
-      --mono: 'SF Mono', 'JetBrains Mono', monospace;
+      --mono: 'SF Mono', 'JetBrains Mono', 'Fira Code', monospace;
+      --shadow: 0 2px 20px rgba(0,0,0,0.5);
     }
-    *{margin:0;padding:0;box-sizing:border-box}
-    html{height:100%;overflow:hidden}
-    body{
-      font-family:var(--font);background:var(--bg);color:var(--text);
-      height:100%;display:flex;overflow:auto;-webkit-overflow-scrolling:touch;
-      overscroll-behavior-y:auto;-webkit-font-smoothing:antialiased;
-      user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;
-      touch-action:manipulation;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { height: 100%; overflow: hidden; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      height: 100%;
+      display: flex;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: auto;
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
-    .app{flex:1;display:flex;flex-direction:column;min-height:100dvh}
-    ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+    .app-container {
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 16px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+    }
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-    /* Login */
-    .login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:40px 20px}
-    .login-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px 24px;width:100%;max-width:400px;display:flex;flex-direction:column;gap:16px}
-    .login-title{font-size:1.6rem;font-weight:700;text-align:center;color:var(--accent)}
-    .input-field{background:#1c1c2e;border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:12px;font-size:1rem;outline:none}
-    .error-msg{color:var(--red);font-size:0.85rem;text-align:center;min-height:20px}
+    /* ── LOGIN SCREEN ── */
+    .login-screen {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; flex: 1; padding: 40px 20px;
+    }
+    .login-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 32px 24px; width: 100%; max-width: 400px;
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .login-title { font-size: 1.6rem; font-weight: 700; text-align: center; color: var(--accent); }
+    .input-field {
+      background: #1c1c2e; border: 1px solid var(--border); color: var(--text);
+      padding: 12px 16px; border-radius: 12px; font-size: 1rem; outline: none;
+    }
+    .error-msg { color: var(--red); font-size: 0.85rem; text-align: center; min-height: 20px; }
 
-    /* Dashboard */
-    .dashboard-content{display:none;flex:1;padding:16px}
-    .top-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);margin-bottom:16px;flex-wrap:wrap;gap:8px}
-    .logo{font-family:var(--mono);font-weight:700;font-size:1.1rem;color:var(--green);text-decoration:none;display:flex;align-items:center;gap:6px}
-    .user-info{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-    .user-email{font-size:0.8rem;color:var(--secondary)}
-    .notes-link{background:var(--card);border:1px solid var(--border);color:var(--accent);padding:6px 12px;border-radius:8px;text-decoration:none;font-size:0.75rem}
-    .drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:50;opacity:0;pointer-events:none;transition:opacity 0.35s;backdrop-filter:blur(4px)}
-    .drawer-overlay.show{opacity:1;pointer-events:auto}
-    .drawer{position:fixed;top:0;left:0;bottom:0;width:88vw;max-width:340px;background:#111118;z-index:60;transform:translateX(-100%);transition:transform 0.35s;display:flex;flex-direction:column;border-right:1px solid var(--border);padding:20px 0}
-    .drawer.open{transform:translateX(0)}
-    .drawer-header{padding:0 20px 16px;border-bottom:1px solid var(--border);font-family:var(--mono);color:var(--green);font-weight:700;display:flex;align-items:center;gap:8px}
-    .drawer-list{flex:1;overflow-y:auto;padding:12px 0}
-    .drawer-item{display:flex;align-items:center;gap:10px;padding:12px 20px;color:var(--secondary);cursor:pointer;font-size:0.9rem;border-left:3px solid transparent}
-    .drawer-item:hover{background:rgba(10,132,255,0.08);color:var(--text);border-left-color:var(--accent)}
-    .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
-    @media(min-width:600px){.stats-grid{grid-template-columns:repeat(4,1fr)}}
-    .stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;display:flex;align-items:center;gap:10px}
-    .stat-icon{width:36px;height:36px;border-radius:8px;background:rgba(10,132,255,0.12);display:flex;align-items:center;justify-content:center}
-    .stat-value{font-size:1.5rem;font-weight:700;font-family:var(--mono)}
-    .stat-label{font-size:0.7rem;color:var(--secondary)}
-    .progress-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:16px}
-    .progress-header{display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:8px}
-    .progress-bar{height:6px;background:#1c1c2e;border-radius:10px;overflow:hidden}
-    .progress-fill{height:100%;background:var(--accent);border-radius:10px;width:0%;transition:width 0.4s}
-    .btn{padding:10px 16px;border-radius:20px;border:none;font-weight:600;cursor:pointer;font-size:0.85rem;display:inline-flex;align-items:center;gap:6px;transition:all 0.2s}
-    .btn-primary{background:var(--accent);color:#fff}
-    .btn-outline{background:var(--card);border:1px solid var(--border);color:var(--text)}
-    .btn-sm{padding:6px 12px;font-size:0.75rem;border-radius:8px}
-    .logout-btn{background:transparent;border:1px solid var(--red);color:var(--red)}
-    .section-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:12px}
-    .section-tab{padding:7px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--secondary);cursor:pointer;font-size:0.8rem;font-weight:600;white-space:nowrap}
-    .section-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-    .section-group{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;overflow:hidden}
-    .section-header{padding:12px 16px;display:flex;justify-content:space-between;cursor:pointer}
-    .section-days{display:none;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:6px;padding:0 12px 12px}
-    .section-group.open .section-days{display:grid}
-    .day-cell{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;border:1px solid var(--border);cursor:pointer;background:var(--bg);color:var(--secondary);transition:0.2s}
-    .day-cell.done{background:rgba(48,209,88,0.1);border-color:var(--green);color:var(--green)}
-    .day-cell.current{border-color:var(--accent);box-shadow:0 0 10px var(--accent);color:#fff}
-    .day-cell.project{border-color:var(--orange);color:var(--orange)}
-    .day-cell.locked{opacity:0.25;pointer-events:none}
-    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:50}
-    .modal{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:20px;width:90%;max-width:450px}
-    .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;padding:10px 24px;border-radius:20px;font-weight:600;z-index:300;animation:fadeIn 0.3s}
-    @keyframes fadeIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-    @media(min-width:769px){.drawer{position:relative;transform:none;width:260px}.drawer-overlay{display:none}.menu-btn{display:none}.app{flex-direction:row;max-width:1000px;margin:0 auto}.dashboard-content{display:none;flex:1;padding:16px 20px}}
+    /* ── TOP BAR ── */
+    .top-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 0; position: sticky; top: 0; background: var(--bg);
+      z-index: 10; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 8px;
+    }
+    .logo { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-weight: 700; font-size: 1.2rem; color: var(--green); text-decoration: none; letter-spacing: -0.5px; }
+    .logo-icon { width: 28px; height: 28px; }
+    .top-actions { display: flex; align-items: center; gap: 8px; }
+    .lang-btn { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 10px; cursor: pointer; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+    .notes-link { background: var(--card); border: 1px solid var(--border); color: var(--accent); padding: 8px 14px; border-radius: 10px; text-decoration: none; font-size: 0.85rem; font-weight: 500; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+    .notes-link svg { width: 18px; height: 18px; }
+    .notes-link:hover { background: rgba(10,132,255,0.1); }
+    .menu-btn { background: var(--card); border: 1px solid var(--border); color: var(--text); font-size: 1.4rem; padding: 8px 12px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .logout-btn { background: transparent; border: 1px solid var(--red); color: var(--red); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.75rem; font-weight: 500; }
+
+    /* ── DRAWER ── */
+    .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 50; opacity: 0; pointer-events: none; transition: opacity 0.35s; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+    .drawer-overlay.show { opacity: 1; pointer-events: auto; }
+    .drawer { position: fixed; top: 0; left: 0; bottom: 0; width: 88vw; max-width: 340px; background: #111118; z-index: 60; transform: translateX(-100%); transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1); display: flex; flex-direction: column; border-right: 1px solid var(--border); padding: 20px 0; }
+    .drawer.open { transform: translateX(0); }
+    .drawer-header { padding: 0 20px 16px; border-bottom: 1px solid var(--border); font-family: var(--mono); color: var(--green); font-weight: 700; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+    .drawer-list { flex: 1; overflow-y: auto; padding: 12px 0; }
+    .drawer-item { display: flex; align-items: center; gap: 10px; padding: 12px 20px; color: var(--secondary); cursor: pointer; font-size: 0.9rem; border-left: 3px solid transparent; transition: all 0.2s; }
+    .drawer-item svg { width: 18px; height: 18px; opacity: 0.7; }
+    .drawer-item:hover, .drawer-item.active { background: rgba(10,132,255,0.08); color: var(--text); border-left-color: var(--accent); }
+
+    /* ── STATS ── */
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    @media (min-width: 600px) { .stats-grid { grid-template-columns: repeat(4, 1fr); } }
+    .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; gap: 12px; }
+    .stat-icon { width: 40px; height: 40px; border-radius: 10px; background: rgba(10,132,255,0.12); display: flex; align-items: center; justify-content: center; }
+    .stat-icon svg { width: 20px; height: 20px; }
+    .stat-value { font-size: 1.6rem; font-weight: 700; font-family: var(--mono); }
+    .stat-label { font-size: 0.75rem; color: var(--secondary); }
+
+    /* ── PROGRESS ── */
+    .progress-section { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 20px; }
+    .progress-header { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 8px; }
+    .progress-bar { height: 6px; background: #1c1c2e; border-radius: 10px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--green)); border-radius: 10px; width: 0%; transition: width 0.4s; }
+
+    /* ── BUTTONS ── */
+    .btn { padding: 10px 16px; border-radius: 20px; border: none; font-weight: 600; cursor: pointer; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; }
+    .btn svg { width: 18px; height: 18px; }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:active { background: var(--accent2); }
+    .btn-outline { background: var(--card); border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:active { background: #222; }
+    .btn-danger { background: transparent; border: 1px solid rgba(255,69,58,0.3); color: var(--red); }
+    .btn-danger:active { background: rgba(255,69,58,0.1); }
+
+    /* ── SECTION TABS ── */
+    .section-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 8px; scrollbar-width: none; }
+    .section-tab { flex-shrink: 0; padding: 8px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--card); color: var(--secondary); font-size: 0.8rem; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
+    .section-tab svg { width: 16px; height: 16px; opacity: 0.8; }
+    .section-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    /* ── SECTION GROUPS ── */
+    .section-group { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; overflow: hidden; }
+    .section-header { padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+    .section-header:hover { background: rgba(255,255,255,0.02); }
+    .section-days { display: none; grid-template-columns: repeat(auto-fill, minmax(42px, 1fr)); gap: 6px; padding: 0 14px 14px; }
+    .section-group.open .section-days { display: grid; }
+
+    /* ── DAY CELLS ── */
+    .day-cell { aspect-ratio: 1; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-family: var(--mono); font-size: 0.8rem; border: 1px solid var(--border); cursor: pointer; transition: 0.2s; background: var(--bg); color: var(--secondary); position: relative; }
+    .day-cell:active:not(.locked) { transform: scale(0.95); }
+    .day-cell.done { background: rgba(48,209,88,0.1); border-color: var(--green); color: var(--green); }
+    .day-cell.current { border-color: var(--accent); box-shadow: 0 0 12px var(--accent); color: #fff; }
+    .day-cell.project { border-color: var(--orange); color: var(--orange); }
+    .day-cell.locked { opacity: 0.25; pointer-events: none; }
+    .day-cell.just-completed { animation: completePulse 0.6s ease; }
+    @keyframes completePulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); box-shadow: 0 0 20px var(--green); } 100% { transform: scale(1); } }
+
+    /* ── MODAL ── */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 50; }
+    .modal { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); width: 90%; max-width: 480px; max-height: 85vh; overflow-y: auto; padding: 20px; }
+    .modal h3 { font-size: 1.1rem; margin-bottom: 8px; }
+    .modal p { color: var(--secondary); font-size: 0.9rem; line-height: 1.6; }
+
+    /* ── TOAST ── */
+    .toast-panel { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 200; display: flex; flex-direction: column; gap: 6px; pointer-events: none; }
+    .toast { background: var(--card); border: 1px solid var(--border); padding: 10px 20px; border-radius: 20px; font-weight: 500; font-size: 0.85rem; box-shadow: var(--shadow); text-align: center; animation: toastIn 0.4s ease; pointer-events: auto; }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: none; } }
+
+    @media (min-width: 769px) { .drawer { position: relative; transform: none; z-index: 1; width: 260px; } .drawer-overlay { display: none; } .menu-btn { display: none; } .app-container { display: flex; flex-direction: row; max-width: 1000px; padding: 0; } .main-content { flex: 1; padding: 0 20px 20px; overflow-y: auto; } }
+    @media (max-width: 768px) { .app-container { max-width: 100%; } .drawer { width: 85vw; } }
   </style>
 </head>
 <body>
-<div class="app" id="app">
+<div class="app-container" id="appContainer">
   <!-- LOGIN SCREEN -->
   <div class="login-screen" id="loginScreen">
     <div class="login-card">
@@ -107,158 +178,569 @@
     </div>
   </div>
 
-  <!-- DASHBOARD -->
-  <div class="dashboard-content" id="dashboardContent">
+  <!-- MAIN CONTENT (hidden until login) -->
+  <div id="mainContent" style="display:none; flex:1; flex-direction:column;">
     <div class="drawer-overlay" id="drawerOverlay"></div>
     <aside class="drawer" id="drawer">
-      <div class="drawer-header">📂 Sections</div>
+      <div class="drawer-header">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <span data-i18n="sections_title">Sections</span>
+      </div>
       <div class="drawer-list" id="drawerList"></div>
     </aside>
-    <div style="flex:1;">
+
+    <main class="main-content" id="mainContentInner">
       <div class="top-bar">
-        <a href="index.html" class="logo">DevPath 180</a>
-        <div class="user-info">
-          <span class="user-email" id="userEmail"></span>
-          <a href="notes.html" class="notes-link">Notes</a>
-          <button class="btn btn-sm logout-btn" id="logoutBtn">Logout</button>
-          <button class="btn btn-sm menu-btn" id="menuBtn">☰</button>
+        <a href="index.html" class="logo">
+          <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="8" y1="11" x2="20" y2="11"/><polyline points="14 17 20 11 14 5"/></svg>
+          DevPath 180
+        </a>
+        <div class="top-actions">
+          <span style="font-size:0.8rem;color:var(--secondary);" id="userEmailDisplay"></span>
+          <a href="notes.html" class="notes-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Notes
+          </a>
+          <button class="lang-btn" id="langToggle">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+            <span id="langLabel">English</span>
+          </button>
+          <button class="logout-btn" id="logoutBtn">Logout</button>
+          <button class="menu-btn" id="menuBtn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
         </div>
       </div>
+
       <div class="stats-grid" id="stats"></div>
-      <div class="progress-box">
-        <div class="progress-header"><span>Progress</span><span id="progressPercent">0%</span></div>
+      <div class="progress-section">
+        <div class="progress-header"><span data-i18n="progress_label">Progress</span><span id="progressPercent">0%</span></div>
         <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
       </div>
-      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
-        <button class="btn btn-primary" id="continueBtn">▶ Continue</button>
-        <button class="btn btn-outline" id="expandBtn">📂 Expand All</button>
-        <button class="btn btn-outline" id="resetBtn" style="color:var(--red);border-color:rgba(255,69,58,0.3);">↺ Reset</button>
+      <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
+        <button class="btn btn-primary" id="continueBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg><span data-i18n="continue_btn">Continue</span></button>
+        <button class="btn btn-outline" id="expandBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg><span id="expandBtnText" data-i18n="expand_btn">Expand All</span></button>
+        <button class="btn btn-danger" id="resetBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg><span data-i18n="reset_btn">Reset</span></button>
       </div>
       <div class="section-tabs" id="sectionTabs"></div>
       <div id="sectionsContainer"></div>
-    </div>
+    </main>
   </div>
 </div>
 
 <div class="modal-overlay" id="modalOverlay"><div class="modal" id="modalContent"></div></div>
+<div class="toast-panel" id="toastPanel"></div>
 
 <script>
-// Firebase Config
-const firebaseConfig = {
-  apiKey: "AIzaSyAszFGDs1J92_53jHvj5aABmeiKZdc-mf0",
-  authDomain: "gen-lang-client-0501601606.firebaseapp.com",
-  projectId: "gen-lang-client-0501601606",
-  storageBucket: "gen-lang-client-0501601606.firebasestorage.app",
-  messagingSenderId: "1079712784218",
-  appId: "1:1079712784218:web:598465155aa70938a6dd63",
-  measurementId: "G-CRHRGYX74V"
-};
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+(function() {
+  // ═══ FIREBASE CONFIG ═══
+  const firebaseConfig = {
+    apiKey: "AIzaSyAszFGDs1J92_53jHvj5aABmeiKZdc-mf0",
+    authDomain: "gen-lang-client-0501601606.firebaseapp.com",
+    projectId: "gen-lang-client-0501601606",
+    storageBucket: "gen-lang-client-0501601606.firebasestorage.app",
+    messagingSenderId: "1079712784218",
+    appId: "1:1079712784218:web:598465155aa70938a6dd63",
+    measurementId: "G-CRHRGYX74V"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
 
-// Constants
-const TOTAL_DAYS = 180;
-const SECTIONS = ['HTML','CSS','JavaScript Basics','Practice','Advanced JS','Mini Apps','Tools + Git','React','React Practice','Backend','API Practice','Database','DB Integration','Full Stack','Full Project','Deployment'];
+  // ═══ CONSTANTS ═══
+  const TOTAL_DAYS = 180;
+  const SECTIONS = [
+    'HTML','CSS','JavaScript Basics','Practice','Advanced JS','Mini Apps',
+    'Tools + Git','React','React Practice','Backend','API Practice',
+    'Database','DB Integration','Full Stack','Full Project','Deployment'
+  ];
 
-// ROADMAP (all 180 days - condensed for space)
-const ROADMAP = [
-  {d:1,t:'مقدمة إلى تطوير الويب',t_en:'Intro to Web Development',s:'HTML',type:'learning',desc:'فهم كيفية عمل الويب: العملاء، الخوادم، HTTP، المتصفحات.',desc_en:'Understand how the web works: clients, servers, HTTP, browsers.'},
-  // ... (all 180 days, same as previous versions)
-];
+  const SECTION_ICONS = {
+    'HTML': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`,
+    'CSS': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>`,
+    'JavaScript Basics': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M8 16l-2-2 2-2"/><path d="M16 8l2 2-2 2"/></svg>`,
+    'Practice': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>`,
+    'Advanced JS': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+    'Mini Apps': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="9" height="9" rx="2"/><rect x="13" y="2" width="9" height="9" rx="2"/><rect x="2" y="13" width="9" height="9" rx="2"/><rect x="13" y="13" width="9" height="9" rx="2"/></svg>`,
+    'Tools + Git': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><line x1="6" y1="8" x2="6" y2="16"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="18" x2="16" y2="18"/></svg>`,
+    'React': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2"/><path d="M12 2a10 10 0 00-5 18.66 10 10 0 0010 0A10 10 0 0012 2z"/></svg>`,
+    'React Practice': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><circle cx="8" cy="6" r="1"/><circle cx="8" cy="18" r="1"/></svg>`,
+    'Backend': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><circle cx="6" cy="6" r="1"/><circle cx="6" cy="18" r="1"/></svg>`,
+    'API Practice': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>`,
+    'Database': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>`,
+    'DB Integration': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>`,
+    'Full Stack': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>`,
+    'Full Project': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15l-2 5-2-5H5l3-4-1-5h10l-1 5 3 4z"/><circle cx="12" cy="10" r="3"/></svg>`,
+    'Deployment': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>`
+  };
 
-// State
-let completedDays = [], currentDay = 1, expandedAll = false;
+  const STAT_ICONS = {
+    current: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>`,
+    done: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>`,
+    left: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+    projects: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0016.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 002 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>`
+  };
 
-// Auth
-auth.onAuthStateChanged(async user => {
-  if (user) {
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('dashboardContent').style.display = 'flex';
-    document.getElementById('userEmail').textContent = user.email;
-    await loadProgress();
-  } else {
-    document.getElementById('loginScreen').style.display = 'flex';
-    document.getElementById('dashboardContent').style.display = 'none';
+  const ROADMAP = [
+    {d:1,t:'مقدمة إلى تطوير الويب',t_en:'Intro to Web Development',s:'HTML',type:'learning',desc:'فهم كيفية عمل الويب: العملاء، الخوادم، HTTP، المتصفحات. إعداد بيئة التطوير باستخدام VS Code والملحقات.',desc_en:'Understand how the web works: clients, servers, HTTP, browsers. Set up VS Code and extensions.'},
+    {d:2,t:'هيكل مستند HTML',t_en:'HTML Document Structure',s:'HTML',type:'learning',desc:'تعلم DOCTYPE, html, head, body، الوسوم الوصفية وربط ملفات CSS و JS.',desc_en:'Learn DOCTYPE, html, head, body, meta tags, linking CSS and JS files.'},
+    {d:3,t:'العناصر النصية والعناوين',t_en:'Text Elements & Headings',s:'HTML',type:'learning',desc:'إتقان h1–h6, p, span, br, hr, strong, em, mark, small, code.',desc_en:'Master h1–h6, p, span, br, hr, strong, em, mark, small, code.'},
+    {d:4,t:'الروابط والصور',t_en:'Links & Images',s:'HTML',type:'learning',desc:'إنشاء ارتباطات تشعبية، img مع src/alt، المسارات المطلقة والنسبية، تنسيقات الصور.',desc_en:'Create hyperlinks, img with src/alt, absolute vs relative paths, image formats.'},
+    {d:5,t:'القوائم والجداول',t_en:'Lists & Tables',s:'HTML',type:'learning',desc:'بناء ul/ol/li, قوائم متداخلة, table مع thead/tbody/tr/th/td, colspan/rowspan.',desc_en:'Build ul/ol/li, nested lists, table with thead/tbody/tr/th/td, colspan/rowspan.'},
+    {d:6,t:'النماذج وعناصر الإدخال',t_en:'Forms & Input Elements',s:'HTML',type:'learning',desc:'إنشاء form مع أنواع الإدخال, textarea, select, radio, checkbox, button, submit.',desc_en:'Create form with input types, textarea, select, radio, checkbox, button, submit.'},
+    {d:7,t:'HTML الدلالي',t_en:'Semantic HTML',s:'HTML',type:'learning',desc:'استخدام header, nav, main, article, section, aside, footer لتحسين SEO والوصول.',desc_en:'Use header, nav, main, article, section, aside, footer for SEO and accessibility.'},
+    {d:8,t:'ميزات HTML5',t_en:'HTML5 Features',s:'HTML',type:'learning',desc:'audio, video, canvas, details/summary, progress, datalist, template.',desc_en:'Explore audio, video, canvas, details/summary, progress, datalist, template.'},
+    {d:9,t:'أساسيات الوصول',t_en:'Accessibility Basics',s:'HTML',type:'learning',desc:'تسميات ARIA, النص البديل, tabindex, سمات الدور, تخطي التنقل.',desc_en:'ARIA labels, alt text, tabindex, role attributes, skip navigation.'},
+    {d:10,t:'مشروع: صفحة HTML شخصية',t_en:'Project: HTML Portfolio',s:'HTML',type:'project',desc:'بناء صفحة شخصية كاملة باستخدام HTML الدلالي فقط.',desc_en:'Build a complete personal portfolio using only semantic HTML.'},
+
+    {d:11,t:'تركيب CSS والمحددات',t_en:'CSS Syntax & Selectors',s:'CSS',type:'learning',desc:'الخصائص، القيم، القواعد، محددات class/id/element، التحيدات، التخصصية.',desc_en:'Properties, values, rules, class/id/element selectors, combinators, specificity.'},
+    {d:12,t:'الألوان والخلفيات',t_en:'Colors & Backgrounds',s:'CSS',type:'learning',desc:'تنسيقات hex/rgb/hsl، التدرجات، background-image/size/position، خلفيات متعددة.',desc_en:'Hex/rgb/hsl colors, gradients, background-image/size/position, multiple backgrounds.'},
+    {d:13,t:'نموذج الصندوق',t_en:'The Box Model',s:'CSS',type:'learning',desc:'Margin, border, padding, content، box-sizing: border-box مقابل content-box.',desc_en:'Margin, border, padding, content areas, box-sizing: border-box vs content-box.'},
+    {d:14,t:'الخطوط والطباعة',t_en:'Typography & Fonts',s:'CSS',type:'learning',desc:'font-family، الحجم، الوزن، ارتفاع السطر، تباعد الأحرف، خطوط Google.',desc_en:'font-family stacks, size, weight, line-height, letter-spacing, Google Fonts.'},
+    {d:15,t:'العرض والموضع',t_en:'Display & Positioning',s:'CSS',type:'learning',desc:'block/inline/inline-block/none، static/relative/absolute/fixed/sticky، z-index.',desc_en:'block/inline/inline-block/none, static/relative/absolute/fixed/sticky, z-index.'},
+    {d:16,t:'أساسيات Flexbox',t_en:'Flexbox Basics',s:'CSS',type:'learning',desc:'display:flex، flex-direction، justify-content، align-items، flex-wrap، gap.',desc_en:'display:flex, flex-direction, justify-content, align-items, flex-wrap, gap.'},
+    {d:17,t:'Flexbox متقدم',t_en:'Flexbox Advanced',s:'CSS',type:'learning',desc:'flex-grow/shrink/basis، align-self، order، حاويات flex متداخلة.',desc_en:'flex-grow/shrink/basis, align-self, order, nested flex containers.'},
+    {d:18,t:'أساسيات CSS Grid',t_en:'CSS Grid Basics',s:'CSS',type:'learning',desc:'display:grid، grid-template-columns/rows، gap، grid-column و grid-row.',desc_en:'display:grid, grid-template-columns/rows, gap, grid-column and grid-row placement.'},
+    {d:19,t:'CSS Grid متقدم',t_en:'CSS Grid Advanced',s:'CSS',type:'learning',desc:'مناطق الشبكة المسماة، auto-fit/auto-fill، minmax()، دمج Grid و Flexbox.',desc_en:'Named grid areas, auto-fit/auto-fill, minmax(), combining Grid and Flexbox.'},
+    {d:20,t:'التصميم المتجاوب',t_en:'Responsive Design',s:'CSS',type:'learning',desc:'استعلامات الوسائط، mobile-first، نقاط التوقف، vw/vh، em/rem، تخطيطات سائلة.',desc_en:'Media queries, mobile-first, breakpoints, vw/vh, em/rem, fluid layouts.'},
+    {d:21,t:'الانتقالات والحركات',t_en:'Transitions & Animations',s:'CSS',type:'learning',desc:'transition، @keyframes، animation، دوال التوقيت، تأثيرات سلسة.',desc_en:'transition, @keyframes, animation shorthand, timing functions, smooth effects.'},
+    {d:22,t:'متغيرات CSS',t_en:'CSS Variables',s:'CSS',type:'learning',desc:'خصائص مخصصة مع --، نطاق :root، الوراثة، السمات الديناميكية.',desc_en:'Custom properties with --, :root scope, inheritance, dynamic theming.'},
+    {d:23,t:'الفئات والعناصر الزائفة',t_en:'Pseudo-classes/Elements',s:'CSS',type:'learning',desc:':hover, :focus, :nth-child(), ::before, ::after, تلميحات، واجهة مخصصة.',desc_en:':hover, :focus, :nth-child(), ::before, ::after, tooltips, custom UI.'},
+    {d:24,t:'أفضل ممارسات CSS',t_en:'CSS Best Practices',s:'CSS',type:'learning',desc:'تسمية BEM، تنظيم الأنماط، إدارة التخصصية، إعادة تعيين CSS، الأداء.',desc_en:'BEM naming, organizing styles, specificity management, CSS resets, performance.'},
+    {d:25,t:'مشروع: صفحة هبوط متجاوبة',t_en:'Project: Responsive Landing',s:'CSS',type:'project',desc:'بناء صفحة هبوط متجاوبة بالكامل مع قسم رئيسي ومميزات وأسعار.',desc_en:'Build a fully responsive landing page with hero, features, pricing, footer.'},
+
+    {d:26,t:'مقدمة JavaScript',t_en:'JavaScript Introduction',s:'JavaScript Basics',type:'learning',desc:'ما هي JS، كيفية تضمينها، وحدة تحكم المتصفح، console.log، وسم script.',desc_en:'What is JS, how to include it, browser console, console.log, script tag.'},
+    {d:27,t:'المتغيرات وأنواع البيانات',t_en:'Variables & Data Types',s:'JavaScript Basics',type:'learning',desc:'var/let/const، string/number/boolean/null/undefined/symbol، تحويل الأنواع.',desc_en:'var/let/const, string/number/boolean/null/undefined/symbol, type coercion.'},
+    {d:28,t:'المعاملات والتعابير',t_en:'Operators & Expressions',s:'JavaScript Basics',type:'learning',desc:'حسابية، إسناد، مقارنة، منطقية، ثلاثية، أولويات المعاملات.',desc_en:'Arithmetic, assignment, comparison, logical, ternary, operator precedence.'},
+    {d:29,t:'الشروط',t_en:'Conditionals',s:'JavaScript Basics',type:'learning',desc:'if/else if/else، switch، قيم truthy/falsy، تقييم الدائرة القصيرة.',desc_en:'if/else if/else, switch, truthy/falsy, short-circuit evaluation.'},
+    {d:30,t:'الحلقات',t_en:'Loops',s:'JavaScript Basics',type:'learning',desc:'for, while, do...while, for...of, for...in, break و continue.',desc_en:'for, while, do...while, for...of, for...in, break and continue.'},
+    {d:31,t:'أساسيات الدوال',t_en:'Functions Basics',s:'JavaScript Basics',type:'learning',desc:'إعلان، استدعاء، معاملات، وسائط، قيم إرجاع، إعلانات مقابل تعبيرات.',desc_en:'Declare, invoke, parameters, arguments, return values, declarations vs expressions.'},
+    {d:32,t:'الدوال المتقدمة',t_en:'Functions Advanced',s:'JavaScript Basics',type:'learning',desc:'معاملات افتراضية، rest، callbacks، دوال الرتبة الأعلى، مقدمة في النطاق.',desc_en:'Default params, rest params, callbacks, higher-order functions, scope intro.'},
+    {d:33,t:'أساسيات المصفوفات',t_en:'Arrays Basics',s:'JavaScript Basics',type:'learning',desc:'إنشاء، وصول، .length، push/pop، shift/unshift، splice، slice.',desc_en:'Create, access, .length, push/pop, shift/unshift, splice, slice.'},
+    {d:34,t:'طرق المصفوفات',t_en:'Array Methods',s:'JavaScript Basics',type:'learning',desc:'.map(), .filter(), .reduce(), .forEach(), .find(), .some(), .every().',desc_en:'.map(), .filter(), .reduce(), .forEach(), .find(), .some(), .every().'},
+    {d:35,t:'أساسيات الكائنات',t_en:'Objects Basics',s:'JavaScript Basics',type:'learning',desc:'إنشاء كائنات، ترميز نقطي/أقواس، إضافة/تحديث/حذف، كائنات متداخلة.',desc_en:'Create objects, dot/bracket notation, add/update/delete, nested objects.'},
+    {d:36,t:'طرق الكائن و this',t_en:'Object Methods & this',s:'JavaScript Basics',type:'learning',desc:'this، Object.keys/values/entries، spread، تفكيك الكائنات.',desc_en:'this keyword, Object.keys/values/entries, spread, object destructuring.'},
+    {d:37,t:'معالجة DOM',t_en:'DOM Manipulation',s:'JavaScript Basics',type:'learning',desc:'querySelector، querySelectorAll، textContent/innerHTML، classList، style.',desc_en:'querySelector, querySelectorAll, textContent/innerHTML, classList, style.'},
+
+    {d:38,t:'أحداث DOM',t_en:'DOM Events',s:'Practice',type:'learning',desc:'click, submit, input, change, addEventListener، كائن الحدث، الفقاعات، التفويض.',desc_en:'click, submit, input, change, addEventListener, event object, bubbling, delegation.'},
+    {d:39,t:'التحقق من النماذج',t_en:'Form Validation',s:'Practice',type:'learning',desc:'التحقق من المدخلات، فحوصات فارغة، تعبير نمطي للبريد الإلكتروني، رسائل خطأ مخصصة.',desc_en:'Validate inputs, empty checks, email regex, custom error messages.'},
+    {d:40,t:'التخزين المحلي',t_en:'Local Storage',s:'Practice',type:'learning',desc:'setItem/getItem/removeItem، JSON.stringify/parse للكائنات.',desc_en:'setItem/getItem/removeItem, JSON.stringify/parse for objects.'},
+    {d:41,t:'بناء تطبيق عداد',t_en:'Build a Counter App',s:'Practice',type:'learning',desc:'زيادة، نقصان، إعادة تعيين عداد مع تحديثات DOM.',desc_en:'Increment, decrement, reset counter with DOM updates.'},
+    {d:42,t:'بناء قائمة مهام',t_en:'Build a To-Do List',s:'Practice',type:'learning',desc:'إضافة/إكمال/حذف مهام، استمرارية localStorage، CRUD كامل.',desc_en:'Add/complete/delete tasks, localStorage persistence, full CRUD.'},
+    {d:43,t:'بناء تطبيق اختبار',t_en:'Build a Quiz App',s:'Practice',type:'learning',desc:'اختيار متعدد، تتبع النتيجة، عرض النتائج، إعادة المحاولة.',desc_en:'Multiple-choice, score tracking, results display, retake.'},
+    {d:44,t:'بناء آلة حاسبة',t_en:'Build a Calculator',s:'Practice',type:'learning',desc:'عمليات حسابية، معالجة العلامة العشرية، مسح، عمليات متسلسلة.',desc_en:'Arithmetic, decimal handling, clear, chained operations.'},
+    {d:45,t:'مشروع: تطبيق ويب تفاعلي',t_en:'Project: Interactive Web App',s:'Practice',type:'project',desc:'دمج المهارات في تطبيق كامل (متتبع نفقات، متتبع عادات).',desc_en:'Combine skills into a full app (expense tracker, habit tracker).'},
+
+    {d:46,t:'نظرة عامة على ES6+',t_en:'ES6+ Overview',s:'Advanced JS',type:'learning',desc:'let/const، دوال السهم، قوالب النص، التفكيك، spread/rest، وحدات ES.',desc_en:'let/const, arrow functions, template literals, destructuring, spread/rest, ES modules.'},
+    {d:47,t:'دوال السهم والنطاق',t_en:'Arrow Functions & Scope',s:'Advanced JS',type:'learning',desc:'صياغة السهم، الإرجاع الضمني، lexical this، سلسلة النطاق.',desc_en:'Arrow syntax, implicit return, lexical this, scope chain.'},
+    {d:48,t:'قوالب النص',t_en:'Template Literals',s:'Advanced JS',type:'learning',desc:'سلاسل backtick، ${}، سلاسل متعددة الأسطر، قوالب موسومة.',desc_en:'Backtick strings, ${} interpolation, multi-line, tagged templates.'},
+    {d:49,t:'التفكيك و Spread',t_en:'Destructuring & Spread',s:'Advanced JS',type:'learning',desc:'تفكيك المصفوفات/الكائنات، spread (...)، معاملات rest.',desc_en:'Array/object destructuring, spread (...), rest parameters.'},
+    {d:50,t:'الوعود و Async/Await',t_en:'Promises & Async/Await',s:'Advanced JS',type:'learning',desc:'JS غير متزامن، سلسلة الوعود، .then/.catch، صياغة async/await.',desc_en:'Async JS, Promise chain, .then/.catch, async/await syntax.'},
+    {d:51,t:'Fetch API',t_en:'Fetch API',s:'Advanced JS',type:'learning',desc:'fetch() للطلبات، GET/POST، تحليل JSON، معالجة الأخطاء.',desc_en:'fetch() for HTTP, GET/POST, JSON parsing, error handling.'},
+    {d:52,t:'معالجة الأخطاء',t_en:'Error Handling',s:'Advanced JS',type:'learning',desc:'try...catch...finally، أخطاء مخصصة، برمجة دفاعية.',desc_en:'try...catch...finally, custom errors, defensive programming.'},
+    {d:53,t:'الإغلاقات بعمق',t_en:'Closures Deep Dive',s:'Advanced JS',type:'learning',desc:'بيئة معجمية، حالات استخدام الإغلاق، خصوصية البيانات، memoization.',desc_en:'Lexical environment, closure use cases, data privacy, memoization.'},
+    {d:54,t:'النماذج الأولية والفئات',t_en:'Prototypes & Classes',s:'Advanced JS',type:'learning',desc:'وراثة النماذج الأولية، صياغة class، constructor، extends، super.',desc_en:'Prototypal inheritance, class syntax, constructor, extends, super.'},
+    {d:55,t:'وحدات ES',t_en:'ES Modules',s:'Advanced JS',type:'learning',desc:'وحدات ES، تصدير/استيراد مسمى وافتراضي، نطاق الوحدة.',desc_en:'ES modules, named/default exports, imports, module scope.'},
+
+    {d:56,t:'تطبيق الطقس',t_en:'Weather App',s:'Mini Apps',type:'learning',desc:'بناء تطبيق طقس باستخدام API عام، درجة الحرارة، الحالة، التوقعات.',desc_en:'Build a weather app using a public API, temperature, conditions, forecast.'},
+    {d:57,t:'الباحث عن الوصفات',t_en:'Recipe Finder',s:'Mini Apps',type:'learning',desc:'تطبيق بحث وصفات مع API، مكونات، تعليمات، صور.',desc_en:'Recipe search app with API, ingredients, instructions, images.'},
+    {d:58,t:'متتبع النفقات',t_en:'Expense Tracker',s:'Mini Apps',type:'learning',desc:'نظام دخل/مصروفات، رصيد جارٍ، فئات، استمرارية localStorage.',desc_en:'Income/expense system, running balance, categories, localStorage.'},
+    {d:59,t:'مؤقت بومودورو',t_en:'Pomodoro Timer',s:'Mini Apps',type:'learning',desc:'فترات عمل/استراحة، إشعارات، تتبع الجلسات.',desc_en:'Work/break intervals, notifications, session tracking.'},
+    {d:60,t:'تطبيق ملاحظات',t_en:'Notes App',s:'Mini Apps',type:'learning',desc:'إنشاء، تعديل، حذف، بحث عن ملاحظات، localStorage، markdown.',desc_en:'Create, edit, delete, search notes, localStorage, markdown.'},
+    {d:61,t:'معرض صور',t_en:'Image Gallery',s:'Mini Apps',type:'learning',desc:'معرض متجاوب، lightbox، تحميل كسول، تخطيط شبكي.',desc_en:'Responsive gallery, lightbox, lazy loading, grid layout.'},
+    {d:62,t:'واجهة مشغل موسيقى',t_en:'Music Player UI',s:'Mini Apps',type:'learning',desc:'تشغيل/إيقاف، شريط تقدم، مستوى صوت، قائمة تشغيل، HTML5 Audio.',desc_en:'Play/pause, progress bar, volume, playlist, HTML5 Audio.'},
+    {d:63,t:'واجهة محادثة',t_en:'Chat Interface UI',s:'Mini Apps',type:'learning',desc:'فقاعات رسائل، إدخال، مؤشر كتابة، تمرير تلقائي.',desc_en:'Message bubbles, input, typing indicator, auto-scroll.'},
+    {d:64,t:'لوحة تحكم',t_en:'Dashboard UI',s:'Mini Apps',type:'learning',desc:'لوحة إدارة، شريط جانبي، بطاقات إحصائيات، رسوم بيانية، جدول بيانات.',desc_en:'Admin dashboard, sidebar, stat cards, charts, data table.'},
+    {d:65,t:'مشروع: مجموعة تطبيقات مصغرة',t_en:'Project: Mini App Suite',s:'Mini Apps',type:'project',desc:'دمج تطبيقين مصغرين أو أكثر في مشروع واحد متماسك.',desc_en:'Combine 2+ mini apps into one cohesive project.'},
+
+    {d:66,t:'أساسيات Git',t_en:'Git Basics',s:'Tools + Git',type:'learning',desc:'تثبيت Git، init، منطقة التجهيز، git status، إعداد التكوين.',desc_en:'Install Git, init, staging, git status, config setup.'},
+    {d:67,t:'أوامر Git',t_en:'Git Commands',s:'Tools + Git',type:'learning',desc:'add, commit, log, diff, branch, checkout, merge, stash.',desc_en:'add, commit, log, diff, branch, checkout, merge, stash.'},
+    {d:68,t:'GitHub والمستودعات البعيدة',t_en:'GitHub & Remote',s:'Tools + Git',type:'learning',desc:'مستودعات GitHub، push/pull/clone/fetch، طلبات السحب.',desc_en:'GitHub repos, push/pull/clone/fetch, pull requests.'},
+    {d:69,t:'ملحقات VS Code',t_en:'VS Code Extensions',s:'Tools + Git',type:'learning',desc:'Prettier, ESLint, Live Server, GitLens، اختصارات، إعدادات.',desc_en:'Prettier, ESLint, Live Server, GitLens, shortcuts, settings.'},
+    {d:70,t:'الطرفية وأدوات CLI',t_en:'Terminal & CLI',s:'Tools + Git',type:'learning',desc:'أوامر الصدفة، عمليات الملفات، npm/yarn، أدوات CLI.',desc_en:'Shell commands, file ops, npm/yarn basics, CLI tools.'},
+
+    {d:71,t:'مقدمة React',t_en:'React Intro & Setup',s:'React',type:'learning',desc:'ما هي React، إعداد Vite، هيكل المشروع، node_modules.',desc_en:'What is React, Vite setup, project structure, node_modules.'},
+    {d:72,t:'JSX والمكونات',t_en:'JSX & Components',s:'React',type:'learning',desc:'قواعد JSX، مكونات وظيفية، تداخل، fragments.',desc_en:'JSX syntax, functional components, nesting, fragments.'},
+    {d:73,t:'Props و PropTypes',t_en:'Props & PropTypes',s:'React',type:'learning',desc:'تمرير البيانات، تفكيك props، قيم افتراضية، التحقق.',desc_en:'Passing data, destructuring props, default values, validation.'},
+    {d:74,t:'الحالة و useState',t_en:'State & useState',s:'React',type:'learning',desc:'useState hook، تحديث الحالة، التجميع، رفع الحالة.',desc_en:'useState hook, updating state, batching, lifting state.'},
+    {d:75,t:'معالجة الأحداث',t_en:'Event Handling',s:'React',type:'learning',desc:'onClick, onChange, onSubmit، وسائط الحدث، preventDefault.',desc_en:'onClick, onChange, onSubmit, event args, preventDefault.'},
+    {d:76,t:'العرض الشرطي',t_en:'Conditional Rendering',s:'React',type:'learning',desc:'أنماط ثلاثية، &&، حالات تحميل/خطأ/فارغة.',desc_en:'Ternary patterns, &&, loading/error/empty states.'},
+    {d:77,t:'القوائم والمفاتيح',t_en:'Lists & Keys',s:'React',type:'learning',desc:'.map() للقوائم، خاصية key الفريدة، إعادة التسوية.',desc_en:'.map() for lists, unique key prop, reconciliation.'},
+    {d:78,t:'النماذج في React',t_en:'Forms in React',s:'React',type:'learning',desc:'محكومة مقابل غير محكومة، حالة النموذج، التحقق.',desc_en:'Controlled vs uncontrolled, form state, validation.'},
+    {d:79,t:'useEffect Hook',t_en:'useEffect Hook',s:'React',type:'learning',desc:'الآثار الجانبية، مصفوفة التبعيات، التنظيف، جلب البيانات.',desc_en:'Side effects, dependency array, cleanup, data fetching.'},
+    {d:80,t:'useContext والخطافات المخصصة',t_en:'useContext & Custom Hooks',s:'React',type:'learning',desc:'createContext/useContext، بناء خطافات مخصصة.',desc_en:'createContext/useContext, custom hooks for reuse.'},
+    {d:81,t:'React Router',t_en:'React Router',s:'React',type:'learning',desc:'BrowserRouter, Routes, Route, Link, NavLink، معاملات URL.',desc_en:'BrowserRouter, Routes, Route, Link, NavLink, URL params.'},
+    {d:82,t:'إدارة الحالة',t_en:'State Management',s:'React',type:'learning',desc:'حدود Context API، Redux/Zustand/Jotai.',desc_en:'Context API limits, Redux/Zustand/Jotai intro.'},
+    {d:83,t:'أفضل ممارسات React',t_en:'React Best Practices',s:'React',type:'learning',desc:'هيكل المجلدات، التركيب، React.memo, useMemo, useCallback.',desc_en:'Folder structure, composition, React.memo, useMemo, useCallback.'},
+
+    {d:84,t:'بناء مدونة',t_en:'Building a Blog',s:'React Practice',type:'learning',desc:'قائمة منشورات، عرض فردي، واجهة CMS، React Router.',desc_en:'Post listing, individual view, CMS interface, React Router.'},
+    {d:85,t:'واجهة متجر إلكتروني',t_en:'E-commerce UI',s:'React Practice',type:'learning',desc:'شبكة منتجات، صفحة تفاصيل، عربة تسوق، إتمام الشراء.',desc_en:'Product grid, detail page, cart, checkout, state management.'},
+    {d:86,t:'واجهة توثيق',t_en:'Authentication UI',s:'React Practice',type:'learning',desc:'تسجيل دخول/حساب، تخزين رمز، مسارات محمية، ملف شخصي.',desc_en:'Login/register, token storage, protected routes, profile.'},
+    {d:87,t:'لوحة تحكم مع رسوم بيانية',t_en:'Dashboard with Charts',s:'React Practice',type:'learning',desc:'لوحة تحليلات، Recharts/Chart.js.',desc_en:'Analytics dashboard, Recharts/Chart.js integration.'},
+    {d:88,t:'تغذية وسائل التواصل',t_en:'Social Media Feed',s:'React Practice',type:'learning',desc:'تمرير لانهائي، بطاقات منشورات، إعجابات/تعليقات.',desc_en:'Infinite scroll, post cards, likes/comments, avatars.'},
+    {d:89,t:'مكون رفع ملفات',t_en:'File Upload Component',s:'React Practice',type:'learning',desc:'سحب وإفلات، معاينة، شريط تقدم، تحقق من النوع.',desc_en:'Drag-and-drop, preview, progress bar, validation.'},
+    {d:90,t:'نظام بحث وتصفية',t_en:'Search & Filter System',s:'React Practice',type:'learning',desc:'بحث مع debouncing، تصفية متعددة، مزامنة حالة URL.',desc_en:'Debounced search, multi-criteria, sorting, URL sync.'},
+    {d:91,t:'التمرير اللانهائي',t_en:'Infinite Scroll',s:'React Practice',type:'learning',desc:'Intersection Observer، تحميل دفعات، دوارات تحميل.',desc_en:'Intersection Observer, pagination, loading spinners.'},
+    {d:92,t:'تحديثات الوقت الحقيقي',t_en:'Real-time Updates',s:'React Practice',type:'learning',desc:'اقتراع، محاكاة WebSocket، واجهة حية.',desc_en:'Polling, WebSocket simulation, live UI, optimistic UI.'},
+    {d:93,t:'حركات بصرية',t_en:'Animation with Framer',s:'React Practice',type:'learning',desc:'انتقالات صفحات، تأثيرات hover/tap.',desc_en:'Page transitions, hover/tap animations, layout animations.'},
+    {d:94,t:'اختبار تطبيقات React',t_en:'Testing React',s:'React Practice',type:'learning',desc:'Jest، React Testing Library، اختبارات وحدة/تكامل.',desc_en:'Jest setup, React Testing Library, unit/integration tests.'},
+    {d:95,t:'تحسين الأداء',t_en:'Performance Optimization',s:'React Practice',type:'learning',desc:'تقسيم الكود، React.lazy، Suspense، memoization.',desc_en:'Code splitting, React.lazy, Suspense, memoization, profiler.'},
+    {d:96,t:'الوصول في React',t_en:'Accessibility in React',s:'React Practice',type:'learning',desc:'ARIA، تنقل بلوحة المفاتيح، إدارة التركيز.',desc_en:'ARIA, keyboard nav, focus management, screen readers.'},
+    {d:97,t:'تقسيم الكود',t_en:'Code Splitting',s:'React Practice',type:'learning',desc:'تقسيم قائم على المسار، استيراد ديناميكي، حدود Suspense.',desc_en:'Route-based splitting, dynamic imports, Suspense boundaries.'},
+    {d:98,t:'تطبيقات الويب التقدمية',t_en:'Progressive Web Apps',s:'React Practice',type:'learning',desc:'Service worker، manifest، دعم غير متصل، تثبيت.',desc_en:'Service worker, manifest, offline support, install prompt.'},
+    {d:99,t:'React + TypeScript',t_en:'React + TypeScript',s:'React Practice',type:'learning',desc:'كتابة الأنواع للـ props، state، الأحداث، generics.',desc_en:'Typing props, state, events, hooks, generics, strict mode.'},
+    {d:100,t:'مشروع: تطبيق React كامل',t_en:'Project: Full React App',s:'React Practice',type:'project',desc:'تطبيق SPA كامل مع توجيه، حالة عامة، API، واجهة مصقولة.',desc_en:'Complete React SPA with routing, state, API, polished UI.'},
+
+    {d:101,t:'مقدمة Node.js',t_en:'Node.js Introduction',s:'Backend',type:'learning',desc:'بيئة تشغيل Node، حلقة الأحداث، npm، وحدة http، خادم بسيط.',desc_en:'Node.js runtime, event loop, npm, http module, simple server.'},
+    {d:102,t:'إعداد Express.js',t_en:'Express.js Setup',s:'Backend',type:'learning',desc:'تثبيت Express، إنشاء خادم، app.get()، app.listen()، nodemon.',desc_en:'Install Express, create server, routes, nodemon.'},
+    {d:103,t:'التوجيه والوسائط',t_en:'Routing & Middleware',s:'Backend',type:'learning',desc:'Express Router، morgan/cors/body-parser، وسائط مخصصة.',desc_en:'Express Router, morgan/cors/body-parser, custom middleware.'},
+    {d:104,t:'الطلب والاستجابة',t_en:'Request & Response',s:'Backend',type:'learning',desc:'req.params, req.query, req.body، استجابات JSON، رموز الحالة.',desc_en:'req.params, req.query, req.body, JSON responses, status codes.'},
+    {d:105,t:'تصميم REST API',t_en:'REST API Design',s:'Backend',type:'learning',desc:'نقاط نهاية RESTful، طرق HTTP، هيكل URL، الاصطلاحات.',desc_en:'RESTful endpoints, HTTP methods, URL structure, conventions.'},
+    {d:106,t:'التوثيق (JWT)',t_en:'Authentication (JWT)',s:'Backend',type:'learning',desc:'رموز JWT، تجزئة bcrypt، مسارات محمية، تسجيل دخول/حساب.',desc_en:'JWT tokens, bcrypt hashing, protected routes, login/register.'},
+    {d:107,t:'رفع الملفات',t_en:'File Uploads',s:'Backend',type:'learning',desc:'Multer، تخزين محلي/سحابي، تحقق، تقديم ملفات.',desc_en:'Multer middleware, local/cloud storage, validation, serving files.'},
+    {d:108,t:'معالجة الأخطاء',t_en:'Error Handling',s:'Backend',type:'learning',desc:'وسيط أخطاء عام، مجمع async، تنسيق استجابة متسق.',desc_en:'Global error middleware, async wrapper, consistent responses.'},
+    {d:109,t:'أفضل ممارسات الأمان',t_en:'Security Best Practices',s:'Backend',type:'learning',desc:'XSS, CSRF, SQL injection, helmet, rate limiting, CORS.',desc_en:'XSS, CSRF, SQL injection, helmet, rate limiting, CORS.'},
+    {d:110,t:'اختبار APIs',t_en:'Testing APIs',s:'Backend',type:'learning',desc:'Jest, Supertest، اختبارات وحدة/تكامل، نهج TDD.',desc_en:'Jest, Supertest, unit/integration tests, TDD approach.'},
+
+    {d:111,t:'مسارات RESTful',t_en:'RESTful Routes',s:'API Practice',type:'learning',desc:'مجموعة مسارات كاملة لمورد، اصطلاحات التسمية.',desc_en:'Full REST route set, naming conventions, status codes.'},
+    {d:112,t:'عمليات CRUD',t_en:'CRUD Operations',s:'API Practice',type:'learning',desc:'إنشاء/قراءة/تحديث/حذف، حالات حدية، تحقق.',desc_en:'Create/Read/Update/Delete, edge cases, validation.'},
+    {d:113,t:'معاملات الاستعلام',t_en:'Query Parameters',s:'API Practice',type:'learning',desc:'تصفية، اختيار حقول، بحث عبر معاملات الاستعلام.',desc_en:'Filtering, field selection, search via query params.'},
+    {d:114,t:'ترقيم الصفحات',t_en:'Pagination',s:'API Practice',type:'learning',desc:'Pagination بالإزاحة/المؤشر، بيانات وصفية.',desc_en:'Offset/cursor pagination, metadata, limit/offset.'},
+    {d:115,t:'الفرز والتصفية',t_en:'Sorting & Filtering',s:'API Practice',type:'learning',desc:'فرز متعدد المعايير، تصفية ديناميكية.',desc_en:'Multi-criteria sorting, dynamic filtering.'},
+    {d:116,t:'تحجيم API',t_en:'API Versioning',s:'API Practice',type:'learning',desc:'تحجيم URL مقابل الرأس، تغييرات فاصلة، إهمال.',desc_en:'URL vs header versioning, breaking changes, deprecation.'},
+    {d:117,t:'تحديد المعدل',t_en:'Rate Limiting',s:'API Practice',type:'learning',desc:'express-rate-limit، حماية من الإساءة.',desc_en:'express-rate-limit, abuse protection, per-endpoint limits.'},
+    {d:118,t:'CORS والأمان',t_en:'CORS & Security',s:'API Practice',type:'learning',desc:'تكوين CORS، طلبات preflight، الأصول المسموحة.',desc_en:'CORS config, preflight, allowed origins, credentials.'},
+    {d:119,t:'توثيق API',t_en:'API Documentation',s:'API Practice',type:'learning',desc:'Swagger/OpenAPI، توثيق نقاط النهاية.',desc_en:'Swagger/OpenAPI, endpoint docs, request/response examples.'},
+    {d:120,t:'مقدمة WebSockets',t_en:'WebSockets Intro',s:'API Practice',type:'learning',desc:'Socket.io، اتصال ثنائي الاتجاه، غرف، أحداث.',desc_en:'Socket.io setup, real-time bidirectional, rooms, events.'},
+    {d:121,t:'Chat API',t_en:'Chat API',s:'API Practice',type:'learning',desc:'غرف محادثة، سجل رسائل، مؤشرات حضور.',desc_en:'Chat rooms, message history, presence, typing events.'},
+    {d:122,t:'خدمة البريد الإلكتروني',t_en:'Email Service',s:'API Practice',type:'learning',desc:'Nodemailer/SendGrid، إعادة تعيين كلمة المرور.',desc_en:'Nodemailer/SendGrid, password reset, email verification.'},
+    {d:123,t:'دمج الدفع',t_en:'Payment Integration',s:'API Practice',type:'learning',desc:'Stripe/PayPal، webhooks، اشتراكات.',desc_en:'Stripe/PayPal checkout, webhooks, subscription handling.'},
+    {d:124,t:'API معالجة الصور',t_en:'Image Processing API',s:'API Practice',type:'learning',desc:'Sharp، رفع، تغيير حجم، قص، تحويل.',desc_en:'Sharp, upload, resize, crop, convert, thumbnails.'},
+    {d:125,t:'توليد PDF',t_en:'PDF Generation',s:'API Practice',type:'learning',desc:'Puppeteer أو PDFKit، فواتير، تقارير.',desc_en:'Puppeteer or PDFKit, server-side PDFs, invoices, reports.'},
+    {d:126,t:'استراتيجيات التخزين المؤقت',t_en:'Caching Strategies',s:'API Practice',type:'learning',desc:'Redis، ذاكرة مخبأة، استراتيجيات إبطال.',desc_en:'Redis, in-memory cache, invalidation strategies, TTL.'},
+    {d:127,t:'التسجيل والمراقبة',t_en:'Logging & Monitoring',s:'API Practice',type:'learning',desc:'Winston/Pino، تتبع الأخطاء، فحوصات الصحة.',desc_en:'Winston/Pino, request timing, error tracking, health checks.'},
+    {d:128,t:'اختبار Postman',t_en:'Postman Testing',s:'API Practice',type:'learning',desc:'مجموعات، بيئات، نصوص اختبار، Newman CLI.',desc_en:'Collections, environments, automated tests, Newman CLI.'},
+    {d:129,t:'مقدمة GraphQL',t_en:'GraphQL Intro',s:'API Practice',type:'learning',desc:'Apollo Server، مخطط، محللات، queries/mutations.',desc_en:'Apollo Server, schema, resolvers, queries and mutations.'},
+    {d:130,t:'مشروع: REST API كامل',t_en:'Project: Complete REST API',s:'API Practice',type:'project',desc:'API إنتاجي مع توثيق، CRUD، pagination.',desc_en:'Production API with auth, CRUD, pagination, rate limiting.'},
+
+    {d:131,t:'مفاهيم قواعد البيانات',t_en:'Database Concepts',s:'Database',type:'learning',desc:'علائقية مقابل غير علائقية، ACID، مبرهنة CAP.',desc_en:'Relational vs non-relational, ACID, CAP theorem, indexes.'},
+    {d:132,t:'إعداد MongoDB',t_en:'MongoDB Setup',s:'Database',type:'learning',desc:'محلي/Atlas، الصدفة، Compass GUI، مستندات BSON.',desc_en:'Local/Atlas setup, shell, Compass GUI, BSON documents.'},
+    {d:133,t:'CRUD مع MongoDB',t_en:'CRUD with MongoDB',s:'Database',type:'learning',desc:'insertOne/Many, find, updateOne, deleteOne.',desc_en:'insertOne/Many, find, updateOne, deleteOne, ObjectId.'},
+    {d:134,t:'Mongoose ODM',t_en:'Mongoose ODM',s:'Database',type:'learning',desc:'مخططات، نماذج، خطافات وسيطة، تحقق.',desc_en:'Schemas, models, CRUD, middleware hooks, validation.'},
+    {d:135,t:'أساسيات SQL',t_en:'SQL Basics',s:'Database',type:'learning',desc:'SELECT, INSERT, UPDATE, DELETE, JOIN, GROUP BY, HAVING.',desc_en:'SELECT, INSERT, UPDATE, DELETE, JOIN, GROUP BY, HAVING.'},
+    {d:136,t:'إعداد PostgreSQL',t_en:'PostgreSQL Setup',s:'Database',type:'learning',desc:'إعداد محلي، psql، pgAdmin، إنشاء قواعد بيانات.',desc_en:'Local setup, psql CLI, pgAdmin, creating databases/tables.'},
+
+    {d:137,t:'ربط DB بـ API',t_en:'Connect DB to API',s:'DB Integration',type:'learning',desc:'سلاسل اتصال، متغيرات بيئة، تجميع الاتصالات.',desc_en:'Connection strings, env variables, connection pooling.'},
+    {d:138,t:'نموذج المستخدم',t_en:'User Model & Schema',s:'DB Integration',type:'learning',desc:'مخطط مستخدم: اسم، بريد، كلمة مرور، أدوار.',desc_en:'User schema: name, email, password, timestamps, role.'},
+    {d:139,t:'العلاقات',t_en:'Relationships',s:'DB Integration',type:'learning',desc:'واحد-لواحد، واحد-لمتعدد، متعدد-لمتعدد.',desc_en:'One-to-one, one-to-many, many-to-many, ObjectId refs.'},
+    {d:140,t:'خطوط التجميع',t_en:'Aggregation Pipelines',s:'DB Integration',type:'learning',desc:'MongoDB $match, $group, $sort, $project, $lookup.',desc_en:'MongoDB $match, $group, $sort, $project, $lookup.'},
+    {d:141,t:'الفهرسة والأداء',t_en:'Indexing & Performance',s:'DB Integration',type:'learning',desc:'فهارس، فهارس مركبة، خطط شرح، تحسين.',desc_en:'Indexes, compound indexes, explain plans, optimization.'},
+    {d:142,t:'المعاملات',t_en:'Transactions',s:'DB Integration',type:'learning',desc:'عمليات ذرية، جلسات MongoDB، تراجع.',desc_en:'Atomic operations, MongoDB sessions, rollback, consistency.'},
+    {d:143,t:'التحقق من البيانات',t_en:'Data Validation',s:'DB Integration',type:'learning',desc:'مدققات Mongoose، قيود SQL، تكامل البيانات.',desc_en:'Mongoose validators, SQL constraints, data integrity.'},
+    {d:144,t:'النسخ الاحتياطي والاستعادة',t_en:'Backup & Restore',s:'DB Integration',type:'learning',desc:'mongodump/restore, pg_dump/restore.',desc_en:'mongodump/restore, pg_dump/restore, automated backups.'},
+    {d:145,t:'الترحيلات',t_en:'Migrations',s:'DB Integration',type:'learning',desc:'تغييرات المخطط، Knex.js، إضافات Mongoose.',desc_en:'Schema changes, Knex.js, Mongoose migration plugins.'},
+    {d:146,t:'استعلامات متقدمة',t_en:'Advanced Queries',s:'DB Integration',type:'learning',desc:'استعلامات فرعية SQL، دوال النافذة.',desc_en:'SQL subqueries, window functions, complex aggregations.'},
+    {d:147,t:'البحث النصي الكامل',t_en:'Full-Text Search',s:'DB Integration',type:'learning',desc:'MongoDB $text، PostgreSQL tsvector/tsquery.',desc_en:'MongoDB $text, PostgreSQL tsvector/tsquery, relevance.'},
+    {d:148,t:'بذر البيانات',t_en:'Data Seeding',s:'DB Integration',type:'learning',desc:'نصوص بذر، faker.js، أوامر بذر.',desc_en:'Seed scripts, faker.js, initial data, seed commands.'},
+    {d:149,t:'أمان قاعدة البيانات',t_en:'Database Security',s:'DB Integration',type:'learning',desc:'تكوين المصادقة، TLS، قوائم السماح.',desc_en:'Auth config, TLS, IP allowlists, least privilege.'},
+    {d:150,t:'مشروع: API مدعوم بقاعدة بيانات',t_en:'Project: DB-Backed API',s:'DB Integration',type:'project',desc:'API كامل مع DB، توثيق، علاقات.',desc_en:'Complete API with DB, auth, relations, aggregation.'},
+
+    {d:151,t:'ربط الواجهة بالخلفية',t_en:'Frontend to Backend',s:'Full Stack',type:'learning',desc:'React إلى Express، fetch/axios، CORS.',desc_en:'React to Express, fetch/axios, CORS, env variables.'},
+    {d:152,t:'حالة بيانات API',t_en:'State for API Data',s:'Full Stack',type:'learning',desc:'React Query/SWR، تخزين مؤقت، تحديثات متفائلة.',desc_en:'React Query/SWR, caching, refetching, optimistic updates.'},
+    {d:153,t:'تدفق التوثيق',t_en:'Auth Flow',s:'Full Stack',type:'learning',desc:'تسجيل دخول/حساب، تخزين رمز JWT.',desc_en:'Login/register, JWT storage, auto-login, protected routes.'},
+    {d:154,t:'تدفق رفع الملفات',t_en:'File Upload Flow',s:'Full Stack',type:'learning',desc:'معاينة أمامية، Multer خلفي، تقديم.',desc_en:'Frontend preview, multer backend, serving files.'},
+    {d:155,t:'ميزات الوقت الحقيقي',t_en:'Real-time Features',s:'Full Stack',type:'learning',desc:'Socket.io، إشعارات حية، محادثة.',desc_en:'Socket.io client+server, live notifications, chat.'},
+
+    {d:156,t:'تخطيط المشروع',t_en:'Project Planning',s:'Full Project',type:'learning',desc:'ميزات، إطارات سلكية، ERD، تصميم API.',desc_en:'Features, wireframes, ER diagram, API design, board setup.'},
+    {d:157,t:'إعداد Monorepo',t_en:'Monorepo Setup',s:'Full Project',type:'learning',desc:'مجلدات عميل وخادم، أنواع مشتركة.',desc_en:'Client/server folders, shared types, npm workspaces.'},
+    {d:158,t:'نظام التوثيق',t_en:'Auth System',s:'Full Project',type:'learning',desc:'تسجيل، تحقق بريد، تسجيل دخول، إعادة تعيين.',desc_en:'Registration, email verification, login, reset, sessions.'},
+    {d:159,t:'لوحة تحكم وتحليلات',t_en:'Dashboard & Analytics',s:'Full Project',type:'learning',desc:'بيانات مستخدم، رسوم بيانية من API.',desc_en:'User data, charts from API, summary cards, date ranges.'},
+    {d:160,t:'ميزات CRUD',t_en:'CRUD Features',s:'Full Project',type:'learning',desc:'CRUD كامل للموارد، نماذج، جداول.',desc_en:'Full CRUD for resources, forms, tables, detail views.'},
+    {d:161,t:'بحث وتصفية',t_en:'Search & Filters',s:'Full Project',type:'learning',desc:'بحث مع debouncing، تصفية، حالة URL.',desc_en:'Debounced search, multi-criteria, URL state persistence.'},
+    {d:162,t:'نظام إشعارات',t_en:'Notifications System',s:'Full Project',type:'learning',desc:'داخل التطبيق/بريد، أيقونة جرس.',desc_en:'In-app/email notifications, bell icon, real-time count.'},
+    {d:163,t:'لوحة الإدارة',t_en:'Admin Panel',s:'Full Project',type:'learning',desc:'منطقة إدارة، إدارة مستخدمين، RBAC.',desc_en:'Admin area, user management, content moderation, RBAC.'},
+    {d:164,t:'إعدادات المستخدم',t_en:'User Settings',s:'Full Project',type:'learning',desc:'تعديل ملف شخصي، رفع صورة رمزية.',desc_en:'Profile editing, avatar upload, password change, preferences.'},
+    {d:165,t:'ميزات اجتماعية',t_en:'Social Features',s:'Full Project',type:'learning',desc:'تعليقات، إعجابات، مشاركات، متابعة.',desc_en:'Comments, likes, shares, follows, activity feed.'},
+    {d:166,t:'دمج الدفع',t_en:'Payment Integration',s:'Full Project',type:'learning',desc:'Stripe Checkout، webhooks، فواتير.',desc_en:'Stripe Checkout, webhooks, subscriptions, invoices.'},
+    {d:167,t:'اختبار وضمان جودة',t_en:'Testing & QA',s:'Full Project',type:'learning',desc:'اختبارات E2E مع Playwright.',desc_en:'Unit/integration/E2E with Playwright, QA checklist.'},
+    {d:168,t:'تحسين الأداء',t_en:'Performance',s:'Full Project',type:'learning',desc:'Core Web Vitals، حجم الحزمة، CDN.',desc_en:'Core Web Vitals, bundle size, API response time, CDN.'},
+    {d:169,t:'تدقيق الأمان',t_en:'Security Audit',s:'Full Project',type:'learning',desc:'OWASP Top 10، رؤوس أمان، فحص.',desc_en:'OWASP Top 10, security headers, vulnerability scanning.'},
+    {d:170,t:'مشروع: تطبيق Full Stack',t_en:'Project: Full Stack App',s:'Full Project',type:'project',desc:'مشروع تخرج مصقول بكل الميزات.',desc_en:'Polished capstone with all features, clean code, docs.'},
+
+    {d:171,t:'خيارات النشر',t_en:'Deployment Options',s:'Deployment',type:'learning',desc:'Vercel/Netlify للواجهة، Railway/Render للخلفية.',desc_en:'Vercel/Netlify frontend, Railway/Render backend, Atlas/Supabase.'},
+    {d:172,t:'نشر الواجهة الأمامية',t_en:'Deploy Frontend',s:'Deployment',type:'learning',desc:'Vercel/Netlify، متغيرات بيئة، نطاق مخصص.',desc_en:'Vercel/Netlify, build settings, env variables, custom domains.'},
+    {d:173,t:'نشر الخلفية',t_en:'Deploy Backend',s:'Deployment',type:'learning',desc:'Railway/Render، CORS، نقاط نهاية الصحة.',desc_en:'Railway/Render, env variables, CORS config, health endpoints.'},
+    {d:174,t:'نشر قاعدة البيانات',t_en:'Database Deployment',s:'Deployment',type:'learning',desc:'MongoDB Atlas، Supabase، نسخ احتياطية.',desc_en:'MongoDB Atlas, Supabase, network access, backups.'},
+    {d:175,t:'خط أنابيب CI/CD',t_en:'CI/CD Pipeline',s:'Deployment',type:'learning',desc:'GitHub Actions، اختبار/بناء/نشر تلقائي.',desc_en:'GitHub Actions, auto test/build/deploy, branch protection.'},
+    {d:176,t:'النطاق و SSL',t_en:'Domain & SSL',s:'Deployment',type:'learning',desc:'نطاق مخصص، DNS، TLS/SSL.',desc_en:'Custom domain, DNS, SSL/TLS, HTTPS redirect.'},
+    {d:177,t:'متغيرات البيئة والأسرار',t_en:'Env Variables & Secrets',s:'Deployment',type:'learning',desc:'مديري الأسرار، الحماية.',desc_en:'Secure secret management, platform managers, never commit.'},
+    {d:178,t:'المراقبة',t_en:'Monitoring',s:'Deployment',type:'learning',desc:'Sentry, LogRocket, Google Analytics.',desc_en:'Sentry, LogRocket, Google Analytics, uptime monitoring.'},
+    {d:179,t:'قائمة تدقيق الإطلاق',t_en:'Launch Checklist',s:'Deployment',type:'learning',desc:'SEO meta, favicon, صفحات خطأ.',desc_en:'SEO meta, favicon, social previews, error pages, audit.'},
+    {d:180,t:'إطلاق التطبيق!',t_en:'🎉 Live App Launch!',s:'Deployment',type:'project',desc:'إطلاق تطبيقك الإنتاجي! كتابة دراسة حالة.',desc_en:'Launch production app! Case study, portfolio update.'}
+  ];
+
+  // ═══ STATE ═══
+  let completedDays = [], currentDay = 1, expandedAll = false;
+
+  // ═══ i18n ═══
+  const i18n = {
+    en: {
+      sections_title: 'Sections', progress_label: 'Progress', continue_btn: 'Continue',
+      expand_btn: 'Expand All', collapse_btn: 'Collapse All', reset_btn: 'Reset',
+      current_label: 'Current', done_label: 'Done', left_label: 'Remaining', projects_label: 'Projects',
+      complete_btn: 'Mark Complete', uncomplete_btn: 'Unmark Complete', close_btn: 'Close',
+      toast_done: 'Day completed!', toast_undone: 'Day unmarked', reset_confirm: 'Reset all progress?'
+    },
+    ar: {
+      sections_title: 'الأقسام', progress_label: 'التقدم', continue_btn: 'استمر',
+      expand_btn: 'توسيع الكل', collapse_btn: 'طي الكل', reset_btn: 'إعادة',
+      current_label: 'الحالي', done_label: 'مكتمل', left_label: 'متبقي', projects_label: 'مشاريع',
+      complete_btn: 'إكمال اليوم', uncomplete_btn: 'إلغاء الإكمال', close_btn: 'إغلاق',
+      toast_done: 'تم إكمال اليوم!', toast_undone: 'تم إلغاء اليوم', reset_confirm: 'هل تريد إعادة كل التقدم؟'
+    }
+  };
+
+  let lang = localStorage.getItem('devpath_lang') || 'en';
+  const $ = id => document.getElementById(id);
+  function t(key) { return i18n[lang][key] || key; }
+
+  function applyLanguage() {
+    document.documentElement.lang = lang;
+    $('langLabel').textContent = lang === 'ar' ? 'العربية' : 'English';
+    document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.dataset.i18n));
+    renderAll();
   }
-});
 
-document.getElementById('loginBtn').addEventListener('click', async () => {
-  try {
-    await auth.signInWithEmailAndPassword(emailInput.value, passwordInput.value);
-    loginError.textContent = '';
-  } catch(e) { loginError.textContent = e.message; }
-});
-document.getElementById('registerBtn').addEventListener('click', async () => {
-  try {
-    await auth.createUserWithEmailAndPassword(emailInput.value, passwordInput.value);
-    loginError.textContent = '';
-  } catch(e) { loginError.textContent = e.message; }
-});
-document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
+  $('langToggle').addEventListener('click', () => {
+    lang = lang === 'ar' ? 'en' : 'ar';
+    localStorage.setItem('devpath_lang', lang);
+    applyLanguage();
+  });
 
-// Firestore
-async function loadProgress() {
-  const doc = await db.collection('users').doc(auth.currentUser.uid).get();
-  if (doc.exists && doc.data().progress) {
-    completedDays = doc.data().progress.completedDays || [];
-    currentDay = doc.data().progress.currentDay || 1;
-  } else {
-    completedDays = []; currentDay = 1;
+  function getTitle(day) { return (lang === 'ar' ? day.t : day.t_en) || day.t; }
+  function getDesc(day) { return (lang === 'ar' ? day.desc : day.desc_en) || day.desc; }
+
+  // ═══ AUTH ═══
+  auth.onAuthStateChanged(async (user) => {
+    if (user) {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('mainContent').style.display = 'flex';
+      document.getElementById('userEmailDisplay').textContent = user.email;
+      await loadProgress();
+    } else {
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('mainContent').style.display = 'none';
+    }
+  });
+
+  document.getElementById('loginBtn').addEventListener('click', async () => {
+    try {
+      await auth.signInWithEmailAndPassword($('emailInput').value, $('passwordInput').value);
+      $('loginError').textContent = '';
+    } catch(e) { $('loginError').textContent = e.message; }
+  });
+  document.getElementById('registerBtn').addEventListener('click', async () => {
+    try {
+      await auth.createUserWithEmailAndPassword($('emailInput').value, $('passwordInput').value);
+      $('loginError').textContent = '';
+    } catch(e) { $('loginError').textContent = e.message; }
+  });
+  document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
+
+  // ═══ FIRESTORE ═══
+  async function loadProgress() {
+    if (!auth.currentUser) return;
+    const doc = await db.collection('users').doc(auth.currentUser.uid).get();
+    if (doc.exists && doc.data().progress) {
+      completedDays = doc.data().progress.completedDays || [];
+      currentDay = doc.data().progress.currentDay || 1;
+    } else {
+      completedDays = []; currentDay = 1;
+    }
+    renderAll();
   }
-  renderAll();
-}
-async function saveProgress() {
-  if (!auth.currentUser) return;
-  await db.collection('users').doc(auth.currentUser.uid).set({
-    progress: { completedDays, currentDay }
-  }, { merge: true });
-}
 
-function complete(day) {
-  if (completedDays.includes(day)) return false;
-  completedDays.push(day); completedDays.sort((a,b)=>a-b);
-  currentDay = Math.min(TOTAL_DAYS, currentDay === day ? currentDay + 1 : currentDay);
-  saveProgress(); renderAll(); return true;
-}
-function uncomplete(day) {
-  const idx = completedDays.indexOf(day);
-  if (idx === -1) return false;
-  completedDays.splice(idx, 1);
-  currentDay = Math.max(1, currentDay - 1);
-  saveProgress(); renderAll(); return true;
-}
+  async function saveProgress() {
+    if (!auth.currentUser) return;
+    await db.collection('users').doc(auth.currentUser.uid).set({
+      progress: { completedDays, currentDay }
+    }, { merge: true });
+  }
 
-// Render functions
-function renderAll() { renderStats(); renderSections(); renderDrawer(); }
-function renderStats() { /* ... */ }
-function renderSections() { /* ... */ }
-function renderDrawer() { /* ... */ }
-
-// Events
-document.getElementById('menuBtn').addEventListener('click', () => {
-  document.getElementById('drawer').classList.toggle('open');
-  document.getElementById('drawerOverlay').classList.toggle('show');
-});
-document.getElementById('drawerOverlay').addEventListener('click', () => {
-  document.getElementById('drawer').classList.remove('open');
-  document.getElementById('drawerOverlay').classList.remove('show');
-});
-document.getElementById('continueBtn').addEventListener('click', () => openDayModal(currentDay));
-document.getElementById('expandBtn').addEventListener('click', () => {
-  expandedAll = !expandedAll;
-  document.getElementById('expandBtn').textContent = expandedAll ? '📂 Collapse All' : '📂 Expand All';
-  renderSections();
-});
-document.getElementById('resetBtn').addEventListener('click', () => {
-  if (confirm('Reset all progress?')) {
-    completedDays = []; currentDay = 1;
+  function complete(day) {
+    if (completedDays.includes(day)) return false;
+    completedDays.push(day); completedDays.sort((a,b)=>a-b);
+    let next = 1;
+    for (let d of completedDays) { if (d === next) next++; else break; }
+    currentDay = Math.min(next, TOTAL_DAYS);
     saveProgress(); renderAll();
+    return true;
   }
-});
 
-// Init
-function init() { /* ... */ }
+  function uncomplete(day) {
+    const idx = completedDays.indexOf(day);
+    if (idx === -1) return false;
+    completedDays.splice(idx, 1);
+    let next = 1;
+    for (let d of completedDays) { if (d === next) next++; else break; }
+    currentDay = Math.min(next, TOTAL_DAYS);
+    saveProgress(); renderAll();
+    return true;
+  }
+
+  function isDone(d) { return completedDays.includes(d); }
+  function isLocked(d) { return d !== 1 && !isDone(d) && !isDone(d-1); }
+  function projectsDone() { return ROADMAP.filter(d => d.type === 'project' && isDone(d.d)).length; }
+
+  // ═══ RENDER ═══
+  function renderAll() { renderStats(); renderSections(); renderSectionTabs(); renderDrawer(); }
+
+  function renderStats() {
+    $('stats').innerHTML = `
+      <div class="stat-card"><div class="stat-icon">${STAT_ICONS.current}</div><div><div class="stat-value">${currentDay}</div><div class="stat-label">${t('current_label')}</div></div></div>
+      <div class="stat-card"><div class="stat-icon">${STAT_ICONS.done}</div><div><div class="stat-value">${completedDays.length}</div><div class="stat-label">${t('done_label')}</div></div></div>
+      <div class="stat-card"><div class="stat-icon">${STAT_ICONS.left}</div><div><div class="stat-value">${TOTAL_DAYS - completedDays.length}</div><div class="stat-label">${t('left_label')}</div></div></div>
+      <div class="stat-card"><div class="stat-icon">${STAT_ICONS.projects}</div><div><div class="stat-value">${projectsDone()}/9</div><div class="stat-label">${t('projects_label')}</div></div></div>
+    `;
+    $('progressPercent').textContent = Math.round((completedDays.length / TOTAL_DAYS) * 100) + '%';
+    $('progressFill').style.width = Math.round((completedDays.length / TOTAL_DAYS) * 100) + '%';
+  }
+
+  function renderSections() {
+    const container = $('sectionsContainer');
+    container.innerHTML = '';
+    SECTIONS.forEach(sectionName => {
+      const days = ROADMAP.filter(d => d.s === sectionName);
+      if (!days.length) return;
+      const doneCount = days.filter(d => isDone(d.d)).length;
+      const isOpen = expandedAll || (doneCount > 0);
+      const groupDiv = document.createElement('div');
+      groupDiv.className = 'section-group' + (isOpen ? ' open' : '');
+      groupDiv.setAttribute('data-section', sectionName);
+      groupDiv.innerHTML = `
+        <div class="section-header" data-section="${sectionName}">
+          <span style="display:flex; align-items:center; gap:8px;">${SECTION_ICONS[sectionName]} ${sectionName}</span>
+          <span style="font-size:0.75rem; color:var(--secondary)">${doneCount}/${days.length}</span>
+        </div>
+        <div class="section-days">
+          ${days.map(d => {
+            let cls = 'day-cell';
+            if (isDone(d.d)) cls += ' done';
+            if (d.d === currentDay && !isDone(d.d)) cls += ' current';
+            if (d.type === 'project') cls += ' project';
+            if (isLocked(d.d)) cls += ' locked';
+            return `<div class="${cls}" data-day="${d.d}">${d.d}</div>`;
+          }).join('')}
+        </div>
+      `;
+      container.appendChild(groupDiv);
+    });
+    attachDayEvents();
+    attachSectionToggles();
+  }
+
+  function attachDayEvents() {
+    document.querySelectorAll('.day-cell:not(.locked)').forEach(cell => {
+      cell.addEventListener('click', () => openDayModal(parseInt(cell.dataset.day)));
+    });
+  }
+
+  function attachSectionToggles() {
+    document.querySelectorAll('.section-header').forEach(header => {
+      header.addEventListener('click', function(e) {
+        e.stopPropagation();
+        this.parentElement.classList.toggle('open');
+      });
+    });
+  }
+
+  function renderSectionTabs() {
+    const tabs = $('sectionTabs');
+    tabs.innerHTML = SECTIONS.map(s => `<button class="section-tab" data-section="${s}">${SECTION_ICONS[s]} ${s.substring(0,8)}</button>`).join('');
+    tabs.querySelectorAll('.section-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const section = document.querySelector(`.section-group[data-section="${tab.dataset.section}"]`);
+        if (section) {
+          section.classList.add('open');
+          section.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+  }
+
+  function renderDrawer() {
+    const drawerList = $('drawerList');
+    drawerList.innerHTML = SECTIONS.map(s => {
+      const days = ROADMAP.filter(d => d.s === s);
+      const done = days.filter(d => isDone(d.d)).length;
+      return `<div class="drawer-item" data-section="${s}">${SECTION_ICONS[s]} ${s} <span style="margin-left:auto;font-size:0.7rem;">${done}/${days.length}</span></div>`;
+    }).join('');
+    drawerList.querySelectorAll('.drawer-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const section = document.querySelector(`.section-group[data-section="${item.dataset.section}"]`);
+        if (section) { section.classList.add('open'); section.scrollIntoView({ behavior: 'smooth' }); }
+        $('drawer').classList.remove('open');
+        $('drawerOverlay').classList.remove('show');
+      });
+    });
+  }
+
+  function openDayModal(dayNum) {
+    const day = ROADMAP.find(d => d.d === dayNum);
+    if (!day) return;
+    const overlay = $('modalOverlay');
+    const content = $('modalContent');
+    const done = isDone(dayNum);
+    content.innerHTML = `
+      <h3>${lang === 'en' ? 'Day' : 'اليوم'} ${day.d}: ${getTitle(day)}</h3>
+      <p>${getDesc(day)}</p>
+      <div style="margin-top:16px; display:flex; gap:8px;">
+        <button class="btn btn-primary" id="toggleCompleteBtn">${done ? t('uncomplete_btn') : t('complete_btn')}</button>
+        <button class="btn btn-outline" id="closeModalBtn">${t('close_btn')}</button>
+      </div>
+    `;
+    overlay.style.display = 'flex';
+    document.getElementById('closeModalBtn').onclick = () => overlay.style.display = 'none';
+    document.getElementById('toggleCompleteBtn').onclick = () => {
+      if (done) { uncomplete(dayNum); toast(t('toast_undone')); }
+      else { complete(dayNum); toast(t('toast_done')); }
+      overlay.style.display = 'none';
+      renderAll();
+    };
+  }
+
+  function toast(msg) {
+    const panel = $('toastPanel');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = msg;
+    panel.appendChild(toast);
+    setTimeout(() => toast.remove(), 2000);
+  }
+
+  // ═══ EVENTS ═══
+  $('menuBtn').addEventListener('click', () => {
+    $('drawer').classList.toggle('open');
+    $('drawerOverlay').classList.toggle('show');
+  });
+  $('drawerOverlay').addEventListener('click', () => {
+    $('drawer').classList.remove('open');
+    $('drawerOverlay').classList.remove('show');
+  });
+  $('continueBtn').addEventListener('click', () => openDayModal(currentDay));
+  $('expandBtn').addEventListener('click', () => {
+    expandedAll = !expandedAll;
+    $('expandBtnText').textContent = expandedAll ? t('collapse_btn') : t('expand_btn');
+    renderSections();
+  });
+  $('resetBtn').addEventListener('click', () => {
+    if (confirm(t('reset_confirm'))) {
+      completedDays = []; currentDay = 1;
+      saveProgress(); renderAll();
+    }
+  });
+
+  applyLanguage();
+})();
 </script>
 </body>
 </html>
