@@ -6,9 +6,9 @@
   <title>DevPath 180 • Notes</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
   <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <style>
     :root {
       --bg: #000;
@@ -44,7 +44,7 @@
     .app { flex: 1; display: flex; flex-direction: column; min-height: 100dvh; }
     ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 
-    /* ── LOGIN ── */
+    /* ── LOGIN SCREEN ── */
     .login-screen {
       display: flex; flex-direction: column; align-items: center;
       justify-content: center; flex: 1; padding: 40px 20px;
@@ -63,110 +63,52 @@
     .btn {
       padding: 12px 20px; border-radius: 12px; border: none; font-weight: 600;
       cursor: pointer; font-size: 0.95rem; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
     }
     .btn-primary { background: var(--accent); color: #fff; }
     .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
-    .logout-btn { background: transparent; border: 1px solid var(--red); color: var(--red); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.75rem; }
 
-    /* ── HOME ── */
+    /* ── HOME VIEW ── */
     .home-view { display: flex; flex-direction: column; flex: 1; padding: 16px; }
     .home-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
     .home-title-wrapper { display: flex; align-items: center; gap: 10px; }
     .home-title-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
     .home-title-icon svg { width: 100%; height: 100%; stroke: var(--accent); }
     .home-title-text { font-size: 1.8rem; font-weight: 700; letter-spacing: -0.5px; background: linear-gradient(135deg, var(--accent), var(--green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .home-new-btn { width: 42px; height: 42px; border-radius: 50%; background: var(--accent); color: #fff; border: none; font-size: 1.6rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; }
-    .home-new-btn:hover { background: var(--accent2); }
+    .home-new-btn { width: 42px; height: 42px; border-radius: 50%; background: var(--accent); color: #fff; border: none; font-size: 1.6rem; display: flex; align-items: center; justify-content: center; cursor: pointer; }
     .home-tools { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
     .search-input { flex:1; min-width:150px; background:var(--card); border:1px solid var(--border); color:var(--text); padding:10px 14px; border-radius:10px; font-size:0.9rem; outline:none; }
-    .search-input::placeholder{color:var(--secondary)}
     .filter-chip{ padding:8px 14px; border-radius:20px; border:1px solid var(--border); background:var(--card); color:var(--secondary); cursor:pointer; font-size:0.8rem; font-weight:600; white-space:nowrap; }
     .filter-chip.active{ background:var(--accent); color:#fff; border-color:var(--accent); }
     .notes-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px; }
-    .note-card-home{ background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:16px; cursor:pointer; transition:all 0.2s; }
-    .note-card-home:active{ background:#222; }
-    .note-card-home .title{ font-weight:600; font-size:0.9rem; margin-bottom:6px; }
+    .note-card-home{ background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:16px; cursor:pointer; }
+    .note-card-home .title{ font-weight:600; font-size:0.9rem; }
     .note-card-home .lang{ font-size:0.65rem; text-transform:uppercase; color:var(--accent); background:rgba(10,132,255,0.15); padding:2px 8px; border-radius:4px; }
     .note-card-home .delete-btn{ margin-top:8px; background:none; border:none; color:var(--secondary); cursor:pointer; font-size:0.8rem; }
-    .note-card-home .delete-btn:hover{ color:var(--red); }
-    .empty-notes{ grid-column:1/-1; text-align:center; padding:60px 20px; color:var(--secondary); }
-    .dashboard-link{ display:inline-flex; align-items:center; gap:6px; color:var(--accent); text-decoration:none; font-weight:500; margin-top:16px; align-self:flex-start; }
+    .dashboard-link{ display:inline-flex; align-items:center; gap:6px; color:var(--accent); text-decoration:none; font-weight:500; margin-top:16px; }
+    .logout-btn { background: transparent; border: 1px solid var(--red); color: var(--red); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.75rem; }
 
-    /* ── EDITOR ── */
+    /* ── EDITOR VIEW ── */
     .editor-view{ display:none; flex-direction:column; flex:1; }
     .editor-view.active{ display:flex; }
-    .navbar{ padding:12px 16px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--border); min-height:52px; }
-    .back-btn{ background:none; border:none; color:var(--accent); font-size:1rem; cursor:pointer; display:flex; align-items:center; gap:4px; }
-    .nav-title-input{ flex:1; background:transparent; border:none; font-size:1.1rem; font-weight:600; color:var(--text); outline:none; min-width:0; }
-    .nav-title-input::placeholder{ color:var(--secondary); }
-    .editor-container{ flex:1; display:flex; flex-direction:column; min-height:0; position:relative; }
-
+    .navbar{ padding:12px 16px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--border); }
+    .back-btn{ background:none; border:none; color:var(--accent); font-size:1rem; cursor:pointer; }
+    .nav-title-input{ flex:1; background:transparent; border:none; font-size:1.1rem; font-weight:600; color:var(--text); outline:none; }
     .code-stage{ flex:1; position:relative; display:flex; overflow:hidden; }
-    .code-layer{ 
-      position:absolute; 
-      inset:12px 12px 12px 50px; 
-      font-family:var(--mono); 
-      font-size:0.88rem; 
-      line-height:1.75; 
-      white-space:pre-wrap; 
-      overflow:auto; 
-      border:none; 
-      outline:none; 
-      background:transparent; 
-    }
-    .code-textarea{ 
-      color:transparent; 
-      caret-color:var(--accent); 
-      resize:none; 
-      z-index:2; 
-      -webkit-text-fill-color: transparent;
-    }
+    .code-layer{ position:absolute; inset:12px 12px 12px 50px; font-family:var(--mono); font-size:0.88rem; line-height:1.75; white-space:pre-wrap; overflow:auto; border:none; outline:none; background:transparent; }
+    .code-textarea{ color:transparent; caret-color:var(--accent); resize:none; z-index:2; -webkit-text-fill-color: transparent; }
     .code-textarea::selection{ background:rgba(10,132,255,0.3); }
-    .code-preview{ 
-      pointer-events:none; 
-      z-index:1; 
-      white-space:pre-wrap; 
-      word-wrap:break-word; 
-    }
-    .code-preview code{ background:transparent!important; padding:0!important; }
-    .line-numbers{ 
-      position:absolute; top:12px; left:4px; bottom:12px; 
-      width:40px; font-family:var(--mono); font-size:0.78rem; 
-      color:var(--secondary); text-align:right; 
-      overflow:hidden; z-index:3; pointer-events:none; 
-      line-height:1.75; padding-right:6px; 
-    }
-    .line-numbers span{ display:block; }
-
-    /* ── LIVE PREVIEW ── */
-    .live-preview {
-      flex: 1;
-      display: none;
-      border: none;
-      background: #fff;
-      width: 100%;
-      height: 100%;
-    }
-    .live-preview.active {
-      display: block;
-    }
+    .code-preview{ pointer-events:none; z-index:1; }
+    .line-numbers{ position:absolute; top:12px; left:4px; bottom:12px; width:40px; font-family:var(--mono); font-size:0.78rem; color:var(--secondary); text-align:right; overflow:hidden; z-index:3; pointer-events:none; line-height:1.75; padding-right:6px; }
+    .live-preview { flex: 1; display: none; border: none; background: #fff; width: 100%; height: 100%; }
+    .live-preview.active { display: block; }
 
     .bottom-toolbar{ display:flex; align-items:center; gap:8px; padding:10px 14px; border-top:1px solid var(--border); background:var(--bg); flex-wrap:wrap; overflow-x: auto; }
     .lang-picker{ background:var(--card); border:1px solid var(--border); color:var(--text); padding:7px 12px; border-radius:20px; font-size:0.8rem; outline:none; cursor:pointer; }
     .tool-btn{ padding:8px 14px; border-radius:20px; border:1px solid var(--border); background:var(--card); color:var(--text); font-size:0.8rem; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:5px; transition:all 0.2s; white-space: nowrap; }
     .tool-btn:active{ transform:scale(0.95); }
     .tool-btn:disabled { opacity: 0.4; pointer-events: none; }
-    .tool-btn.copy{ color:var(--green); border-color:rgba(48,209,88,0.3); }
-    .tool-btn.copy.copied{ background:rgba(48,209,88,0.2); border-color:var(--green); }
     .tool-btn.save{ background:var(--accent); color:#fff; border-color:var(--accent); }
-    .tool-btn.save:active{ background:var(--accent2); }
-    .tool-btn.delete{ color:var(--red); border-color:rgba(255,69,58,0.4); }
-    .tool-btn.preview{ color:var(--accent); border-color:rgba(10,132,255,0.4); }
-    .tool-btn.preview.active{ background:var(--accent); color:#fff; }
-    .tool-btn.select-all { color: var(--accent); border-color: rgba(10,132,255,0.4); }
-    .tool-btn svg{ width:16px; height:16px; }
-    .status-bar{ padding:4px 16px; display:flex; justify-content:space-between; font-size:0.7rem; color:var(--secondary); font-family:var(--mono); }
-
     .toast-panel{ position:fixed; top:16px; left:50%; transform:translateX(-50%); z-index:200; display:flex; flex-direction:column; gap:6px; pointer-events:none; }
     .toast{ background:var(--card); border:1px solid var(--border); padding:10px 20px; border-radius:20px; font-weight:500; font-size:0.85rem; box-shadow:0 2px 20px rgba(0,0,0,0.5); text-align:center; animation:toastIn 0.4s ease; pointer-events:auto; }
     @keyframes toastIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
@@ -176,8 +118,7 @@
 </head>
 <body>
 <div class="app" id="appRoot">
-
-  <!-- ════ LOGIN SCREEN ════ -->
+  <!-- ═══ LOGIN SCREEN ═══ -->
   <div class="login-screen" id="loginScreen">
     <div class="login-card">
       <div class="login-title">DevPath Notes</div>
@@ -189,7 +130,7 @@
     </div>
   </div>
 
-  <!-- ════ HOME VIEW ════ -->
+  <!-- ═══ HOME VIEW ═══ -->
   <div class="home-view" id="homeView" style="display:none;">
     <div class="home-header">
       <div class="home-title-wrapper">
@@ -225,7 +166,7 @@
     </a>
   </div>
 
-  <!-- ════ EDITOR VIEW ════ -->
+  <!-- ═══ EDITOR VIEW ═══ -->
   <div class="editor-view" id="editorView">
     <div class="navbar">
       <button class="back-btn" id="editorBackBtn">
@@ -234,7 +175,7 @@
       </button>
       <input type="text" class="nav-title-input" id="noteTitle" placeholder="Note title">
     </div>
-    <div class="editor-container">
+    <div class="editor-container" style="flex:1; display:flex; flex-direction:column; position:relative;">
       <div class="code-stage" id="codeStage">
         <div class="line-numbers" id="lineNums">1</div>
         <textarea class="code-layer code-textarea" id="codeTextarea" placeholder="Write code…" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
@@ -255,27 +196,27 @@
         <option value="bash">Bash</option>
         <option value="plaintext">Plain Text</option>
       </select>
-      <button class="tool-btn" id="undoBtn" title="Undo (Ctrl+Z)" disabled>
+      <button class="tool-btn" id="undoBtn" disabled>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
         Undo
       </button>
-      <button class="tool-btn" id="redoBtn" title="Redo (Ctrl+Y)" disabled>
+      <button class="tool-btn" id="redoBtn" disabled>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
         Redo
       </button>
-      <button class="tool-btn select-all" id="selectAllBtn" title="Select All (Ctrl+A)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="15" x2="12" y2="15"/></svg>
+      <button class="tool-btn" id="selectAllBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/></svg>
         Select All
       </button>
-      <button class="tool-btn preview" id="previewBtn">
+      <button class="tool-btn" id="previewBtn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2"/><path d="M12 2s8 4 8 10-8 10-8 10-8-4-8-10 8-10 8-10z"/></svg>
         Preview
       </button>
-      <button class="tool-btn copy" id="copyBtn">
+      <button class="tool-btn" id="copyBtn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
         Copy
       </button>
-      <button class="tool-btn delete" id="deleteBtn">
+      <button class="tool-btn" id="deleteBtn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
       </button>
       <button class="tool-btn save" id="saveBtn">
@@ -283,7 +224,7 @@
         Save
       </button>
     </div>
-    <div class="status-bar">
+    <div class="status-bar" style="padding:4px 16px; display:flex; justify-content:space-between; font-size:0.7rem; color:var(--secondary); font-family:var(--mono);">
       <span id="lineCount">Ln 1</span>
       <span id="charCount">0 chars</span>
     </div>
@@ -320,133 +261,53 @@
   const editorView = $('editorView');
   const livePreview = $('livePreview');
   const codeStage = $('codeStage');
-  const previewBtn = $('previewBtn');
-  const undoBtn = $('undoBtn');
-  const redoBtn = $('redoBtn');
 
-  // ─── نظام Undo/Redo ───
+  // ─── Undo/Redo ───
   const MAX_HISTORY = 100;
-  let undoStack = [];
-  let redoStack = [];
-  let lastSavedState = '';
-  let undoDebounce = null;
+  let undoStack = [], redoStack = [], lastSavedState = '', undoDebounce = null;
+  let highlightTimer, lineNumbersTimer, previewTimer, scrollTimer, statsTimer;
 
-  let highlightTimer = null;
-  let lineNumbersTimer = null;
-  let previewTimer = null;
-  let scrollTimer = null;
-  let statsTimer = null;
-
-  // ═══ Auth ═══
-  auth.onAuthStateChanged(async (user) => {
+  // ─── Auth ───
+  auth.onAuthStateChanged(async user => {
     if (user) {
       $('loginScreen').style.display = 'none';
-      $('homeView').style.display = 'flex';
+      homeView.style.display = 'flex';
       $('userEmail').textContent = user.email;
       await loadNotes();
     } else {
       $('loginScreen').style.display = 'flex';
-      $('homeView').style.display = 'none';
-      $('editorView').classList.remove('active');
+      homeView.style.display = 'none';
+      editorView.classList.remove('active');
     }
   });
 
   $('loginBtn').addEventListener('click', async () => {
-    try {
-      await auth.signInWithEmailAndPassword($('emailInput').value, $('passwordInput').value);
-      $('loginError').textContent = '';
-    } catch(e) { $('loginError').textContent = e.message; }
+    try { await auth.signInWithEmailAndPassword($('emailInput').value, $('passwordInput').value); $('loginError').textContent = ''; }
+    catch(e) { $('loginError').textContent = e.message; }
   });
   $('registerBtn').addEventListener('click', async () => {
-    try {
-      await auth.createUserWithEmailAndPassword($('emailInput').value, $('passwordInput').value);
-      $('loginError').textContent = '';
-    } catch(e) { $('loginError').textContent = e.message; }
+    try { await auth.createUserWithEmailAndPassword($('emailInput').value, $('passwordInput').value); $('loginError').textContent = ''; }
+    catch(e) { $('loginError').textContent = e.message; }
   });
   $('logoutBtn').addEventListener('click', () => auth.signOut());
 
-  // ═══ Firestore ═══
+  // ─── Firestore ───
   async function loadNotes() {
     if (!auth.currentUser) return;
-    const snapshot = await db.collection('users').doc(auth.currentUser.uid).collection('notes').orderBy('updated', 'desc').get();
+    const snapshot = await db.collection('users').doc(auth.currentUser.uid).collection('notes').orderBy('updated','desc').get();
     notes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     renderHome();
   }
-
   async function saveNoteToCloud(note) {
     if (!auth.currentUser) return;
     await db.collection('users').doc(auth.currentUser.uid).collection('notes').doc(note.id).set(note, { merge: true });
   }
-
   async function deleteNoteFromCloud(id) {
     if (!auth.currentUser) return;
     await db.collection('users').doc(auth.currentUser.uid).collection('notes').doc(id).delete();
   }
 
-  // ─── Undo/Redo ───
-  function pushUndoState() {
-    const ta = $('codeTextarea');
-    if (!ta) return;
-    const currentState = ta.value;
-    if (currentState === lastSavedState) return;
-    undoStack.push(lastSavedState);
-    if (undoStack.length > MAX_HISTORY) undoStack.shift();
-    redoStack = [];
-    lastSavedState = currentState;
-    updateUndoRedoButtons();
-  }
-
-  function applyState(state) {
-    const ta = $('codeTextarea');
-    if (!ta) return;
-    ta.value = state;
-    lastSavedState = state;
-    refreshHighlight();
-    updateStats();
-    drawLineNumbers();
-    syncScroll();
-    updateUndoRedoButtons();
-  }
-
-  function performUndo() {
-    if (undoStack.length === 0) return;
-    const ta = $('codeTextarea');
-    if (!ta) return;
-    redoStack.push(ta.value);
-    applyState(undoStack.pop());
-    if (currentId) {
-      const note = notes.find(n => n.id === currentId);
-      if (note) { note.content = ta.value; note.updated = Date.now(); saveNoteToCloud(note); }
-    }
-    $('codeTextarea').blur();
-  }
-
-  function performRedo() {
-    if (redoStack.length === 0) return;
-    const ta = $('codeTextarea');
-    if (!ta) return;
-    undoStack.push(ta.value);
-    applyState(redoStack.pop());
-    if (currentId) {
-      const note = notes.find(n => n.id === currentId);
-      if (note) { note.content = ta.value; note.updated = Date.now(); saveNoteToCloud(note); }
-    }
-    $('codeTextarea').blur();
-  }
-
-  function updateUndoRedoButtons() {
-    if (undoBtn) undoBtn.disabled = (undoStack.length === 0);
-    if (redoBtn) redoBtn.disabled = (redoStack.length === 0);
-  }
-
-  function resetHistory(initialValue = '') {
-    undoStack = [];
-    redoStack = [];
-    lastSavedState = initialValue;
-    updateUndoRedoButtons();
-  }
-
-  // ─── HOME ───
+  // ─── Render ───
   function renderHome() {
     let filtered = [...notes];
     if (filterLang !== 'all') filtered = filtered.filter(n => n.lang === filterLang);
@@ -454,65 +315,44 @@
       const q = searchTerm.toLowerCase();
       filtered = filtered.filter(n => (n.title||'').toLowerCase().includes(q) || (n.content||'').toLowerCase().includes(q));
     }
-    filtered.sort((a,b) => b.updated - a.updated);
-
+    filtered.sort((a,b)=> b.updated - a.updated);
     const grid = $('notesGrid');
     if (filtered.length === 0) {
-      grid.innerHTML = '<div class="empty-notes">No notes yet.<br>Tap + to create one.</div>';
+      grid.innerHTML = '<div style="padding:60px 20px;text-align:center;color:var(--secondary);">No notes yet.<br>Tap + to create one.</div>';
     } else {
       grid.innerHTML = filtered.map(n => `
         <div class="note-card-home" data-id="${n.id}">
-          <div class="title">${esc(n.title || 'Untitled')}</div>
+          <div class="title">${esc(n.title||'Untitled')}</div>
           <span class="lang">${n.lang||'txt'}</span>
           <button class="delete-btn" data-del="${n.id}">Delete</button>
         </div>
       `).join('');
     }
-
     grid.querySelectorAll('.note-card-home').forEach(card => {
-      card.addEventListener('click', (e) => {
-        if (e.target.closest('[data-del]')) return;
-        openEditor(card.dataset.id);
-      });
+      card.addEventListener('click', (e) => { if(!e.target.closest('[data-del]')) openEditor(card.dataset.id); });
     });
     grid.querySelectorAll('[data-del]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const id = btn.dataset.del;
-        if (confirm('Delete this note?')) {
-          notes = notes.filter(n => n.id !== id);
-          deleteNoteFromCloud(id);
-          renderHome();
-          toast('Deleted');
-        }
-      });
+      btn.addEventListener('click', (e) => { e.stopPropagation(); if(confirm('Delete?')) { notes = notes.filter(n=>n.id!==btn.dataset.del); deleteNoteFromCloud(btn.dataset.del); renderHome(); } });
     });
   }
 
-  // ─── EDITOR ───
   function openEditor(id) {
-    currentId = id;
     const note = notes.find(n => n.id === id);
     if (!note) return;
+    currentId = id;
     $('noteTitle').value = note.title || '';
     $('codeTextarea').value = note.content || '';
     $('langPicker').value = note.lang || 'plaintext';
-    $('homeView').style.display = 'none';
+    homeView.style.display = 'none';
     editorView.classList.add('active');
     switchToCode();
-    refreshHighlight();
-    updateStats();
-    drawLineNumbers();
+    refreshHighlight(); updateStats(); drawLineNumbers();
     resetHistory(note.content || '');
     $('codeTextarea').focus();
   }
 
   async function openNewNote() {
-    if (!auth.currentUser) return;
-    const note = {
-      id: Date.now().toString(36) + Math.random().toString(36).substr(2,7),
-      title: '', content: '', lang: 'html', updated: Date.now()
-    };
+    const note = { id: Date.now().toString(36)+Math.random().toString(36).substr(2,7), title:'', content:'', lang:'html', updated: Date.now() };
     const docRef = await db.collection('users').doc(auth.currentUser.uid).collection('notes').add(note);
     note.id = docRef.id;
     notes.unshift(note);
@@ -522,74 +362,51 @@
   function closeEditor() {
     currentId = null;
     editorView.classList.remove('active');
-    $('homeView').style.display = 'flex';
-    $('noteTitle').value = '';
-    $('codeTextarea').value = '';
-    $('codeHighlight').textContent = '';
-    switchToCode();
-    resetHistory();
+    homeView.style.display = 'flex';
+    $('noteTitle').value = ''; $('codeTextarea').value = ''; $('codeHighlight').textContent = '';
+    switchToCode(); resetHistory(); renderHome();
   }
 
   function saveAndClose() {
     if (!currentId) return;
     const note = notes.find(n => n.id === currentId);
-    if (!note) return;
-    note.title = $('noteTitle').value.trim();
-    note.content = $('codeTextarea').value;
-    note.lang = $('langPicker').value;
-    note.updated = Date.now();
+    note.title = $('noteTitle').value.trim(); note.content = $('codeTextarea').value; note.lang = $('langPicker').value; note.updated = Date.now();
     saveNoteToCloud(note);
-    toast('Saved');
-    closeEditor();
+    toast('Saved'); closeEditor();
   }
 
   async function deleteCurrent() {
-    if (!currentId) return;
-    if (!confirm('Delete this note?')) return;
-    notes = notes.filter(n => n.id !== currentId);
+    if (!currentId || !confirm('Delete?')) return;
     await deleteNoteFromCloud(currentId);
+    notes = notes.filter(n => n.id !== currentId);
     closeEditor();
-    renderHome();
-    toast('Deleted');
   }
 
-  // ─── PREVIEW ───
+  // ─── Preview ───
   function switchToPreview() {
-    isPreview = true;
-    codeStage.style.display = 'none';
-    livePreview.classList.add('active');
-    previewBtn.classList.add('active');
-    previewBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> Code';
-    livePreview.srcdoc = '';
-    requestAnimationFrame(updatePreview);
+    isPreview = true; codeStage.style.display = 'none'; livePreview.classList.add('active');
+    $('previewBtn').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> Code';
+    updatePreview();
   }
-
   function switchToCode() {
-    isPreview = false;
-    codeStage.style.display = 'flex';
-    livePreview.classList.remove('active');
-    livePreview.srcdoc = '';
-    previewBtn.classList.remove('active');
-    previewBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2"/><path d="M12 2s8 4 8 10-8 10-8 10-8-4-8-10 8-10 8-10z"/></svg> Preview';
+    isPreview = false; codeStage.style.display = 'flex'; livePreview.classList.remove('active');
+    $('previewBtn').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2"/><path d="M12 2s8 4 8 10-8 10-8 10-8-4-8-10 8-10 8-10z"/></svg> Preview';
   }
-
   function updatePreview() {
     if (!isPreview) return;
-    const code = $('codeTextarea').value;
-    const lang = $('langPicker').value;
+    const code = $('codeTextarea').value; const lang = $('langPicker').value;
     let html = code;
-    if (lang === 'css') html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>${code}</style></head><body></body></html>`;
-    else if (lang === 'javascript') html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body><script>${code}<\/script></body></html>`;
-    else if (lang === 'html' && !code.includes('<!DOCTYPE')) html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body>${code}</body></html>`;
+    if (lang === 'css') html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>${code}</style></head><body></body></html>`;
+    else if (lang === 'javascript') html = `<!DOCTYPE html><html><body><script>${code}<\/script></body></html>`;
+    else if (lang === 'html' && !code.includes('<!DOCTYPE')) html = `<!DOCTYPE html><html>${code}</html>`;
     livePreview.srcdoc = html;
   }
 
-  // ─── SYNTAX ───
+  // ─── Highlight ───
   function refreshHighlight() {
     clearTimeout(highlightTimer);
     highlightTimer = setTimeout(() => {
-      const code = $('codeTextarea').value;
-      const lang = $('langPicker').value;
+      const code = $('codeTextarea').value; const lang = $('langPicker').value;
       let out;
       try { out = lang === 'plaintext' ? esc(code) : hljs.highlight(code, { language: lang, ignoreIllegals: true }).value; }
       catch(e) { out = esc(code); }
@@ -597,143 +414,92 @@
       syncScroll();
     }, 100);
   }
-
   function syncScroll() {
-    const textarea = $('codeTextarea');
-    const preview = $('codeHighlight').parentElement;
-    if (!textarea || !preview) return;
-    preview.scrollTop = textarea.scrollTop;
-    preview.scrollLeft = textarea.scrollLeft;
+    const pre = $('codeHighlight').parentElement;
+    pre.scrollTop = $('codeTextarea').scrollTop; pre.scrollLeft = $('codeTextarea').scrollLeft;
   }
-
   function drawLineNumbers() {
     const lines = $('codeTextarea').value.split('\n');
-    $('lineNums').innerHTML = lines.map((_, i) => `<span>${i+1}</span>`).join('');
+    $('lineNums').innerHTML = lines.map((_,i) => `<span>${i+1}</span>`).join('');
     $('lineNums').scrollTop = $('codeTextarea').scrollTop;
   }
-
   async function copyCode() {
-    const code = $('codeTextarea').value;
-    if (!code.trim()) { toast('Nothing to copy'); return; }
-    try {
-      await navigator.clipboard.writeText(code);
-      const btn = $('copyBtn');
-      btn.classList.add('copied');
-      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
-      setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy'; }, 2000);
-      toast('Copied!');
-    } catch(e) { toast('Copy failed'); }
+    try { await navigator.clipboard.writeText($('codeTextarea').value); toast('Copied!'); } catch(e) { toast('Copy failed'); }
   }
+  function selectAll() { $('codeTextarea').select(); }
 
-  function selectAllCode() { const ta = $('codeTextarea'); ta.focus(); ta.select(); toast('All selected'); }
+  // Undo/Redo custom
+  function pushUndoState() {
+    const ta = $('codeTextarea'); if (!ta || ta.value === lastSavedState) return;
+    undoStack.push(lastSavedState); if (undoStack.length > MAX_HISTORY) undoStack.shift();
+    redoStack = []; lastSavedState = ta.value; updateUndoRedoButtons();
+  }
+  function applyState(state) {
+    $('codeTextarea').value = state; lastSavedState = state;
+    refreshHighlight(); updateStats(); drawLineNumbers(); syncScroll(); updateUndoRedoButtons();
+  }
+  function performUndo() {
+    if (!undoStack.length) return;
+    redoStack.push($('codeTextarea').value); applyState(undoStack.pop());
+    if (currentId) { const n = notes.find(x=>x.id===currentId); n.content = $('codeTextarea').value; saveNoteToCloud(n); }
+  }
+  function performRedo() {
+    if (!redoStack.length) return;
+    undoStack.push($('codeTextarea').value); applyState(redoStack.pop());
+    if (currentId) { const n = notes.find(x=>x.id===currentId); n.content = $('codeTextarea').value; saveNoteToCloud(n); }
+  }
+  function updateUndoRedoButtons() {
+    $('undoBtn').disabled = !undoStack.length;
+    $('redoBtn').disabled = !redoStack.length;
+  }
+  function resetHistory(initial = '') { undoStack = []; redoStack = []; lastSavedState = initial; updateUndoRedoButtons(); }
 
   function updateStats() {
     const code = $('codeTextarea').value;
     $('charCount').textContent = code.length + ' chars';
     $('lineCount').textContent = 'Ln ' + code.split('\n').length;
   }
-
   function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-  function toast(msg) {
-    const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
-    $('toastPanel').appendChild(t); setTimeout(() => t.remove(), 2200);
-  }
+  function toast(msg) { const t = document.createElement('div'); t.className='toast'; t.textContent=msg; $('toastPanel').appendChild(t); setTimeout(()=>t.remove(),2200); }
 
-  // ─── EVENTS ───
+  // ─── Events ───
   $('homeNewBtn').addEventListener('click', openNewNote);
   $('editorBackBtn').addEventListener('click', closeEditor);
   $('saveBtn').addEventListener('click', saveAndClose);
   $('deleteBtn').addEventListener('click', deleteCurrent);
   $('copyBtn').addEventListener('click', copyCode);
-  $('selectAllBtn').addEventListener('click', selectAllCode);
-  undoBtn.addEventListener('click', performUndo);
-  redoBtn.addEventListener('click', performRedo);
-
-  previewBtn.addEventListener('click', () => { isPreview ? switchToCode() : switchToPreview(); });
+  $('selectAllBtn').addEventListener('click', selectAll);
+  $('undoBtn').addEventListener('click', performUndo);
+  $('redoBtn').addEventListener('click', performRedo);
+  $('previewBtn').addEventListener('click', ()=> isPreview ? switchToCode() : switchToPreview());
 
   $('codeTextarea').addEventListener('input', () => {
-    refreshHighlight();
-    clearTimeout(statsTimer); statsTimer = setTimeout(updateStats, 200);
+    refreshHighlight(); clearTimeout(statsTimer); statsTimer = setTimeout(updateStats, 200);
     clearTimeout(lineNumbersTimer); lineNumbersTimer = setTimeout(drawLineNumbers, 300);
-    if (currentId) {
-      const note = notes.find(n => n.id === currentId);
-      if (note) { note.content = $('codeTextarea').value; note.updated = Date.now(); saveNoteToCloud(note); }
-    }
+    if (currentId) { const n = notes.find(x=>x.id===currentId); n.content = $('codeTextarea').value; n.updated = Date.now(); saveNoteToCloud(n); }
     if (isPreview) { clearTimeout(previewTimer); previewTimer = setTimeout(updatePreview, 300); }
     clearTimeout(undoDebounce); undoDebounce = setTimeout(pushUndoState, 500);
   });
-
-  $('codeTextarea').addEventListener('scroll', () => { syncScroll(); clearTimeout(scrollTimer); scrollTimer = setTimeout(drawLineNumbers, 150); });
-  $('homeSearch').addEventListener('input', (e) => { searchTerm = e.target.value; renderHome(); });
-
+  $('codeTextarea').addEventListener('scroll', ()=>{ syncScroll(); clearTimeout(scrollTimer); scrollTimer = setTimeout(drawLineNumbers, 150); });
+  $('homeSearch').addEventListener('input', (e)=>{ searchTerm = e.target.value; renderHome(); });
   document.querySelectorAll('.filter-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-      filterLang = chip.dataset.lang;
-      renderHome();
-    });
+    chip.addEventListener('click', ()=>{ document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active')); chip.classList.add('active'); filterLang = chip.dataset.lang; renderHome(); });
   });
-
-  $('noteTitle').addEventListener('input', () => {
-    if (currentId) {
-      const note = notes.find(n => n.id === currentId);
-      if (note) { note.title = $('noteTitle').value.trim(); note.updated = Date.now(); saveNoteToCloud(note); }
-    }
-  });
-
-  $('langPicker').addEventListener('change', () => {
-    refreshHighlight();
-    if (currentId) {
-      const note = notes.find(n => n.id === currentId);
-      if (note) { note.lang = $('langPicker').value; note.updated = Date.now(); saveNoteToCloud(note); }
-    }
-    if (isPreview) updatePreview();
-  });
-
-  $('codeTextarea').addEventListener('keydown', function(e) {
-    const ta = this;
-    if (e.key === 'Tab') {
-      e.preventDefault(); pushUndoState();
-      const start = ta.selectionStart;
-      ta.setRangeText('  ', start, ta.selectionEnd, 'end');
-      ta.selectionStart = ta.selectionEnd = start + 2;
-      refreshHighlight(); updateStats();
-      lastSavedState = ta.value; updateUndoRedoButtons();
-      return;
-    }
-    const pairs = { '(': ')', '[': ']', '{': '}', '"': '"', "'": "'", '`': '`' };
-    if (pairs[e.key] && !e.ctrlKey && !e.metaKey && !e.altKey) {
-      e.preventDefault(); pushUndoState();
-      const start = ta.selectionStart, end = ta.selectionEnd;
-      ta.setRangeText(e.key + pairs[e.key], start, end, 'end');
-      ta.selectionStart = ta.selectionEnd = start + 1;
-      refreshHighlight(); updateStats();
-      lastSavedState = ta.value; updateUndoRedoButtons();
-      return;
-    }
-    if (e.key === 'Enter') {
-      e.preventDefault(); pushUndoState();
-      const start = ta.selectionStart, value = ta.value;
-      const lineStart = value.lastIndexOf('\n', start - 1) + 1;
-      const currentLine = value.substring(lineStart, start);
-      const indent = currentLine.match(/^\s*/)[0];
-      let extra = '';
-      if (currentLine.trim().endsWith('{') || currentLine.trim().endsWith('[') || currentLine.trim().endsWith('(')) extra = '  ';
-      ta.setRangeText('\n' + indent + extra, start, ta.selectionEnd, 'end');
-      ta.selectionStart = ta.selectionEnd = start + 1 + indent.length + extra.length;
-      refreshHighlight(); updateStats();
-      lastSavedState = ta.value; updateUndoRedoButtons();
-    }
-  });
-
+  $('noteTitle').addEventListener('input', ()=>{ if(currentId){ const n=notes.find(x=>x.id===currentId); n.title=$('noteTitle').value; n.updated=Date.now(); saveNoteToCloud(n); } });
+  $('langPicker').addEventListener('change', ()=>{ refreshHighlight(); if(currentId){ const n=notes.find(x=>x.id===currentId); n.lang=$('langPicker').value; n.updated=Date.now(); saveNoteToCloud(n); } if(isPreview) updatePreview(); });
   document.addEventListener('keydown', e => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); saveAndClose(); }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'n') { e.preventDefault(); openNewNote(); }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'p') { e.preventDefault(); isPreview ? switchToCode() : switchToPreview(); }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); performUndo(); }
-    if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.shiftKey && e.key === 'z'))) { e.preventDefault(); performRedo(); }
+    if((e.ctrlKey||e.metaKey)&&e.key==='s'){ e.preventDefault(); saveAndClose(); }
+    if((e.ctrlKey||e.metaKey)&&e.key==='n'){ e.preventDefault(); openNewNote(); }
+    if((e.ctrlKey||e.metaKey)&&e.key==='z'){ e.preventDefault(); performUndo(); }
+    if((e.ctrlKey||e.metaKey)&&(e.key==='y'||(e.shiftKey&&e.key==='z'))){ e.preventDefault(); performRedo(); }
   });
+  $('codeTextarea').addEventListener('keydown', function(e) {
+    if (e.key === 'Tab') { e.preventDefault(); pushUndoState(); const ta=this; const s=ta.selectionStart; ta.setRangeText('  ', s, ta.selectionEnd, 'end'); ta.selectionStart=ta.selectionEnd=s+2; refreshHighlight(); updateStats(); lastSavedState=ta.value; return; }
+    const pairs = { '(':')', '[':']', '{':'}', '"':'"', "'":"'", '`':'`' };
+    if (pairs[e.key] && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); pushUndoState(); const s=this.selectionStart, end=this.selectionEnd; this.setRangeText(e.key+pairs[e.key], s, end, 'end'); this.selectionStart=this.selectionEnd=s+1; refreshHighlight(); updateStats(); lastSavedState=this.value; }
+  });
+
+  renderHome();
 })();
 </script>
 </body>
