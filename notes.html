@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8">
@@ -29,21 +29,22 @@
       --shadow: 0 2px 20px rgba(0,0,0,0.5);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html { height: 100%; overflow: hidden; }
+    html { height: 100%; overflow-x: hidden; overflow-y: hidden; }
     body {
       font-family: var(--font);
       background: var(--bg);
       color: var(--text);
       height: 100%;
       display: flex;
-      overflow: auto;
+      overflow-x: hidden;
+      overflow-y: auto;
       -webkit-overflow-scrolling: touch;
       overscroll-behavior-y: auto;
       -webkit-font-smoothing: antialiased;
       user-select: none;
       -webkit-user-select: none;
       -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
+      touch-action: pan-y;
     }
     .app-container {
       width: 100%;
@@ -53,6 +54,7 @@
       display: flex;
       flex-direction: column;
       min-height: 100%;
+      overflow-x: hidden;
     }
     ::-webkit-scrollbar { width: 3px; }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
@@ -208,7 +210,7 @@
         <div class="notes-grid" id="notesGrid"></div>
       </div>
 
-      <!-- EDITOR VIEW -->
+      <!-- EDITOR VIEW (سيناريو فتح سريع دون انتظار السحابة) -->
       <div class="editor-view" id="editorView">
         <div class="navbar">
           <button class="back-btn" id="editorBackBtn">← Back</button>
@@ -240,7 +242,7 @@
           <button class="tool-btn" id="selectAllBtn">Select All</button>
           <button class="tool-btn" id="previewBtn">👁 Preview</button>
           <button class="tool-btn" id="copyBtn">📋 Copy</button>
-          <button class="tool-btn" id="deleteBtn">🗑 Delete</button>
+          <button class="tool-btn" id="deleteBtn" style="display:none;">🗑 Delete</button>
           <button class="tool-btn save" id="saveBtn">💾 Save</button>
         </div>
         <div style="padding:4px 0; display:flex; justify-content:space-between; font-size:0.7rem; color:var(--secondary); font-family:var(--mono);">
@@ -281,7 +283,6 @@
 
   // ─── Undo/Redo ───
   let undoStack = [], redoStack = [], lastSavedState = '', undoDebounce = null;
-  let highlightTimer, lineNumbersTimer, previewTimer, statsTimer;
 
   // ─── Auth ───
   auth.onAuthStateChanged(async user => {
@@ -360,23 +361,54 @@
     $('noteTitle').value = note.title || '';
     $('codeTextarea').value = note.content || '';
     $('langPicker').value = note.lang || 'plaintext';
-    $('homeView').style.display = 'none';
-    $('editorView').classList.add('active');
-    switchToCode();
+    showEditor();
     refreshHighlight(); updateStats(); drawLineNumbers();
     resetHistory(note.content || '');
     $('codeTextarea').focus();
   }
 
-  async function openNewNote() {
+  // فتح محرر فارغ فوراً دون انتظار السحابة
+  function openNewNote() {
+    currentId = null; // لا معرف بعد
+    $('noteTitle').value = '';
+    $('codeTextarea').value = '';
+    $('langPicker').value = 'html';
+    showEditor();
+    refreshHighlight(); updateStats(); drawLineNumbers();
+    resetHistory('');
+    $('codeTextarea').focus();
+    // إنشاء المستند في الخلفية
+    createNoteInBackground();
+  }
+
+  async function createNoteInBackground() {
     const note = { id: Date.now().toString(36)+Math.random().toString(36).substr(2,7), title:'', content:'', lang:'html', updated: Date.now() };
     const docRef = await db.collection('users').doc(auth.currentUser.uid).collection('notes').add(note);
     note.id = docRef.id;
     notes.unshift(note);
-    openEditor(note.id);
+    currentId = note.id;
+    renderHome();
+  }
+
+  function showEditor() {
+    $('homeView').style.display = 'none';
+    $('editorView').classList.add('active');
+    $('deleteBtn').style.display = currentId ? 'flex' : 'none';
+    switchToCode();
   }
 
   function closeEditor() {
+    // حفظ سريع قبل الإغلاق
+    if (currentId && $('codeTextarea').value.trim() !== '') {
+      const note = notes.find(n => n.id === currentId);
+      if (note) {
+        note.title = $('noteTitle').value.trim();
+        note.content = $('codeTextarea').value;
+        note.lang = $('langPicker').value;
+        note.updated = Date.now();
+        saveNoteToCloud(note);
+      }
+    }
     currentId = null;
     $('editorView').classList.remove('active');
     $('homeView').style.display = 'flex';
@@ -385,7 +417,24 @@
   }
 
   function saveAndClose() {
-    if (!currentId) return;
+    if (!currentId) {
+      // إذا لم يحفظ بعد، ننتظر حتى تكتمل عملية الإنشاء
+      toast('Saving...');
+      setTimeout(async () => {
+        if (currentId) {
+          const note = notes.find(n => n.id === currentId);
+          if (note) {
+            note.title = $('noteTitle').value.trim();
+            note.content = $('codeTextarea').value;
+            note.lang = $('langPicker').value;
+            note.updated = Date.now();
+            await saveNoteToCloud(note);
+          }
+        }
+        closeEditor();
+      }, 300);
+      return;
+    }
     const note = notes.find(n => n.id === currentId);
     if (!note) return;
     note.title = $('noteTitle').value.trim(); note.content = $('codeTextarea').value; note.lang = $('langPicker').value; note.updated = Date.now();
@@ -420,15 +469,12 @@
 
   // ─── Highlight ───
   function refreshHighlight() {
-    clearTimeout(highlightTimer);
-    highlightTimer = setTimeout(() => {
-      const code = $('codeTextarea').value; const lang = $('langPicker').value;
-      let out;
-      try { out = lang === 'plaintext' ? esc(code) : hljs.highlight(code, { language: lang, ignoreIllegals: true }).value; }
-      catch(e) { out = esc(code); }
-      $('codeHighlight').innerHTML = out;
-      syncScroll();
-    }, 100);
+    const code = $('codeTextarea').value; const lang = $('langPicker').value;
+    let out;
+    try { out = lang === 'plaintext' ? esc(code) : hljs.highlight(code, { language: lang, ignoreIllegals: true }).value; }
+    catch(e) { out = esc(code); }
+    $('codeHighlight').innerHTML = out;
+    syncScroll();
   }
   function syncScroll() {
     const pre = $('codeHighlight').parentElement;
@@ -506,10 +552,9 @@
 
   // Code input
   $('codeTextarea').addEventListener('input', () => {
-    refreshHighlight(); clearTimeout(statsTimer); statsTimer = setTimeout(updateStats, 200);
-    clearTimeout(lineNumbersTimer); lineNumbersTimer = setTimeout(drawLineNumbers, 300);
+    refreshHighlight(); updateStats(); drawLineNumbers();
     if (currentId) { const n = notes.find(x=>x.id===currentId); if(n) { n.content = $('codeTextarea').value; n.updated = Date.now(); saveNoteToCloud(n); } }
-    if (isPreview) { clearTimeout(previewTimer); previewTimer = setTimeout(updatePreview, 300); }
+    if (isPreview) updatePreview();
     clearTimeout(undoDebounce); undoDebounce = setTimeout(pushUndoState, 500);
   });
   $('codeTextarea').addEventListener('scroll', ()=>{ syncScroll(); drawLineNumbers(); });
