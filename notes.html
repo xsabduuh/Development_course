@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8">
@@ -23,38 +23,29 @@
       --red: #ff453a;
       --orange: #ff9f0a;
       --radius: 14px;
-      --radius-lg: 22px;
       --font: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
       --mono: 'SF Mono', 'JetBrains Mono', 'Fira Code', monospace;
       --shadow: 0 2px 20px rgba(0,0,0,0.5);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html { height: 100%; overflow-x: hidden; overflow-y: hidden; }
+    html { height: 100%; overflow: hidden; }
     body {
       font-family: var(--font);
       background: var(--bg);
       color: var(--text);
       height: 100%;
       display: flex;
-      overflow-x: hidden;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
       overscroll-behavior-y: auto;
       -webkit-font-smoothing: antialiased;
-      user-select: none;
-      -webkit-user-select: none;
+      user-select: none; -webkit-user-select: none;
       -webkit-tap-highlight-color: transparent;
       touch-action: pan-y;
     }
     .app-container {
-      width: 100%;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 0 16px;
-      display: flex;
-      flex-direction: column;
-      min-height: 100%;
-      overflow-x: hidden;
+      width: 100%; max-width: 800px; margin: 0 auto;
+      padding: 0 16px; display: flex; flex-direction: column; min-height: 100%;
     }
     ::-webkit-scrollbar { width: 3px; }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
@@ -96,7 +87,7 @@
     .dashboard-link{ display:inline-flex; align-items:center; gap:6px; color:var(--accent); text-decoration:none; font-weight:500; margin-top:16px; }
 
     /* ── DRAWER ── */
-    .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 50; opacity: 0; pointer-events: none; transition: opacity 0.35s; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+    .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 50; opacity: 0; pointer-events: none; transition: opacity 0.35s; backdrop-filter: blur(4px); }
     .drawer-overlay.show { opacity: 1; pointer-events: auto; }
     .drawer { position: fixed; top: 0; left: 0; bottom: 0; width: 88vw; max-width: 340px; background: #111118; z-index: 60; transform: translateX(-100%); transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1); display: flex; flex-direction: column; border-right: 1px solid var(--border); padding: 20px 0; }
     .drawer.open { transform: translateX(0); }
@@ -106,14 +97,10 @@
     .drawer-item svg { width: 18px; height: 18px; opacity: 0.7; }
     .drawer-item:hover { background: rgba(10,132,255,0.08); color: var(--text); }
     .drawer-item.logout-item { color: var(--red); border-top: 1px solid var(--border); margin-top: 12px; padding-top: 16px; }
-    .drawer-item.logout-item:hover { background: rgba(255,69,58,0.08); }
     .drawer-item.user-item { color: var(--secondary); border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 8px; font-size: 0.8rem; }
 
     /* ── TOP BAR ── */
-    .top-bar {
-      display: flex; align-items: center; padding: 12px 0;
-      border-bottom: 1px solid var(--border); gap: 8px; flex-wrap: wrap;
-    }
+    .top-bar { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); gap: 8px; flex-wrap: wrap; }
     .logo { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-weight: 700; font-size: 1.1rem; color: var(--green); text-decoration: none; }
     .top-actions { display: flex; align-items: center; gap: 8px; }
     .menu-btn { background: var(--card); border: 1px solid var(--border); color: var(--text); font-size: 1.4rem; padding: 8px 12px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
@@ -124,15 +111,21 @@
     .navbar { padding: 12px 0; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
     .back-btn { background: none; border: none; color: var(--accent); font-size: 1rem; cursor: pointer; }
     .nav-title-input { flex: 1; background: transparent; border: none; font-size: 1.1rem; font-weight: 600; color: var(--text); outline: none; }
-    .code-stage { flex: 1; position: relative; display: flex; overflow: hidden; }
-    .code-layer { position: absolute; inset: 12px 12px 12px 50px; font-family: var(--mono); font-size: 0.88rem; line-height: 1.75; white-space: pre-wrap; overflow: auto; border: none; outline: none; background: transparent; }
-    .code-textarea { color: transparent; caret-color: var(--accent); resize: none; z-index: 2; -webkit-text-fill-color: transparent; }
+    .nav-title-input::placeholder { color: var(--secondary); }
+    /* ── CODE AREA ── */
+    .code-area { flex: 1; position: relative; background: var(--bg); }
+    .code-stage { position: absolute; inset: 8px 8px 8px 48px; display: flex; }
+    .code-layer { flex: 1; font-family: var(--mono); font-size: 0.88rem; line-height: 1.75; white-space: pre-wrap; overflow: auto; border: none; outline: none; background: transparent; }
+    .code-textarea { color: transparent; caret-color: var(--accent); resize: none; z-index: 2; -webkit-text-fill-color: transparent; position: relative; }
     .code-textarea::selection { background: rgba(10,132,255,0.3); }
-    .code-preview { pointer-events: none; z-index: 1; }
-    .line-numbers { position: absolute; top: 12px; left: 4px; bottom: 12px; width: 40px; font-family: var(--mono); font-size: 0.78rem; color: var(--secondary); text-align: right; overflow: hidden; z-index: 3; pointer-events: none; line-height: 1.75; padding-right: 6px; }
-    .live-preview { flex: 1; display: none; border: none; background: #fff; width: 100%; height: 100%; }
+    .code-preview { pointer-events: none; z-index: 1; position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
+    .code-preview code { background: transparent !important; }
+    .line-numbers { position: absolute; left: 4px; top: 8px; bottom: 8px; width: 36px; font-family: var(--mono); font-size: 0.78rem; color: var(--secondary); text-align: right; overflow: hidden; z-index: 3; pointer-events: none; line-height: 1.75; padding-right: 6px; }
+    .line-numbers span { display: block; }
+    .live-preview { flex: 1; display: none; border: none; background: #fff; }
     .live-preview.active { display: block; }
 
+    /* ── BOTTOM TOOLBAR ── */
     .bottom-toolbar { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-top: 1px solid var(--border); flex-wrap: wrap; }
     .lang-picker { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 7px 12px; border-radius: 20px; font-size: 0.8rem; outline: none; cursor: pointer; }
     .tool-btn { padding: 8px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 0.8rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s; white-space: nowrap; }
@@ -142,6 +135,8 @@
     .btn { padding: 10px 16px; border-radius: 20px; border: none; font-weight: 600; cursor: pointer; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; }
     .btn-primary { background: var(--accent); color: #fff; }
     .btn-outline { background: var(--card); border: 1px solid var(--border); color: var(--text); }
+
+    .status-bar { padding: 4px 0; display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--secondary); font-family: var(--mono); }
 
     .toast-panel { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 200; display: flex; flex-direction: column; gap: 6px; pointer-events: none; }
     .toast { background: var(--card); border: 1px solid var(--border); padding: 10px 20px; border-radius: 20px; font-weight: 500; font-size: 0.85rem; box-shadow: var(--shadow); text-align: center; animation: toastIn 0.4s ease; }
@@ -153,7 +148,6 @@
 </head>
 <body>
 <div class="app-container" id="appContainer">
-
   <!-- LOGIN SCREEN -->
   <div class="login-screen" id="loginScreen">
     <div class="login-card">
@@ -210,15 +204,15 @@
         <div class="notes-grid" id="notesGrid"></div>
       </div>
 
-      <!-- EDITOR VIEW (سيناريو فتح سريع دون انتظار السحابة) -->
+      <!-- EDITOR VIEW (مرتب) -->
       <div class="editor-view" id="editorView">
         <div class="navbar">
           <button class="back-btn" id="editorBackBtn">← Back</button>
           <input type="text" class="nav-title-input" id="noteTitle" placeholder="Note title">
         </div>
-        <div style="flex:1; display:flex; flex-direction:column; position:relative;">
+        <div class="code-area">
+          <div class="line-numbers" id="lineNums">1</div>
           <div class="code-stage" id="codeStage">
-            <div class="line-numbers" id="lineNums">1</div>
             <textarea class="code-layer code-textarea" id="codeTextarea" placeholder="Write code…" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
             <pre class="code-layer code-preview"><code class="hljs" id="codeHighlight"></code></pre>
           </div>
@@ -245,7 +239,7 @@
           <button class="tool-btn" id="deleteBtn" style="display:none;">🗑 Delete</button>
           <button class="tool-btn save" id="saveBtn">💾 Save</button>
         </div>
-        <div style="padding:4px 0; display:flex; justify-content:space-between; font-size:0.7rem; color:var(--secondary); font-family:var(--mono);">
+        <div class="status-bar">
           <span id="lineCount">Ln 1</span>
           <span id="charCount">0 chars</span>
         </div>
@@ -259,7 +253,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script>
 (function(){
-  // ═══ FIREBASE CONFIG ═══
   const firebaseConfig = {
     apiKey: "AIzaSyAszFGDs1J92_53jHvj5aABmeiKZdc-mf0",
     authDomain: "gen-lang-client-0501601606.firebaseapp.com",
@@ -273,18 +266,39 @@
   const auth = firebase.auth();
   const db = firebase.firestore();
 
-  let notes = [];
-  let currentId = null;
-  let filterLang = 'all';
-  let searchTerm = '';
-  let isPreview = false;
-
+  let notes = [], currentId = null, filterLang = 'all', searchTerm = '', isPreview = false;
   const $ = id => document.getElementById(id);
 
-  // ─── Undo/Redo ───
-  let undoStack = [], redoStack = [], lastSavedState = '', undoDebounce = null;
+  // Undo/Redo
+  let undoStack = [], redoStack = [], lastSavedState = '';
+  function pushUndoState() {
+    const ta = $('codeTextarea'); if (!ta || ta.value === lastSavedState) return;
+    undoStack.push(lastSavedState); if (undoStack.length > 100) undoStack.shift();
+    redoStack = []; lastSavedState = ta.value; updateUndoRedoButtons();
+  }
+  function applyState(s) {
+    $('codeTextarea').value = s; lastSavedState = s;
+    refreshHighlight(); updateStats(); drawLineNumbers(); syncScroll(); updateUndoRedoButtons();
+  }
+  function performUndo() {
+    if (!undoStack.length) return;
+    redoStack.push($('codeTextarea').value); applyState(undoStack.pop());
+    if (currentId) { const n = notes.find(x=>x.id===currentId); if(n) { n.content = $('codeTextarea').value; saveToCloud(n); } }
+    $('codeTextarea').blur();
+  }
+  function performRedo() {
+    if (!redoStack.length) return;
+    undoStack.push($('codeTextarea').value); applyState(redoStack.pop());
+    if (currentId) { const n = notes.find(x=>x.id===currentId); if(n) { n.content = $('codeTextarea').value; saveToCloud(n); } }
+    $('codeTextarea').blur();
+  }
+  function updateUndoRedoButtons() {
+    $('undoBtn').disabled = !undoStack.length;
+    $('redoBtn').disabled = !redoStack.length;
+  }
+  function resetHistory(initial='') { undoStack = []; redoStack = []; lastSavedState = initial; updateUndoRedoButtons(); }
 
-  // ─── Auth ───
+  // Auth
   auth.onAuthStateChanged(async user => {
     if (user) {
       $('loginScreen').style.display = 'none';
@@ -298,7 +312,6 @@
       $('homeView').style.display = 'flex';
     }
   });
-
   $('loginBtn').addEventListener('click', async () => {
     try { await auth.signInWithEmailAndPassword($('emailInput').value, $('passwordInput').value); $('loginError').textContent = ''; }
     catch(e) { $('loginError').textContent = e.message; }
@@ -309,23 +322,23 @@
   });
   $('drawerLogout').addEventListener('click', () => auth.signOut());
 
-  // ─── Firestore ───
+  // Firestore
   async function loadNotes() {
     if (!auth.currentUser) return;
-    const snapshot = await db.collection('users').doc(auth.currentUser.uid).collection('notes').orderBy('updated','desc').get();
-    notes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const snap = await db.collection('users').doc(auth.currentUser.uid).collection('notes').orderBy('updated','desc').get();
+    notes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderHome();
   }
-  async function saveNoteToCloud(note) {
+  async function saveToCloud(note) {
     if (!auth.currentUser) return;
     await db.collection('users').doc(auth.currentUser.uid).collection('notes').doc(note.id).set(note, { merge: true });
   }
-  async function deleteNoteFromCloud(id) {
+  async function deleteFromCloud(id) {
     if (!auth.currentUser) return;
     await db.collection('users').doc(auth.currentUser.uid).collection('notes').doc(id).delete();
   }
 
-  // ─── Render Home ───
+  // Render Home
   function renderHome() {
     let filtered = [...notes];
     if (filterLang !== 'all') filtered = filtered.filter(n => n.lang === filterLang);
@@ -335,25 +348,23 @@
     }
     filtered.sort((a,b)=> b.updated - a.updated);
     const grid = $('notesGrid');
-    grid.innerHTML = filtered.length === 0
-      ? '<div style="padding:60px 20px;text-align:center;color:var(--secondary);">No notes yet.<br>Tap + to create one.</div>'
-      : filtered.map(n => `
-        <div class="note-card-home" data-id="${n.id}">
-          <div class="title">${esc(n.title||'Untitled')}</div>
-          <span class="lang">${n.lang||'txt'}</span>
-          <button class="delete-btn" data-del="${n.id}">Delete</button>
-        </div>
-      `).join('');
+    grid.innerHTML = filtered.length ? filtered.map(n => `
+      <div class="note-card-home" data-id="${n.id}">
+        <div class="title">${esc(n.title||'Untitled')}</div>
+        <span class="lang">${n.lang||'txt'}</span>
+        <button class="delete-btn" data-del="${n.id}">Delete</button>
+      </div>
+    `).join('') : '<div style="padding:60px;text-align:center;color:var(--secondary);">No notes yet.<br>Tap + to create.</div>';
 
-    grid.querySelectorAll('.note-card-home').forEach(card => {
-      card.addEventListener('click', (e) => { if(!e.target.closest('[data-del]')) openEditor(card.dataset.id); });
-    });
-    grid.querySelectorAll('[data-del]').forEach(btn => {
-      btn.addEventListener('click', (e) => { e.stopPropagation(); if(confirm('Delete?')) { notes = notes.filter(n=>n.id!==btn.dataset.del); deleteNoteFromCloud(btn.dataset.del); renderHome(); } });
-    });
+    grid.querySelectorAll('.note-card-home').forEach(c => c.addEventListener('click', e => {
+      if (!e.target.closest('[data-del]')) openEditor(c.dataset.id);
+    }));
+    grid.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', e => {
+      e.stopPropagation();
+      if (confirm('Delete?')) { notes = notes.filter(n=>n.id!==b.dataset.del); deleteFromCloud(b.dataset.del); renderHome(); }
+    }));
   }
 
-  // ─── Editor ───
   function openEditor(id) {
     const note = notes.find(n => n.id === id);
     if (!note) return;
@@ -364,30 +375,23 @@
     showEditor();
     refreshHighlight(); updateStats(); drawLineNumbers();
     resetHistory(note.content || '');
-    $('codeTextarea').focus();
   }
 
-  // فتح محرر فارغ فوراً دون انتظار السحابة
   function openNewNote() {
-    currentId = null; // لا معرف بعد
-    $('noteTitle').value = '';
-    $('codeTextarea').value = '';
-    $('langPicker').value = 'html';
+    currentId = null;
+    $('noteTitle').value = ''; $('codeTextarea').value = ''; $('langPicker').value = 'html';
     showEditor();
     refreshHighlight(); updateStats(); drawLineNumbers();
     resetHistory('');
-    $('codeTextarea').focus();
-    // إنشاء المستند في الخلفية
-    createNoteInBackground();
-  }
-
-  async function createNoteInBackground() {
-    const note = { id: Date.now().toString(36)+Math.random().toString(36).substr(2,7), title:'', content:'', lang:'html', updated: Date.now() };
-    const docRef = await db.collection('users').doc(auth.currentUser.uid).collection('notes').add(note);
-    note.id = docRef.id;
-    notes.unshift(note);
-    currentId = note.id;
-    renderHome();
+    // create in background
+    const tempNote = { id: Date.now().toString(36)+Math.random().toString(36).substr(2,7), title:'', content:'', lang:'html', updated: Date.now() };
+    db.collection('users').doc(auth.currentUser.uid).collection('notes').add(tempNote).then(ref => {
+      tempNote.id = ref.id;
+      notes.unshift(tempNote);
+      currentId = tempNote.id;
+      $('deleteBtn').style.display = 'flex';
+      renderHome();
+    });
   }
 
   function showEditor() {
@@ -395,19 +399,13 @@
     $('editorView').classList.add('active');
     $('deleteBtn').style.display = currentId ? 'flex' : 'none';
     switchToCode();
+    $('codeTextarea').focus();
   }
 
   function closeEditor() {
-    // حفظ سريع قبل الإغلاق
-    if (currentId && $('codeTextarea').value.trim() !== '') {
-      const note = notes.find(n => n.id === currentId);
-      if (note) {
-        note.title = $('noteTitle').value.trim();
-        note.content = $('codeTextarea').value;
-        note.lang = $('langPicker').value;
-        note.updated = Date.now();
-        saveNoteToCloud(note);
-      }
+    if (currentId) {
+      const n = notes.find(x=>x.id===currentId);
+      if (n) { n.title = $('noteTitle').value.trim(); n.content = $('codeTextarea').value; n.lang = $('langPicker').value; n.updated = Date.now(); saveToCloud(n); }
     }
     currentId = null;
     $('editorView').classList.remove('active');
@@ -417,39 +415,25 @@
   }
 
   function saveAndClose() {
-    if (!currentId) {
-      // إذا لم يحفظ بعد، ننتظر حتى تكتمل عملية الإنشاء
-      toast('Saving...');
-      setTimeout(async () => {
-        if (currentId) {
-          const note = notes.find(n => n.id === currentId);
-          if (note) {
-            note.title = $('noteTitle').value.trim();
-            note.content = $('codeTextarea').value;
-            note.lang = $('langPicker').value;
-            note.updated = Date.now();
-            await saveNoteToCloud(note);
-          }
-        }
-        closeEditor();
-      }, 300);
-      return;
-    }
-    const note = notes.find(n => n.id === currentId);
-    if (!note) return;
-    note.title = $('noteTitle').value.trim(); note.content = $('codeTextarea').value; note.lang = $('langPicker').value; note.updated = Date.now();
-    saveNoteToCloud(note);
+    if (!currentId) { toast('Saving…'); setTimeout(async () => {
+      if (currentId) { const n = notes.find(x=>x.id===currentId); if (n) { n.title = $('noteTitle').value.trim(); n.content = $('codeTextarea').value; n.lang = $('langPicker').value; n.updated = Date.now(); await saveToCloud(n); } }
+      closeEditor();
+    }, 200); return; }
+    const n = notes.find(x=>x.id===currentId);
+    if (!n) return;
+    n.title = $('noteTitle').value.trim(); n.content = $('codeTextarea').value; n.lang = $('langPicker').value; n.updated = Date.now();
+    saveToCloud(n);
     toast('Saved'); closeEditor();
   }
 
   async function deleteCurrent() {
     if (!currentId || !confirm('Delete?')) return;
-    await deleteNoteFromCloud(currentId);
+    await deleteFromCloud(currentId);
     notes = notes.filter(n => n.id !== currentId);
     closeEditor();
   }
 
-  // ─── Preview ───
+  // Preview
   function switchToPreview() {
     isPreview = true; $('codeStage').style.display = 'none'; $('livePreview').classList.add('active');
     updatePreview();
@@ -459,7 +443,7 @@
   }
   function updatePreview() {
     if (!isPreview) return;
-    const code = $('codeTextarea').value; const lang = $('langPicker').value;
+    const code = $('codeTextarea').value, lang = $('langPicker').value;
     let html = code;
     if (lang === 'css') html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>${code}</style></head><body></body></html>`;
     else if (lang === 'javascript') html = `<!DOCTYPE html><html><body><script>${code}<\/script></body></html>`;
@@ -467,9 +451,9 @@
     $('livePreview').srcdoc = html;
   }
 
-  // ─── Highlight ───
+  // Highlight
   function refreshHighlight() {
-    const code = $('codeTextarea').value; const lang = $('langPicker').value;
+    const code = $('codeTextarea').value, lang = $('langPicker').value;
     let out;
     try { out = lang === 'plaintext' ? esc(code) : hljs.highlight(code, { language: lang, ignoreIllegals: true }).value; }
     catch(e) { out = esc(code); }
@@ -483,7 +467,7 @@
   }
   function drawLineNumbers() {
     const lines = $('codeTextarea').value.split('\n');
-    $('lineNums').innerHTML = lines.map((_,i) => `<span>${i+1}</span>`).join('');
+    $('lineNums').innerHTML = lines.map((_,i)=>`<span>${i+1}</span>`).join('');
     $('lineNums').scrollTop = $('codeTextarea').scrollTop;
   }
   async function copyCode() {
@@ -491,35 +475,6 @@
   }
   function selectAll() { $('codeTextarea').select(); }
 
-  // ─── Undo/Redo ───
-  function pushUndoState() {
-    const ta = $('codeTextarea'); if (!ta || ta.value === lastSavedState) return;
-    undoStack.push(lastSavedState); if (undoStack.length > 100) undoStack.shift();
-    redoStack = []; lastSavedState = ta.value; updateUndoRedoButtons();
-  }
-  function applyState(state) {
-    $('codeTextarea').value = state; lastSavedState = state;
-    refreshHighlight(); updateStats(); drawLineNumbers(); syncScroll(); updateUndoRedoButtons();
-  }
-  function performUndo() {
-    if (!undoStack.length) return;
-    redoStack.push($('codeTextarea').value); applyState(undoStack.pop());
-    if (currentId) { const n = notes.find(x=>x.id===currentId); if(n) { n.content = $('codeTextarea').value; saveNoteToCloud(n); } }
-    $('codeTextarea').blur();
-  }
-  function performRedo() {
-    if (!redoStack.length) return;
-    undoStack.push($('codeTextarea').value); applyState(redoStack.pop());
-    if (currentId) { const n = notes.find(x=>x.id===currentId); if(n) { n.content = $('codeTextarea').value; saveNoteToCloud(n); } }
-    $('codeTextarea').blur();
-  }
-  function updateUndoRedoButtons() {
-    $('undoBtn').disabled = !undoStack.length;
-    $('redoBtn').disabled = !redoStack.length;
-  }
-  function resetHistory(initial = '') { undoStack = []; redoStack = []; lastSavedState = initial; updateUndoRedoButtons(); }
-
-  // ─── Helpers ───
   function updateStats() {
     const code = $('codeTextarea').value;
     $('charCount').textContent = code.length + ' chars';
@@ -528,7 +483,7 @@
   function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
   function toast(msg) { const t = document.createElement('div'); t.className='toast'; t.textContent=msg; $('toastPanel').appendChild(t); setTimeout(()=>t.remove(),2200); }
 
-  // ─── Events ───
+  // Events
   $('homeNewBtn').addEventListener('click', openNewNote);
   $('drawerNewNote').addEventListener('click', openNewNote);
   $('editorBackBtn').addEventListener('click', closeEditor);
@@ -540,36 +495,24 @@
   $('redoBtn').addEventListener('click', performRedo);
   $('previewBtn').addEventListener('click', ()=> isPreview ? switchToCode() : switchToPreview());
 
-  // Menu toggle
-  $('menuBtn').addEventListener('click', () => {
-    $('drawer').classList.toggle('open');
-    $('drawerOverlay').classList.toggle('show');
-  });
-  $('drawerOverlay').addEventListener('click', () => {
-    $('drawer').classList.remove('open');
-    $('drawerOverlay').classList.remove('show');
-  });
+  $('menuBtn').addEventListener('click', ()=>{ $('drawer').classList.toggle('open'); $('drawerOverlay').classList.toggle('show'); });
+  $('drawerOverlay').addEventListener('click', ()=>{ $('drawer').classList.remove('open'); $('drawerOverlay').classList.remove('show'); });
 
-  // Code input
   $('codeTextarea').addEventListener('input', () => {
     refreshHighlight(); updateStats(); drawLineNumbers();
-    if (currentId) { const n = notes.find(x=>x.id===currentId); if(n) { n.content = $('codeTextarea').value; n.updated = Date.now(); saveNoteToCloud(n); } }
+    if (currentId) { const n = notes.find(x=>x.id===currentId); if(n) { n.content = $('codeTextarea').value; n.updated = Date.now(); saveToCloud(n); } }
     if (isPreview) updatePreview();
-    clearTimeout(undoDebounce); undoDebounce = setTimeout(pushUndoState, 500);
+    clearTimeout(window._undoDebounce); window._undoDebounce = setTimeout(pushUndoState, 500);
   });
   $('codeTextarea').addEventListener('scroll', ()=>{ syncScroll(); drawLineNumbers(); });
 
-  // Filters
-  $('homeSearch').addEventListener('input', (e)=>{ searchTerm = e.target.value; renderHome(); });
-  document.querySelectorAll('.filter-chip').forEach(chip => {
-    chip.addEventListener('click', ()=>{ document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active')); chip.classList.add('active'); filterLang = chip.dataset.lang; renderHome(); });
+  $('homeSearch').addEventListener('input', e => { searchTerm = e.target.value; renderHome(); });
+  document.querySelectorAll('.filter-chip').forEach(c => {
+    c.addEventListener('click', () => { document.querySelectorAll('.filter-chip').forEach(x=>x.classList.remove('active')); c.classList.add('active'); filterLang = c.dataset.lang; renderHome(); });
   });
+  $('noteTitle').addEventListener('input', () => { if(currentId) { const n=notes.find(x=>x.id===currentId); if(n) { n.title=$('noteTitle').value; n.updated=Date.now(); saveToCloud(n); } } });
+  $('langPicker').addEventListener('change', () => { refreshHighlight(); if(currentId) { const n=notes.find(x=>x.id===currentId); if(n) { n.lang=$('langPicker').value; n.updated=Date.now(); saveToCloud(n); } } if(isPreview) updatePreview(); });
 
-  // Title & lang
-  $('noteTitle').addEventListener('input', ()=>{ if(currentId){ const n=notes.find(x=>x.id===currentId); if(n){ n.title=$('noteTitle').value; n.updated=Date.now(); saveNoteToCloud(n); } } });
-  $('langPicker').addEventListener('change', ()=>{ refreshHighlight(); if(currentId){ const n=notes.find(x=>x.id===currentId); if(n){ n.lang=$('langPicker').value; n.updated=Date.now(); saveNoteToCloud(n); } } if(isPreview) updatePreview(); });
-
-  // Keyboard shortcuts
   document.addEventListener('keydown', e => {
     if((e.ctrlKey||e.metaKey)&&e.key==='s'){ e.preventDefault(); saveAndClose(); }
     if((e.ctrlKey||e.metaKey)&&e.key==='n'){ e.preventDefault(); openNewNote(); }
@@ -577,7 +520,6 @@
     if((e.ctrlKey||e.metaKey)&&(e.key==='y'||(e.shiftKey&&e.key==='z'))){ e.preventDefault(); performRedo(); }
   });
 
-  // Tab support
   $('codeTextarea').addEventListener('keydown', function(e) {
     if (e.key === 'Tab') { e.preventDefault(); pushUndoState(); const ta=this; const s=ta.selectionStart; ta.setRangeText('  ', s, ta.selectionEnd, 'end'); ta.selectionStart=ta.selectionEnd=s+2; refreshHighlight(); updateStats(); lastSavedState=ta.value; return; }
     const pairs = { '(':')', '[':']', '{':'}', '"':'"', "'":"'", '`':'`' };
