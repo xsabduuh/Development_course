@@ -34,9 +34,6 @@
       color: var(--text);
       height: 100%;
       display: flex;
-      overflow: auto;
-      -webkit-overflow-scrolling: touch;
-      overscroll-behavior-y: auto;
       -webkit-font-smoothing: antialiased;
       user-select: none;
       -webkit-user-select: none;
@@ -47,14 +44,23 @@
 
     .home-view { display: flex; flex-direction: column; flex: 1; padding: 16px; }
     .home-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-    .home-title { font-size: 1.7rem; font-weight: 700; letter-spacing: -0.5px; }
+    .home-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, var(--accent), var(--green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
     .home-new-btn {
       width: 42px; height: 42px; border-radius: 50%;
       background: var(--accent); color: #fff; border: none;
       font-size: 1.6rem; display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: background 0.2s;
+      cursor: pointer; transition: background 0.2s, transform 0.2s;
+      box-shadow: 0 4px 12px rgba(10,132,255,0.3);
     }
-    .home-new-btn:hover { background: var(--accent2); }
+    .home-new-btn:hover { background: var(--accent2); transform: scale(1.05); }
     .home-tools { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
     .search-input {
       flex: 1; min-width: 150px;
@@ -80,6 +86,7 @@
       border-radius: var(--radius); padding: 16px;
       cursor: pointer; transition: all 0.2s;
     }
+    .note-card-home:hover { border-color: var(--accent); box-shadow: 0 4px 12px rgba(10,132,255,0.15); }
     .note-card-home:active { background: #222; }
     .note-card-home .title { font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; }
     .note-card-home .lang {
@@ -122,7 +129,6 @@
     .editor-container { flex: 1; display: flex; flex-direction: column; min-height: 0; }
     .code-stage {
       flex: 1; position: relative; overflow: hidden;
-      display: flex;
     }
     .code-layer {
       position: absolute; inset: 12px 12px 12px 50px;
@@ -149,18 +155,15 @@
     /* Preview pane */
     .preview-pane {
       display: none;
-      flex: 1;
-      min-width: 0;
-      border-left: 1px solid var(--border);
+      position: absolute; inset: 0;
       background: #fff;
+      z-index: 10;
     }
     .preview-pane.visible {
       display: flex;
     }
     .preview-pane iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
+      width: 100%; height: 100%; border: none;
     }
 
     .bottom-toolbar {
@@ -200,6 +203,7 @@
 
     .tool-btn.preview {
       color: var(--accent);
+      font-weight: 600;
     }
 
     .status-bar {
@@ -221,16 +225,6 @@
     }
     @keyframes toastIn { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: none; } }
 
-    @media (max-width: 768px) {
-      .code-stage {
-        flex-direction: column;
-      }
-      .preview-pane {
-        border-left: none;
-        border-top: 1px solid var(--border);
-        height: 40vh;
-      }
-    }
     @media (max-width: 480px) {
       .notes-grid { grid-template-columns: 1fr; }
     }
@@ -241,7 +235,7 @@
 
   <div class="home-view" id="homeView" style="display:none;">
     <div class="home-header">
-      <span class="home-title">📝 Notes</span>
+      <span class="home-title">Notes</span>
       <button class="home-new-btn" id="homeNewBtn">+</button>
     </div>
     <div class="home-tools">
@@ -354,13 +348,16 @@
   let isUndoRedo = false;
 
   let previewVisible = false;
-  let updatePreviewTimeout;
+  let updatePreviewTimer;
 
   const $ = id => document.getElementById(id);
   const homeView = $('homeView');
   const editorView = $('editorView');
   const previewPane = $('previewPane');
   const previewIframe = $('previewIframe');
+  const codeTextarea = $('codeTextarea');
+  const codeHighlight = $('codeHighlight');
+  const lineNums = $('lineNums');
 
   auth.onAuthStateChanged(async (user) => {
     if (user) {
@@ -450,20 +447,19 @@
   }
 
   function openEditor(id) {
+    if (previewVisible) togglePreview(); // إغلاق Preview عند فتح ملاحظة جديدة
     currentId = id;
     const note = notes.find(n => n.id === id);
     if (!note) return;
     $('noteTitle').value = note.title || '';
-    $('codeTextarea').value = note.content || '';
+    codeTextarea.value = note.content || '';
     $('langPicker').value = note.lang || 'plaintext';
     homeView.style.display = 'none';
     editorView.classList.add('active');
     refreshHighlight();
     updateStats();
     resetUndoRedo();
-    $('codeTextarea').focus();
-    // إعادة ضبط حالة المعاينة (إخفاؤها)
-    if (previewVisible) togglePreview();
+    codeTextarea.focus();
   }
 
   async function openNewNote() {
@@ -490,7 +486,7 @@
       const note = notes.find(n => n.id === currentId);
       if (note) {
         note.title = $('noteTitle').value.trim();
-        note.content = $('codeTextarea').value;
+        note.content = codeTextarea.value;
         note.lang = $('langPicker').value;
         note.updated = Date.now();
         saveToCloud(note);
@@ -500,8 +496,8 @@
     editorView.classList.remove('active');
     homeView.style.display = 'flex';
     $('noteTitle').value = '';
-    $('codeTextarea').value = '';
-    $('codeHighlight').textContent = '';
+    codeTextarea.value = '';
+    codeHighlight.textContent = '';
     resetUndoRedo();
     if (previewVisible) togglePreview();
     renderHome();
@@ -512,7 +508,7 @@
     const note = notes.find(n => n.id === currentId);
     if (!note) return;
     note.title = $('noteTitle').value.trim();
-    note.content = $('codeTextarea').value;
+    note.content = codeTextarea.value;
     note.lang = $('langPicker').value;
     note.updated = Date.now();
     saveToCloud(note);
@@ -529,35 +525,38 @@
     toast('🗑 Deleted');
   }
 
-  // Preview toggle
+  // Preview: إخفاء الكود وإظهار المعاينة فقط
   function togglePreview() {
     previewVisible = !previewVisible;
     if (previewVisible) {
+      // إخفاء عناصر الكود
+      codeTextarea.style.display = 'none';
+      codeHighlight.parentElement.style.display = 'none';
+      lineNums.style.display = 'none';
       previewPane.classList.add('visible');
-      // ضبط عرض المحرر ليتسع للمعاينة (عبر flex في CSS)
-      updatePreview(); // عرض فوري
+      updatePreview();
     } else {
+      // إظهار عناصر الكود
+      codeTextarea.style.display = '';
+      codeHighlight.parentElement.style.display = '';
+      lineNums.style.display = '';
       previewPane.classList.remove('visible');
     }
   }
 
   function updatePreview() {
-    // debounce خفيف لتجنب التحديث مع كل حرف
-    clearTimeout(updatePreviewTimeout);
-    updatePreviewTimeout = setTimeout(() => {
+    clearTimeout(updatePreviewTimer);
+    updatePreviewTimer = setTimeout(() => {
       if (!previewVisible) return;
-      const code = $('codeTextarea').value;
-      const iframe = previewIframe;
-      // استخدام srcdoc لتجنب مشاكل same-origin (sandboxed إذا أردت)
-      // لكننا نزيل sandbox للسماح بتشغيل النصوص البرمجية بشكل كامل (كن حذراً)
-      iframe.srcdoc = code;
-    }, 100); // 100ms تأخير خفيف جداً
+      const code = codeTextarea.value;
+      previewIframe.srcdoc = code;
+    }, 80);
   }
 
   function resetUndoRedo() {
     undoStack = [];
     redoStack = [];
-    currentSnapshot = $('codeTextarea').value;
+    currentSnapshot = codeTextarea.value;
     updateUndoButtons();
   }
 
@@ -567,7 +566,7 @@
   }
 
   function pushToUndo() {
-    const val = $('codeTextarea').value;
+    const val = codeTextarea.value;
     if (val !== currentSnapshot && !isUndoRedo) {
       undoStack.push(currentSnapshot);
       currentSnapshot = val;
@@ -581,7 +580,7 @@
     isUndoRedo = true;
     const prev = undoStack.pop();
     redoStack.push(currentSnapshot);
-    $('codeTextarea').value = prev;
+    codeTextarea.value = prev;
     currentSnapshot = prev;
     refreshHighlight(); updateStats();
     if (previewVisible) updatePreview();
@@ -594,7 +593,7 @@
     isUndoRedo = true;
     const nxt = redoStack.pop();
     undoStack.push(currentSnapshot);
-    $('codeTextarea').value = nxt;
+    codeTextarea.value = nxt;
     currentSnapshot = nxt;
     refreshHighlight(); updateStats();
     if (previewVisible) updatePreview();
@@ -603,29 +602,29 @@
   }
 
   function refreshHighlight() {
-    const code = $('codeTextarea').value;
+    const code = codeTextarea.value;
     const lang = $('langPicker').value;
     let out;
     try { out = lang === 'plaintext' ? esc(code) : hljs.highlight(code, { language: lang, ignoreIllegals: true }).value; }
     catch(e) { out = esc(code); }
-    $('codeHighlight').innerHTML = out;
+    codeHighlight.innerHTML = out;
     syncScroll(); drawLineNumbers();
   }
 
   function syncScroll() {
-    const pre = $('codeHighlight').parentElement;
-    pre.scrollTop = $('codeTextarea').scrollTop;
-    pre.scrollLeft = $('codeTextarea').scrollLeft;
+    const pre = codeHighlight.parentElement;
+    pre.scrollTop = codeTextarea.scrollTop;
+    pre.scrollLeft = codeTextarea.scrollLeft;
   }
 
   function drawLineNumbers() {
-    const lines = $('codeTextarea').value.split('\n');
-    $('lineNums').innerHTML = lines.map((_, i) => `<span>${i+1}</span>`).join('');
-    $('lineNums').scrollTop = $('codeTextarea').scrollTop;
+    const lines = codeTextarea.value.split('\n');
+    lineNums.innerHTML = lines.map((_, i) => `<span>${i+1}</span>`).join('');
+    lineNums.scrollTop = codeTextarea.scrollTop;
   }
 
   async function copyCode() {
-    const code = $('codeTextarea').value;
+    const code = codeTextarea.value;
     if (!code.trim()) { toast('Nothing to copy'); return; }
     try {
       await navigator.clipboard.writeText(code);
@@ -641,7 +640,7 @@
   }
 
   function updateStats() {
-    const code = $('codeTextarea').value;
+    const code = codeTextarea.value;
     $('charCount').textContent = code.length + ' chars';
     $('lineCount').textContent = 'Ln ' + code.split('\n').length;
   }
@@ -678,18 +677,18 @@
     refreshHighlight();
     if (currentId) { let n = notes.find(n => n.id === currentId); if (n) { n.lang = $('langPicker').value; n.updated = Date.now(); saveToCloud(n); } }
   });
-  $('codeTextarea').addEventListener('input', () => {
+  codeTextarea.addEventListener('input', () => {
     refreshHighlight(); updateStats(); pushToUndo();
     if (previewVisible) updatePreview();
-    if (currentId) { let n = notes.find(n => n.id === currentId); if (n) { n.content = $('codeTextarea').value; n.updated = Date.now(); saveToCloud(n); } }
+    if (currentId) { let n = notes.find(n => n.id === currentId); if (n) { n.content = codeTextarea.value; n.updated = Date.now(); saveToCloud(n); } }
   });
-  $('codeTextarea').addEventListener('scroll', () => { syncScroll(); drawLineNumbers(); });
-  $('codeTextarea').addEventListener('keydown', e => {
+  codeTextarea.addEventListener('scroll', () => { syncScroll(); drawLineNumbers(); });
+  codeTextarea.addEventListener('keydown', e => {
     if (e.key === 'Tab') {
       e.preventDefault();
-      const ta = $('codeTextarea'), s = ta.selectionStart;
-      ta.value = ta.value.substring(0, s) + '  ' + ta.value.substring(ta.selectionEnd);
-      ta.selectionStart = ta.selectionEnd = s + 2;
+      const s = codeTextarea.selectionStart;
+      codeTextarea.value = codeTextarea.value.substring(0, s) + '  ' + codeTextarea.value.substring(codeTextarea.selectionEnd);
+      codeTextarea.selectionStart = codeTextarea.selectionEnd = s + 2;
       refreshHighlight(); updateStats(); pushToUndo();
     }
     if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); performUndo(); }
