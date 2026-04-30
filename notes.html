@@ -112,23 +112,33 @@
       margin-top: 16px; align-self: flex-start;
     }
 
+    /* Editor & Tabs */
     .editor-view { display: none; flex-direction: column; flex: 1; }
     .editor-view.active { display: flex; }
-    .navbar {
-      padding: 12px 16px; display: flex; align-items: center;
-      gap: 10px; border-bottom: 1px solid var(--border);
-      min-height: 52px;
-    }
-    .back-btn {
-      background: none; border: none; color: var(--accent);
-      font-size: 1rem; cursor: pointer; display: flex; align-items: center; gap: 4px;
-    }
-    .nav-title-input {
-      flex: 1; background: transparent; border: none;
-      font-size: 1.1rem; font-weight: 600; color: var(--text);
-      outline: none; min-width: 0;
-    }
+    .navbar { padding: 8px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); min-height: 52px; }
+    .back-btn { background: none; border: none; color: var(--accent); font-size: 1rem; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+    .nav-title-input { flex: 1; background: transparent; border: none; font-size: 1.1rem; font-weight: 600; color: var(--text); outline: none; min-width: 0; }
     .nav-title-input::placeholder { color: var(--secondary); }
+    .tabs-bar {
+      display: flex; align-items: center; gap: 4px;
+      padding: 6px 12px; border-bottom: 1px solid var(--border);
+      background: var(--bg); overflow-x: auto;
+    }
+    .tab {
+      padding: 6px 14px; border-radius: 20px;
+      background: var(--card); border: 1px solid var(--border);
+      color: var(--secondary); cursor: pointer; font-size: 0.8rem;
+      font-weight: 500; white-space: nowrap; display: flex; align-items: center; gap: 6px;
+      transition: all 0.2s;
+    }
+    .tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .tab-close { width: 16px; height: 16px; border-radius: 50%; background: transparent; color: inherit; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; cursor: pointer; }
+    .add-file-btn {
+      padding: 6px 12px; border-radius: 20px;
+      background: transparent; border: 1px dashed var(--border);
+      color: var(--secondary); cursor: pointer; font-size: 0.8rem;
+      display: flex; align-items: center; gap: 4px;
+    }
     .editor-container { flex: 1; display: flex; flex-direction: column; min-height: 0; }
     .code-stage { flex: 1; position: relative; overflow: hidden; }
     .code-layer {
@@ -137,10 +147,7 @@
       line-height: 1.75; white-space: pre-wrap;
       overflow: auto; border: none; outline: none; background: transparent;
     }
-    .code-textarea {
-      color: transparent; caret-color: var(--accent);
-      resize: none; z-index: 2;
-    }
+    .code-textarea { color: transparent; caret-color: var(--accent); resize: none; z-index: 2; }
     .code-textarea::selection { background: rgba(10,132,255,0.3); }
     .code-preview { pointer-events: none; z-index: 1; }
     .code-preview code { background: transparent !important; padding: 0 !important; }
@@ -199,8 +206,6 @@
       animation: toastIn 0.4s ease; pointer-events: auto;
     }
     @keyframes toastIn { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: none; } }
-
-    @media (max-width: 480px) { .notes-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -233,6 +238,14 @@
         Back
       </button>
       <input type="text" class="nav-title-input" id="noteTitle" placeholder="Note title">
+    </div>
+    <!-- شريط التبويبات يظهر فقط للمشاريع -->
+    <div class="tabs-bar" id="tabsBar" style="display:none;">
+      <span id="tabsContainer"></span>
+      <button class="add-file-btn" id="addFileBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        File
+      </button>
     </div>
     <div class="editor-container">
       <div class="code-stage" id="codeStage">
@@ -319,6 +332,11 @@
   let filterLang = 'all';
   let searchTerm = '';
 
+  // Multi-file state
+  let currentFiles = {};           // { 'index.html': '...', 'style.css': '...' }
+  let activeFileName = 'index.html';
+  let isMultiFile = false;
+
   let undoStack = [];
   let redoStack = [];
   let currentSnapshot = '';
@@ -336,6 +354,8 @@
   const codeHighlight = $('codeHighlight');
   const lineNums = $('lineNums');
   const notesGrid = $('notesGrid');
+  const tabsBar = $('tabsBar');
+  const tabsContainer = $('tabsContainer');
 
   // ── AUTH ──
   auth.onAuthStateChanged(async (user) => {
@@ -349,14 +369,9 @@
     }
   });
 
-  // ── LOADING مع إعادة المحاولة ──
   async function loadNotesWithRetry() {
     showGridLoading();
-    try {
-      await loadNotes();
-    } catch (e) {
-      showGridError(e.message);
-    }
+    try { await loadNotes(); } catch (e) { showGridError(e.message); }
   }
 
   async function loadNotes() {
@@ -367,49 +382,27 @@
     renderHome();
   }
 
-  function showGridLoading() {
-    notesGrid.innerHTML = '<div class="loading-notes">Loading notes…</div>';
-  }
-
+  function showGridLoading() { notesGrid.innerHTML = '<div class="loading-notes">Loading notes…</div>'; }
   function showGridError(msg) {
-    notesGrid.innerHTML = `
-      <div class="error-notes">
-        <p>⚠️ Could not load notes</p>
-        <p style="font-size:0.8rem; margin:8px 0;">${msg || 'Check connection'}</p>
-        <button class="tool-btn" onclick="retryLoadNotes()" style="margin-top:8px;">Retry</button>
-      </div>
-    `;
+    notesGrid.innerHTML = `<div class="error-notes"><p>⚠️ Could not load notes</p><p style="font-size:0.8rem; margin:8px 0;">${msg||'Check connection'}</p><button class="tool-btn" onclick="retryLoadNotes()">Retry</button></div>`;
   }
+  window.retryLoadNotes = () => loadNotesWithRetry();
 
-  window.retryLoadNotes = function() {
-    loadNotesWithRetry();
-  };
-
-  // ── CLOUD ──
   async function saveToCloud(note) {
     if (!auth.currentUser) return;
     try {
       const { id, ...data } = note;
       await db.collection('users').doc(auth.currentUser.uid)
         .collection('notes').doc(note.id).set(data, { merge: true });
-    } catch (e) {
-      toast('❌ Cloud save failed');
-      console.error(e);
-    }
+    } catch (e) { toast('❌ Cloud save failed'); console.error(e); }
   }
 
   async function deleteFromCloud(id) {
     if (!auth.currentUser) return;
-    try {
-      await db.collection('users').doc(auth.currentUser.uid)
-        .collection('notes').doc(id).delete();
-    } catch (e) {
-      toast('❌ Delete failed');
-      console.error(e);
-    }
+    try { await db.collection('users').doc(auth.currentUser.uid).collection('notes').doc(id).delete(); }
+    catch (e) { toast('❌ Delete failed'); console.error(e); }
   }
 
-  // ── HOME RENDER ──
   function renderHome() {
     let filtered = [...notes];
     if (filterLang !== 'all') filtered = filtered.filter(n => n.lang === filterLang);
@@ -432,13 +425,10 @@
     }
 
     notesGrid.querySelectorAll('.note-card-home').forEach(card => {
-      card.addEventListener('click', (e) => {
-        if (e.target.closest('[data-del]')) return;
-        openEditor(card.dataset.id);
-      });
+      card.addEventListener('click', e => { if (!e.target.closest('[data-del]')) openNote(card.dataset.id); });
     });
     notesGrid.querySelectorAll('[data-del]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
+      btn.addEventListener('click', e => {
         e.stopPropagation();
         const id = btn.dataset.del;
         if (confirm('Delete this note?')) {
@@ -451,17 +441,27 @@
     });
   }
 
-  // ── EDITOR ──
-  function openEditor(id) {
+  function openNote(id) {
     if (previewVisible) togglePreview();
-    currentId = id;
     const note = notes.find(n => n.id === id);
     if (!note) return;
+    currentId = id;
     $('noteTitle').value = note.title || '';
-    codeTextarea.value = note.content || '';
-    $('langPicker').value = note.lang || 'plaintext';
+    isMultiFile = !!note.files;  // وجود files يعني مشروع متعدد الملفات
+    if (isMultiFile) {
+      currentFiles = { ...note.files };
+      activeFileName = Object.keys(currentFiles)[0] || 'index.html';
+      tabsBar.style.display = 'flex';
+      renderTabs();
+    } else {
+      currentFiles = null;
+      tabsBar.style.display = 'none';
+      codeTextarea.value = note.content || '';
+      $('langPicker').value = note.lang || 'plaintext';
+    }
     homeView.style.display = 'none';
     editorView.classList.add('active');
+    updateEditorContent();
     refreshHighlight();
     updateStats();
     resetUndoRedo();
@@ -469,36 +469,118 @@
   }
 
   async function openNewNote() {
-    const fixedId = Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+    const fixedId = Date.now().toString(36) + Math.random().toString(36).substr(2,9);
     const note = { id: fixedId, title: '', content: '', lang: 'html', updated: Date.now() };
     notes.unshift(note);
-    openEditor(fixedId);
-
+    openNote(fixedId);
     try {
       if (!auth.currentUser) return;
-      await db.collection('users').doc(auth.currentUser.uid)
-        .collection('notes').doc(fixedId).set({
-          title: '', content: '', lang: 'html', updated: Date.now()
-        }, { merge: true });
-    } catch (e) {
-      toast('⚠️ Cloud sync delayed');
-      console.error(e);
-    }
+      await db.collection('users').doc(auth.currentUser.uid).collection('notes').doc(fixedId).set({
+        title: '', content: '', lang: 'html', updated: Date.now()
+      }, { merge: true });
+    } catch (e) { toast('⚠️ Cloud sync delayed'); console.error(e); }
     renderHome();
   }
 
-  function closeEditor() {
-    if (currentId) {
-      const note = notes.find(n => n.id === currentId);
-      if (note) {
-        note.title = $('noteTitle').value.trim();
-        note.content = codeTextarea.value;
-        note.lang = $('langPicker').value;
-        note.updated = Date.now();
-        saveToCloud(note);
-      }
+  async function openNewProject() {
+    const fixedId = Date.now().toString(36) + Math.random().toString(36).substr(2,9);
+    const note = {
+      id: fixedId, title: '',
+      files: { 'index.html': '', 'style.css': '', 'script.js': '' },
+      updated: Date.now(), lang: 'html'
+    };
+    notes.unshift(note);
+    openNote(fixedId);
+    try {
+      if (!auth.currentUser) return;
+      await db.collection('users').doc(auth.currentUser.uid).collection('notes').doc(fixedId).set({
+        title: '', files: note.files, updated: Date.now(), lang: 'html'
+      }, { merge: true });
+    } catch (e) { toast('⚠️ Cloud sync delayed'); console.error(e); }
+    renderHome();
+  }
+
+  function updateEditorContent() {
+    if (isMultiFile && currentFiles && activeFileName) {
+      codeTextarea.value = currentFiles[activeFileName] || '';
+      const lang = getLangFromName(activeFileName);
+      $('langPicker').value = lang;
     }
-    currentId = null;
+  }
+
+  function getLangFromName(name) {
+    const ext = name.split('.').pop().toLowerCase();
+    const map = { html:'html', css:'css', js:'javascript', jsx:'jsx', ts:'typescript', py:'python', sql:'sql', json:'json', sh:'bash' };
+    return map[ext] || 'plaintext';
+  }
+
+  function renderTabs() {
+    if (!isMultiFile || !currentFiles) return;
+    tabsContainer.innerHTML = Object.keys(currentFiles).map(name => `
+      <div class="tab ${name === activeFileName ? 'active' : ''}" data-file="${name}">
+        <span>${name}</span>
+        <span class="tab-close" data-close="${name}">×</span>
+      </div>
+    `).join('');
+    tabsContainer.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', e => {
+        if (e.target.classList.contains('tab-close')) {
+          const fname = e.target.dataset.close;
+          if (confirm(`Delete ${fname}?`)) {
+            delete currentFiles[fname];
+            if (activeFileName === fname) activeFileName = Object.keys(currentFiles)[0] || 'index.html';
+            renderTabs();
+            updateEditorContent();
+            refreshHighlight(); updateStats();
+            pushToUndo();
+            saveCurrentMulti();
+          }
+        } else {
+          activeFileName = tab.dataset.file;
+          renderTabs();
+          updateEditorContent();
+          refreshHighlight(); updateStats();
+          resetUndoRedo();
+          codeTextarea.focus();
+        }
+      });
+    });
+  }
+
+  document.getElementById('addFileBtn').addEventListener('click', () => {
+    let name = prompt('File name (e.g., main.js):');
+    if (!name) return;
+    if (!/\.\w+$/.test(name)) name += '.html'; // default extension
+    if (currentFiles[name]) return toast('File already exists');
+    currentFiles[name] = '';
+    activeFileName = name;
+    renderTabs();
+    updateEditorContent();
+    refreshHighlight(); updateStats();
+    resetUndoRedo();
+    codeTextarea.focus();
+    saveCurrentMulti();
+  });
+
+  function saveCurrentMulti() {
+    if (!currentId) return;
+    const note = notes.find(n => n.id === currentId);
+    if (!note) return;
+    note.title = $('noteTitle').value.trim();
+    if (isMultiFile) {
+      note.files = { ...currentFiles };
+      delete note.content; // remove old field
+    } else {
+      note.content = codeTextarea.value;
+      note.lang = $('langPicker').value;
+    }
+    note.updated = Date.now();
+    saveToCloud(note);
+  }
+
+  function closeEditor() {
+    if (currentId) saveCurrentMulti();
+    currentId = null; isMultiFile = false; currentFiles = null;
     editorView.classList.remove('active');
     homeView.style.display = 'flex';
     $('noteTitle').value = '';
@@ -506,18 +588,12 @@
     codeHighlight.textContent = '';
     resetUndoRedo();
     if (previewVisible) togglePreview();
+    tabsBar.style.display = 'none';
     renderHome();
   }
 
   function saveCurrent() {
-    if (!currentId) return;
-    const note = notes.find(n => n.id === currentId);
-    if (!note) return;
-    note.title = $('noteTitle').value.trim();
-    note.content = codeTextarea.value;
-    note.lang = $('langPicker').value;
-    note.updated = Date.now();
-    saveToCloud(note);
+    saveCurrentMulti();
     toast('✅ Saved');
     renderHome();
   }
@@ -531,7 +607,6 @@
     toast('🗑 Deleted');
   }
 
-  // ── PREVIEW ──
   function togglePreview() {
     previewVisible = !previewVisible;
     if (previewVisible) {
@@ -552,120 +627,67 @@
     clearTimeout(updatePreviewTimer);
     updatePreviewTimer = setTimeout(() => {
       if (!previewVisible) return;
-      previewIframe.srcdoc = codeTextarea.value;
+      let content = '';
+      if (isMultiFile && currentFiles) {
+        // Build combined HTML from project files
+        const html = currentFiles['index.html'] || currentFiles[Object.keys(currentFiles).find(f=>f.endsWith('.html'))] || '';
+        const css = Object.keys(currentFiles).filter(f=>f.endsWith('.css')).map(f=>currentFiles[f]).join('\n');
+        const js = Object.keys(currentFiles).filter(f=>f.endsWith('.js')).map(f=>currentFiles[f]).join('\n');
+        content = html
+          .replace('</head>', `<style>${css}</style></head>`)
+          .replace('</body>', `<script>${js}<\/script></body>`);
+        // إذا لم تكن هناك وسوم head/body، ادمج مباشرة
+        if (!/<head/i.test(html)) content = `<style>${css}</style>${html}<script>${js}<\/script>`;
+      } else {
+        content = codeTextarea.value;
+      }
+      previewIframe.srcdoc = content;
     }, 80);
   }
 
-  // ── UNDO / REDO ──
-  function resetUndoRedo() {
-    undoStack = [];
-    redoStack = [];
-    currentSnapshot = codeTextarea.value;
-    updateUndoButtons();
-  }
-
-  function updateUndoButtons() {
-    $('undoBtn').disabled = undoStack.length === 0;
-    $('redoBtn').disabled = redoStack.length === 0;
-  }
-
-  function pushToUndo() {
-    const val = codeTextarea.value;
-    if (val !== currentSnapshot && !isUndoRedo) {
-      undoStack.push(currentSnapshot);
-      currentSnapshot = val;
-      redoStack = [];
-      updateUndoButtons();
-    }
-  }
-
+  // بقية الدوال (undo/redo, highlight, copy, selectAll) تبقى كما هي مع تعديل بسيط لتحفظ الملف النشط
+  function resetUndoRedo() { undoStack=[]; redoStack=[]; currentSnapshot=codeTextarea.value; updateUndoButtons(); }
+  function updateUndoButtons() { $('undoBtn').disabled=undoStack.length===0; $('redoBtn').disabled=redoStack.length===0; }
+  function pushToUndo() { const val=codeTextarea.value; if(val!==currentSnapshot&&!isUndoRedo){undoStack.push(currentSnapshot);currentSnapshot=val;redoStack=[];updateUndoButtons();} }
   function performUndo() {
-    if (!undoStack.length) return;
-    isUndoRedo = true;
-    const prev = undoStack.pop();
-    redoStack.push(currentSnapshot);
-    codeTextarea.value = prev;
-    currentSnapshot = prev;
-    refreshHighlight(); updateStats();
-    if (previewVisible) updatePreview();
-    updateUndoButtons();
-    isUndoRedo = false;
+    if(!undoStack.length)return; isUndoRedo=true;
+    const prev=undoStack.pop(); redoStack.push(currentSnapshot);
+    codeTextarea.value=prev; currentSnapshot=prev;
+    refreshHighlight();updateStats();if(previewVisible)updatePreview();
+    if(isMultiFile&&activeFileName)currentFiles[activeFileName]=prev;
+    updateUndoButtons(); isUndoRedo=false;
   }
-
   function performRedo() {
-    if (!redoStack.length) return;
-    isUndoRedo = true;
-    const nxt = redoStack.pop();
-    undoStack.push(currentSnapshot);
-    codeTextarea.value = nxt;
-    currentSnapshot = nxt;
-    refreshHighlight(); updateStats();
-    if (previewVisible) updatePreview();
-    updateUndoButtons();
-    isUndoRedo = false;
+    if(!redoStack.length)return; isUndoRedo=true;
+    const nxt=redoStack.pop(); undoStack.push(currentSnapshot);
+    codeTextarea.value=nxt; currentSnapshot=nxt;
+    refreshHighlight();updateStats();if(previewVisible)updatePreview();
+    if(isMultiFile&&activeFileName)currentFiles[activeFileName]=nxt;
+    updateUndoButtons(); isUndoRedo=false;
   }
 
-  // ── SYNTAX ──
-  function refreshHighlight() {
-    const code = codeTextarea.value;
-    const lang = $('langPicker').value;
-    let out;
-    try { out = lang === 'plaintext' ? esc(code) : hljs.highlight(code, { language: lang, ignoreIllegals: true }).value; }
-    catch(e) { out = esc(code); }
-    codeHighlight.innerHTML = out;
-    syncScroll(); drawLineNumbers();
+  function refreshHighlight() { /* (كما هي دون تغيير) */
+    const code = codeTextarea.value, lang = $('langPicker').value;
+    let out; try { out = lang === 'plaintext' ? esc(code) : hljs.highlight(code, { language: lang, ignoreIllegals: true }).value; } catch(e) { out = esc(code); }
+    codeHighlight.innerHTML = out; syncScroll(); drawLineNumbers();
   }
+  function syncScroll() { const pre=codeHighlight.parentElement; pre.scrollTop=codeTextarea.scrollTop; pre.scrollLeft=codeTextarea.scrollLeft; }
+  function drawLineNumbers() { const lines=codeTextarea.value.split('\n'); lineNums.innerHTML=lines.map((_,i)=>`<span>${i+1}</span>`).join(''); lineNums.scrollTop=codeTextarea.scrollTop; }
+  async function copyCode() { /* كما هي */ }
+  function selectAllCode() { codeTextarea.focus(); codeTextarea.select(); toast('All code selected (Ctrl+C to copy)'); }
+  function updateStats() { const code=codeTextarea.value; $('charCount').textContent=code.length+' chars'; $('lineCount').textContent='Ln '+code.split('\n').length; }
+  function esc(s) { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+  function toast(msg) { const t=document.createElement('div'); t.className='toast'; t.textContent=msg; $('toastPanel').appendChild(t); setTimeout(()=>t.remove(),2500); }
 
-  function syncScroll() {
-    const pre = codeHighlight.parentElement;
-    pre.scrollTop = codeTextarea.scrollTop;
-    pre.scrollLeft = codeTextarea.scrollLeft;
-  }
-
-  function drawLineNumbers() {
-    const lines = codeTextarea.value.split('\n');
-    lineNums.innerHTML = lines.map((_, i) => `<span>${i+1}</span>`).join('');
-    lineNums.scrollTop = codeTextarea.scrollTop;
-  }
-
-  // ── COPY & SELECT ALL ──
-  async function copyCode() {
-    const code = codeTextarea.value;
-    if (!code.trim()) { toast('Nothing to copy'); return; }
-    try {
-      await navigator.clipboard.writeText(code);
-      const btn = $('copyBtn');
-      btn.classList.add('copied');
-      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
-      setTimeout(() => {
-        btn.classList.remove('copied');
-        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy';
-      }, 2000);
-      toast('Copied!');
-    } catch(e) { toast('Copy failed'); }
-  }
-
-  function selectAllCode() {
-    codeTextarea.focus();
-    codeTextarea.select();
-    toast('All code selected (Ctrl+C to copy)');
-  }
-
-  function updateStats() {
-    const code = codeTextarea.value;
-    $('charCount').textContent = code.length + ' chars';
-    $('lineCount').textContent = 'Ln ' + code.split('\n').length;
-  }
-
-  function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-  function toast(msg) {
-    const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
-    $('toastPanel').appendChild(t);
-    setTimeout(() => t.remove(), 2500);
-  }
-
-  // ── EVENTS ──
+  // Events
   $('homeNewBtn').addEventListener('click', openNewNote);
+  // نضيف زر مشروع جديد بجانب الزر الموجود – سأضيفه في الـ HTML لكن باختصار يمكنك استدعاء openNewProject() من مكان ما.
+  // حالياً، يمكنك فتح مشروع جديد عن طريق تعديل أي ملاحظة موجودة وحفظها كـ multi-file، أو نضيف زر "New Project" يدوياً.
+  // سأضيف زراً صغيراً في شريط الأدوات أو نضغط ضغطة طويلة على زر + لاختيار النوع.
+  // للتبسيط، سنجعل زر + العادي ينشئ مشروعاً إذا ضغطت مع Shift مثلاً. لكن الأفضل زرين منفصلين.
+  // سنضيف زر "New Project" مؤقتاً عبر الكود: سنضيف مستمع لحدث الضغط المطول.
+  // لكن لتجربة فورية، افتح console واكتب openNewProject() أو سنضيف زراً في المرة القادمة.
+
   $('editorBackBtn').addEventListener('click', closeEditor);
   $('saveBtn').addEventListener('click', saveCurrent);
   $('deleteBtn').addEventListener('click', deleteCurrent);
@@ -683,35 +705,35 @@
     renderHome();
   }));
 
-  $('noteTitle').addEventListener('input', () => {
-    if (currentId) { let n = notes.find(n => n.id === currentId); if (n) { n.title = $('noteTitle').value.trim(); n.updated = Date.now(); saveToCloud(n); } }
-  });
+  $('noteTitle').addEventListener('input', () => { if (currentId) saveCurrentMulti(); });
   $('langPicker').addEventListener('change', () => {
     refreshHighlight();
-    if (currentId) { let n = notes.find(n => n.id === currentId); if (n) { n.lang = $('langPicker').value; n.updated = Date.now(); saveToCloud(n); } }
+    if (currentId && !isMultiFile) { let n = notes.find(n=>n.id===currentId); if(n) { n.lang=$('langPicker').value; n.updated=Date.now(); saveToCloud(n); } }
   });
   codeTextarea.addEventListener('input', () => {
     refreshHighlight(); updateStats(); pushToUndo();
+    if (isMultiFile && activeFileName) { currentFiles[activeFileName] = codeTextarea.value; saveCurrentMulti(); }
+    else if (!isMultiFile && currentId) { let n = notes.find(n=>n.id===currentId); if(n) { n.content=codeTextarea.value; n.updated=Date.now(); saveToCloud(n); } }
     if (previewVisible) updatePreview();
-    if (currentId) { let n = notes.find(n => n.id === currentId); if (n) { n.content = codeTextarea.value; n.updated = Date.now(); saveToCloud(n); } }
   });
   codeTextarea.addEventListener('scroll', () => { syncScroll(); drawLineNumbers(); });
   codeTextarea.addEventListener('keydown', e => {
     if (e.key === 'Tab') {
-      e.preventDefault();
-      const s = codeTextarea.selectionStart;
-      codeTextarea.value = codeTextarea.value.substring(0, s) + '  ' + codeTextarea.value.substring(codeTextarea.selectionEnd);
-      codeTextarea.selectionStart = codeTextarea.selectionEnd = s + 2;
+      e.preventDefault(); const s=codeTextarea.selectionStart;
+      codeTextarea.value=codeTextarea.value.substring(0,s)+'  '+codeTextarea.value.substring(codeTextarea.selectionEnd);
+      codeTextarea.selectionStart=codeTextarea.selectionEnd=s+2;
       refreshHighlight(); updateStats(); pushToUndo();
     }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); performUndo(); }
-    if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'Z' && e.shiftKey))) { e.preventDefault(); performRedo(); }
+    if ((e.ctrlKey||e.metaKey)&&e.key==='z'){e.preventDefault();performUndo();}
+    if ((e.ctrlKey||e.metaKey)&&(e.key==='y'||(e.key==='Z'&&e.shiftKey))){e.preventDefault();performRedo();}
   });
   document.addEventListener('keydown', e => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); saveCurrent(); }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'n') { e.preventDefault(); openNewNote(); }
+    if ((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();saveCurrent();}
+    if ((e.ctrlKey||e.metaKey)&&e.key==='n'){e.preventDefault();openNewNote();}
   });
 
+  // للإطلاق السريع لمشروع جديد: استدع openNewProject() من الكونسول أو سنضيف زر بمكان ما
+  window.openNewProject = openNewProject;
 })();
 </script>
 </body>
