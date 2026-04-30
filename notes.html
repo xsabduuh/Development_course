@@ -3,13 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>DevPath 180 • Notes</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <style>
     :root {
       --bg: #000;
@@ -163,138 +158,10 @@
 
 <div class="toast-panel" id="toastPanel"></div>
 
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-<script>
-(function(){
-  const firebaseConfig = {
-    apiKey: "AIzaSyAszFGDs1J92_53jHvj5aABmeiKZdc-mf0",
-    authDomain: "gen-lang-client-0501601606.firebaseapp.com",
-    projectId: "gen-lang-client-0501601606",
-    storageBucket: "gen-lang-client-0501601606.firebasestorage.app",
-    messagingSenderId: "1079712784218",
-    appId: "1:1079712784218:web:598465155aa70938a6dd63"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-
-  let notes = [], currentId = null, filterLang = 'all', searchTerm = '', isPreview = false;
-  const $ = id => document.getElementById(id);
-
-  // ── Undo/Redo ──
-  let undoStack = [], redoStack = [], lastSavedState = '';
-  function pushUndo(){ const t=$('codeTextarea'); if(t&&t.value!==lastSavedState){ undoStack.push(lastSavedState); if(undoStack.length>100)undoStack.shift(); redoStack=[]; lastSavedState=t.value; updateUR(); } }
-  function apply(s){ $('codeTextarea').value=s; lastSavedState=s; refresh(); stats(); lines(); updateUR(); }
-  function undo(){ if(!undoStack.length)return; redoStack.push($('codeTextarea').value); apply(undoStack.pop()); autosave(); }
-  function redo(){ if(!redoStack.length)return; undoStack.push($('codeTextarea').value); apply(redoStack.pop()); autosave(); }
-  function updateUR(){ $('undoBtn').disabled=!undoStack.length; $('redoBtn').disabled=!redoStack.length; }
-
-  // ── Auth ──
-  auth.onAuthStateChanged(async u=>{
-    if(u){ $('loginScreen').style.display='none'; $('homeView').style.display='flex'; await load(); }
-    else{ $('loginScreen').style.display='flex'; $('homeView').style.display='none'; editorView.classList.remove('active'); }
-  });
-  $('loginBtn').onclick=async()=>{try{await auth.signInWithEmailAndPassword($('emailInput').value,$('passwordInput').value)}catch(e){$('loginError').textContent=e.message}};
-  $('registerBtn').onclick=async()=>{try{await auth.createUserWithEmailAndPassword($('emailInput').value,$('passwordInput').value)}catch(e){$('loginError').textContent=e.message}};
-
-  // ── Firestore ──
-  async function load(){ if(!auth.currentUser)return; const s=await db.collection('users').doc(auth.currentUser.uid).collection('notes').orderBy('updated','desc').get(); notes=s.docs.map(d=>({id:d.id,...d.data()})); renderHome(); }
-  async function cloud(n){ if(!auth.currentUser)return; await db.collection('users').doc(auth.currentUser.uid).collection('notes').doc(n.id).set(n,{merge:true}); }
-  async function delCloud(id){ if(!auth.currentUser)return; await db.collection('users').doc(auth.currentUser.uid).collection('notes').doc(id).delete(); }
-
-  // ── Home ──
-  function renderHome(){
-    let f=[...notes];
-    if(filterLang!=='all')f=f.filter(n=>n.lang===filterLang);
-    if(searchTerm.trim()){ const q=searchTerm.toLowerCase(); f=f.filter(n=>(n.title||'').toLowerCase().includes(q)||(n.content||'').toLowerCase().includes(q)); }
-    f.sort((a,b)=>b.updated-a.updated);
-    const g=$('notesGrid');
-    g.innerHTML=f.length?f.map(n=>`<div class="note-card" data-id="${n.id}"><div class="title">${esc(n.title||'Untitled')}</div><span class="lang">${n.lang||'txt'}</span><button class="del-btn" data-del="${n.id}">Delete</button></div>`).join(''):'<div style="padding:60px;text-align:center;color:var(--secondary);grid-column:1/-1">No notes yet.<br>Tap + to create.</div>';
-    g.querySelectorAll('.note-card').forEach(c=>c.onclick=e=>{if(!e.target.closest('[data-del]'))open(c.dataset.id)});
-    g.querySelectorAll('[data-del]').forEach(b=>b.onclick=e=>{e.stopPropagation();if(confirm('Delete?')){notes=notes.filter(n=>n.id!==b.dataset.del);delCloud(b.dataset.del);renderHome();toast('Deleted')}});
-  }
-
-  function open(id){
-    const n=notes.find(x=>x.id===id); if(!n)return;
-    currentId=id; $('noteTitle').value=n.title||''; $('codeTextarea').value=n.content||''; $('langPicker').value=n.lang||'plaintext';
-    $('homeView').style.display='none'; editorView.classList.add('active'); switchCode();
-    refresh(); stats(); lines(); undoStack=[]; redoStack=[]; lastSavedState=n.content||''; updateUR();
-  }
-
-  // زر + يعمل الآن
-  async function newNote(){
-    if(!auth.currentUser){ toast('Please sign in'); return; }
-    const note={id:Date.now().toString(36)+Math.random().toString(36).substr(2,7),title:'',content:'',lang:'html',updated:Date.now()};
-    const ref=await db.collection('users').doc(auth.currentUser.uid).collection('notes').add(note);
-    note.id=ref.id; notes.unshift(note);
-    open(note.id); toast('New note');
-  }
-
-  function close(){
-    if(currentId){ const n=notes.find(x=>x.id===currentId); if(n){n.title=$('noteTitle').value.trim();n.content=$('codeTextarea').value;n.lang=$('langPicker').value;n.updated=Date.now();cloud(n);} }
-    currentId=null; editorView.classList.remove('active'); $('homeView').style.display='flex';
-    $('noteTitle').value=''; $('codeTextarea').value=''; $('codeHighlight').textContent=''; switchCode(); renderHome();
-  }
-
-  function saveClose(){
-    if(!currentId){ toast('Saving…'); setTimeout(()=>{if(currentId){const n=notes.find(x=>x.id===currentId);if(n){n.title=$('noteTitle').value.trim();n.content=$('codeTextarea').value;n.lang=$('langPicker').value;n.updated=Date.now();cloud(n);}}close();},200); return; }
-    const n=notes.find(x=>x.id===currentId); if(!n)return;
-    n.title=$('noteTitle').value.trim(); n.content=$('codeTextarea').value; n.lang=$('langPicker').value; n.updated=Date.now();
-    cloud(n); toast('Saved'); close();
-  }
-
-  async function delCur(){ if(!currentId||!confirm('Delete?'))return; await delCloud(currentId); notes=notes.filter(n=>n.id!==currentId); close(); }
-
-  // ── Preview ──
-  function switchPreview(){ isPreview=true; $('codeStage').style.display='none'; $('livePreview').classList.add('active'); updatePreview(); }
-  function switchCode(){ isPreview=false; $('codeStage').style.display='flex'; $('livePreview').classList.remove('active'); }
-  function updatePreview(){ if(!isPreview)return; const c=$('codeTextarea').value,l=$('langPicker').value; let h=c; if(l==='css')h=`<!DOCTYPE html><html><head><style>${c}</style></head><body></body></html>`; else if(l==='javascript')h=`<!DOCTYPE html><html><body><script>${c}<\/script></body></html>`; else if(l==='html'&&!c.includes('<!DOCTYPE'))h=`<!DOCTYPE html><html>${c}</html>`; $('livePreview').srcdoc=h; }
-
-  // ── Highlight ──
-  function refresh(){ const c=$('codeTextarea').value,l=$('langPicker').value; let o; try{o=l==='plaintext'?esc(c):hljs.highlight(c,{language:l,ignoreIllegals:true}).value}catch(e){o=esc(c)} $('codeHighlight').innerHTML=o; sync(); }
-  function sync(){ const p=$('codeHighlight').parentElement,t=$('codeTextarea'); if(!p||!t)return; p.scrollTop=t.scrollTop; p.scrollLeft=t.scrollLeft; }
-  function lines(){ const ls=$('codeTextarea').value.split('\n'); $('lineNums').innerHTML=ls.map((_,i)=>`<span>${i+1}</span>`).join(''); $('lineNums').scrollTop=$('codeTextarea').scrollTop; }
-  function stats(){ const c=$('codeTextarea').value; $('charCount').textContent=c.length+' chars'; $('lineCount').textContent='Ln '+c.split('\n').length; }
-  function autosave(){ if(!currentId)return; const n=notes.find(x=>x.id===currentId); if(n){n.content=$('codeTextarea').value;cloud(n);} }
-  function esc(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
-  function toast(m){ const t=document.createElement('div'); t.className='toast'; t.textContent=m; $('toastPanel').appendChild(t); setTimeout(()=>t.remove(),2200); }
-
-  // ── Events ──
-  $('homeNewBtn').addEventListener('click', newNote);
-  $('editorBackBtn').addEventListener('click', close);
-  $('saveBtn').addEventListener('click', saveClose);
-  $('deleteBtn').addEventListener('click', delCur);
-  $('copyBtn').addEventListener('click', async()=>{try{await navigator.clipboard.writeText($('codeTextarea').value);toast('Copied!')}catch(e){toast('Copy failed')}});
-  $('previewBtn').addEventListener('click', ()=>isPreview?switchCode():switchPreview());
-  $('undoBtn').addEventListener('click', undo);
-  $('redoBtn').addEventListener('click', redo);
-
-  $('codeTextarea').addEventListener('input', ()=>{
-    refresh(); stats(); lines(); autosave();
-    if(isPreview)updatePreview();
-    clearTimeout(window._ud); window._ud=setTimeout(pushUndo,500);
-  });
-  $('codeTextarea').addEventListener('scroll', ()=>{sync();lines();});
-  $('homeSearch').addEventListener('input', e=>{searchTerm=e.target.value;renderHome();});
-  document.querySelectorAll('.filter-chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('.filter-chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');filterLang=c.dataset.lang;renderHome();}));
-  $('noteTitle').addEventListener('input', ()=>{if(currentId){const n=notes.find(x=>x.id===currentId);if(n){n.title=$('noteTitle').value;cloud(n);}}});
-  $('langPicker').addEventListener('change', ()=>{refresh();if(currentId){const n=notes.find(x=>x.id===currentId);if(n){n.lang=$('langPicker').value;cloud(n);}}if(isPreview)updatePreview();});
-
-  document.addEventListener('keydown', e=>{
-    if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();saveClose();}
-    if((e.ctrlKey||e.metaKey)&&e.key==='n'){e.preventDefault();newNote();}
-    if((e.ctrlKey||e.metaKey)&&e.key==='z'&&!e.shiftKey){e.preventDefault();undo();}
-    if((e.ctrlKey||e.metaKey)&&(e.key==='y'||(e.key==='z'&&e.shiftKey))){e.preventDefault();redo();}
-  });
-
-  $('codeTextarea').addEventListener('keydown', function(e){
-    if(e.key==='Tab'){e.preventDefault();pushUndo();const t=this,s=t.selectionStart;t.setRangeText('  ',s,t.selectionEnd,'end');t.selectionStart=t.selectionEnd=s+2;refresh();stats();lastSavedState=t.value;return}
-    const p={'(':')','[':']','{':'}','"':'"',"'":"'",'`':'`'};
-    if(p[e.key]){e.preventDefault();pushUndo();const s=this.selectionStart;this.setRangeText(e.key+p[e.key],s,this.selectionEnd,'end');this.selectionStart=this.selectionEnd=s+1;refresh();stats();lastSavedState=this.value}
-  });
-
-  renderHome();
-})();
-</script>
+<script src="app.js"></script>
 </body>
 </html>
