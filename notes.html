@@ -7,7 +7,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>DevPath 180 • Notes Pro</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -64,7 +63,7 @@
     .error-msg { color: var(--red); font-size: 0.85rem; text-align: center; min-height: 20px; }
 
     /* ── HOME (قائمة الملاحظات) ── */
-    .home-view { display: flex; flex-direction: column; flex: 1; padding: 16px; }
+    .home-view { display: flex; flex-direction: column; flex: 1; padding: 16px; overflow-y: auto; }
     .home-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
     .home-title { font-size: 1.7rem; font-weight: 700; letter-spacing: -0.5px; }
     .home-new-btn {
@@ -193,7 +192,6 @@
       font-size: 0.7rem; color: var(--secondary); font-family: var(--mono);
     }
 
-    /* Toast */
     .toast-panel {
       position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
       z-index: 200; display: flex; flex-direction: column; gap: 6px;
@@ -215,7 +213,6 @@
 </head>
 <body>
 <div class="app" id="appRoot">
-
   <!-- ════ LOGIN SCREEN ════ -->
   <div class="login-screen" id="loginScreen">
     <div class="login-card">
@@ -429,20 +426,29 @@
     $('codeTextarea').focus();
   }
 
+  // الوظيفة الأساسية التي تم إصلاحها
   async function openNewNote() {
-    const note = {
-      id: Date.now().toString(36) + Math.random().toString(36).substr(2,7),
-      title: '', content: '', lang: 'html', updated: Date.now()
-    };
-    // Save to Firestore
-    const docRef = await db.collection('users').doc(auth.currentUser.uid).collection('notes').add(note);
-    note.id = docRef.id;
-    notes.unshift(note);
-    openEditor(note.id);
+    if (!auth.currentUser) {
+      toast('Please sign in first');
+      return;
+    }
+    try {
+      const note = {
+        id: Date.now().toString(36) + Math.random().toString(36).substr(2,7),
+        title: '', content: '', lang: 'html', updated: Date.now()
+      };
+      const docRef = await db.collection('users').doc(auth.currentUser.uid).collection('notes').add(note);
+      note.id = docRef.id;
+      notes.unshift(note);
+      openEditor(note.id);
+      toast('New note created');
+    } catch(e) {
+      toast('Error creating note');
+      console.error(e);
+    }
   }
 
   function closeEditor() {
-    // Auto-save before closing
     if (currentId) {
       const note = notes.find(n => n.id === currentId);
       if (note) {
@@ -531,7 +537,6 @@
     $('lineCount').textContent = 'Ln ' + code.split('\n').length;
   }
 
-  // ═══════════════ HELPERS ═══════════════
   function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
   function toast(msg) {
     const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
@@ -589,7 +594,6 @@
     drawLineNumbers();
   });
 
-  // Tab support
   $('codeTextarea').addEventListener('keydown', e => {
     if (e.key === 'Tab') {
       e.preventDefault();
@@ -602,15 +606,12 @@
     }
   });
 
-  // Shortcuts
   document.addEventListener('keydown', e => {
     if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); saveCurrent(); }
     if ((e.ctrlKey || e.metaKey) && e.key === 'n') { e.preventDefault(); openNewNote(); }
   });
 
-  // ═══════════════ INIT ═══════════════
-  // Initial render will happen after auth state changes
-  if (notes.length > 0) renderHome();
+  renderHome();
 })();
 </script>
 </body>
