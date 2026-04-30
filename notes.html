@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+        <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8">
@@ -25,6 +25,8 @@
       --font: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
       --mono: 'SF Mono', 'JetBrains Mono', 'Fira Code', monospace;
       --shadow: 0 2px 20px rgba(0,0,0,0.5);
+      --note-bg: #1c1c28;
+      --project-bg: #252533;
     }
     *{margin:0;padding:0;box-sizing:border-box}
     html { height: 100%; overflow: hidden; }
@@ -42,8 +44,9 @@
     .app { flex: 1; display: flex; flex-direction: column; min-height: 100dvh; }
     ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 
-    .home-view { display: none; flex-direction: column; flex: 1; padding: 16px; }
-    .home-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; gap: 8px; }
+    /* ── HOME VIEW ── */
+    .home-view { display: none; flex-direction: column; flex: 1; padding: 16px 16px 0; }
+    .home-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; gap: 8px; }
     .home-title {
       font-size: 1.8rem;
       font-weight: 800;
@@ -54,17 +57,17 @@
       background-clip: text;
       flex: 1;
     }
-    .home-actions { display: flex; gap: 8px; }
+    .home-actions { display: flex; gap: 10px; }
     .home-new-btn, .home-project-btn {
       width: 42px; height: 42px; border-radius: 50%;
-      background: var(--accent); color: #fff; border: none;
-      font-size: 1.6rem; display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: background 0.2s, transform 0.2s;
-      box-shadow: 0 4px 12px rgba(10,132,255,0.3);
+      background: #1c1c28; color: var(--accent); border: 1px solid var(--border);
+      font-size: 1.4rem; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background 0.2s, transform 0.2s, border-color 0.2s;
     }
-    .home-new-btn:hover, .home-project-btn:hover { background: var(--accent2); transform: scale(1.05); }
-    .home-project-btn { background: #444; box-shadow: none; font-size: 1.4rem; }
-    .home-project-btn:hover { background: #555; }
+    .home-new-btn:hover, .home-project-btn:hover { background: #2a2a3a; border-color: var(--accent); transform: scale(1.05); }
+    .home-project-btn { color: var(--green); border-color: #2a4a2a; }
+    .home-project-btn:hover { border-color: var(--green); background: #1e3a2a; }
+
     .home-tools { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
     .search-input {
       flex: 1; min-width: 150px;
@@ -80,17 +83,23 @@
       font-weight: 600; white-space: nowrap;
     }
     .filter-chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    .section-title {
+      font-size: 0.85rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.8px; color: var(--secondary);
+      margin-bottom: 8px; padding-left: 4px;
+    }
+
     .notes-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 12px;
-      flex: 1;
-      align-content: start;
+      gap: 10px;
+      margin-bottom: 20px;
     }
     .note-card-home {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 16px;
-      cursor: pointer; transition: all 0.2s;
+      background: var(--note-bg); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px;
+      cursor: pointer; transition: all 0.2s; position: relative;
     }
     .note-card-home:hover { border-color: var(--accent); box-shadow: 0 4px 12px rgba(10,132,255,0.15); }
     .note-card-home:active { background: #222; }
@@ -103,26 +112,29 @@
     }
     .note-card-home .project-badge {
       font-size: 0.65rem; text-transform: uppercase;
-      color: rgba(255,255,255,0.5);
-      background: rgba(255,255,255,0.1);
+      color: rgba(48,209,88,0.7);
+      background: rgba(48,209,88,0.08);
       padding: 2px 8px; border-radius: 4px;
       margin-left: 4px;
     }
     .note-card-home .delete-btn {
       margin-top: 8px; background: none; border: none;
-      color: var(--secondary); cursor: pointer; font-size: 0.8rem;
+      color: var(--secondary); cursor: pointer; font-size: 0.75rem;
+      position: absolute; bottom: 10px; right: 10px;
     }
     .note-card-home .delete-btn:hover { color: var(--red); }
+
     .empty-notes, .loading-notes, .error-notes {
       grid-column: 1 / -1; text-align: center;
-      padding: 60px 20px; color: var(--secondary);
+      padding: 30px 20px; color: var(--secondary); font-size: 0.85rem;
     }
     .dashboard-link {
       display: inline-flex; align-items: center; gap: 6px;
       color: var(--accent); text-decoration: none; font-weight: 500;
-      margin-top: 16px; align-self: flex-start;
+      margin-top: 10px; align-self: flex-start; font-size: 0.85rem;
     }
 
+    /* ── EDITOR VIEW ── */
     .editor-view { display: none; flex-direction: column; flex: 1; }
     .editor-view.active { display: flex; }
     .navbar { padding: 8px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); min-height: 52px; }
@@ -223,12 +235,21 @@
 <body>
 <div class="app" id="appRoot">
 
+  <!-- ── HOME VIEW ── -->
   <div class="home-view" id="homeView">
     <div class="home-header">
-      <span class="home-title">Notes</span>
+      <span class="home-title">DevPath Notes</span>
       <div class="home-actions">
-        <button class="home-new-btn" id="homeNewBtn" title="New single-file note">+</button>
-        <button class="home-project-btn" id="homeProjectBtn" title="New multi-file project">📁</button>
+        <button class="home-new-btn" id="homeNewBtn" title="New note">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>
+          </svg>
+        </button>
+        <button class="home-project-btn" id="homeProjectBtn" title="New project">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/>
+          </svg>
+        </button>
       </div>
     </div>
     <div class="home-tools">
@@ -239,13 +260,17 @@
       <button class="filter-chip" data-lang="javascript">JS</button>
       <button class="filter-chip" data-lang="python">Python</button>
     </div>
+    <div class="section-title">Notes</div>
     <div class="notes-grid" id="notesGrid"></div>
+    <div class="section-title">Projects</div>
+    <div class="notes-grid" id="projectsGrid"></div>
     <a href="./index.html" class="dashboard-link">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
       Dashboard
     </a>
   </div>
 
+  <!-- ── EDITOR VIEW ── -->
   <div class="editor-view" id="editorView">
     <div class="navbar">
       <button class="back-btn" id="editorBackBtn">
@@ -327,7 +352,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script>
-(function(){
+(function() {
   const firebaseConfig = {
     apiKey: "AIzaSyAszFGDs1J92_53jHvj5aABmeiKZdc-mf0",
     authDomain: "gen-lang-client-0501601606.firebaseapp.com",
@@ -341,21 +366,23 @@
   const auth = firebase.auth();
   const db = firebase.firestore();
 
-  let notes = [];
+  // ── STATE ──
+  let notes = [];                 // all local notes
   let currentId = null;
+  let originalNote = null;       // snapshot of note when opened (for discard)
   let filterLang = 'all';
   let searchTerm = '';
 
   // Multi-file state
-  let currentFiles = {};
+  let currentFiles = null;
   let activeFileName = 'index.html';
   let isMultiFile = false;
 
+  // Undo/Redo (within editing session)
   let undoStack = [];
   let redoStack = [];
   let currentSnapshot = '';
   let isUndoRedo = false;
-
   let previewVisible = false;
   let updatePreviewTimer;
 
@@ -368,8 +395,18 @@
   const codeHighlight = $('codeHighlight');
   const lineNums = $('lineNums');
   const notesGrid = $('notesGrid');
+  const projectsGrid = $('projectsGrid');
   const tabsBar = $('tabsBar');
   const tabsContainer = $('tabsContainer');
+
+  // ── TOAST (no emoji) ──
+  function toast(msg) {
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = msg;
+    $('toastPanel').appendChild(t);
+    setTimeout(() => t.remove(), 2500);
+  }
 
   // ── AUTH ──
   auth.onAuthStateChanged(async (user) => {
@@ -391,66 +428,87 @@
   async function loadNotes() {
     if (!auth.currentUser) return;
     const snap = await db.collection('users').doc(auth.currentUser.uid)
-      .collection('notes').orderBy('updated','desc').get();
+      .collection('notes').orderBy('updated', 'desc').get();
     notes = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     renderHome();
   }
 
-  function showGridLoading() { notesGrid.innerHTML = '<div class="loading-notes">Loading notes…</div>'; }
+  function showGridLoading() {
+    notesGrid.innerHTML = '<div class="loading-notes">Loading notes...</div>';
+    projectsGrid.innerHTML = '<div class="loading-notes">Loading projects...</div>';
+  }
+
   function showGridError(msg) {
-    notesGrid.innerHTML = `<div class="error-notes"><p>⚠️ Could not load notes</p><p style="font-size:0.8rem; margin:8px 0;">${msg||'Check connection'}</p><button class="tool-btn" onclick="retryLoadNotes()">Retry</button></div>`;
+    notesGrid.innerHTML = `<div class="error-notes">Could not load notes. ${msg||''} <button class="tool-btn" onclick="retryLoadNotes()">Retry</button></div>`;
+    projectsGrid.innerHTML = '';
   }
   window.retryLoadNotes = () => loadNotesWithRetry();
 
-  async function saveToCloud(note) {
+  // ── CLOUD HELPERS ──
+  async function saveNoteToCloud(note) {
     if (!auth.currentUser) return;
-    try {
-      const { id, ...data } = note;
-      await db.collection('users').doc(auth.currentUser.uid)
-        .collection('notes').doc(note.id).set(data, { merge: true });
-    } catch (e) { toast('❌ Cloud save failed'); console.error(e); }
+    const { id, ...data } = note;
+    await db.collection('users').doc(auth.currentUser.uid)
+      .collection('notes').doc(note.id).set(data, { merge: true });
   }
 
-  async function deleteFromCloud(id) {
+  async function deleteNoteFromCloud(id) {
     if (!auth.currentUser) return;
-    try { await db.collection('users').doc(auth.currentUser.uid).collection('notes').doc(id).delete(); }
-    catch (e) { toast('❌ Delete failed'); console.error(e); }
+    await db.collection('users').doc(auth.currentUser.uid).collection('notes').doc(id).delete();
   }
 
+  // ── HOME RENDERING (separate notes / projects) ──
   function renderHome() {
-    let filtered = [...notes];
-    if (filterLang !== 'all') filtered = filtered.filter(n => n.lang === filterLang);
-    if (searchTerm.trim()) {
-      const q = searchTerm.toLowerCase();
-      filtered = filtered.filter(n => (n.title||'').toLowerCase().includes(q) || (n.content||'').toLowerCase().includes(q));
-    }
-    filtered.sort((a,b) => b.updated - a.updated);
+    const noteList = notes.filter(n => !n.files);
+    const projectList = notes.filter(n => !!n.files);
 
-    if (!filtered.length) {
-      notesGrid.innerHTML = '<div class="empty-notes">No notes yet.<br>Tap + or 📁 to create one.</div>';
-    } else {
-      notesGrid.innerHTML = filtered.map(n => {
-        const isProject = !!n.files;
-        const langLabel = isProject ? '<span class="project-badge">📁 Project</span>' : `<span class="lang">${n.lang||'txt'}</span>`;
-        return `
-        <div class="note-card-home" data-id="${n.id}">
-          <div class="title">${esc(n.title || 'Untitled')}</div>
-          ${langLabel}
-          <button class="delete-btn" data-del="${n.id}">Delete</button>
-        </div>`;
-      }).join('');
-    }
+    const applyFilters = (list) => {
+      let filtered = [...list];
+      if (filterLang !== 'all') filtered = filtered.filter(n => n.lang === filterLang);
+      if (searchTerm.trim()) {
+        const q = searchTerm.toLowerCase();
+        filtered = filtered.filter(n => (n.title||'').toLowerCase().includes(q) || (n.content||'').toLowerCase().includes(q));
+      }
+      filtered.sort((a,b) => b.updated - a.updated);
+      return filtered;
+    };
 
-    notesGrid.querySelectorAll('.note-card-home').forEach(card => {
-      card.addEventListener('click', e => { if (!e.target.closest('[data-del]')) openNote(card.dataset.id); });
+    const filteredNotes = applyFilters(noteList);
+    const filteredProjects = applyFilters(projectList);
+
+    renderGrid(notesGrid, filteredNotes, false);
+    renderGrid(projectsGrid, filteredProjects, true);
+  }
+
+  function renderGrid(grid, items, isProject) {
+    if (!items.length) {
+      grid.innerHTML = `<div class="empty-notes">No ${isProject ? 'projects' : 'notes'} yet.</div>`;
+      return;
+    }
+    grid.innerHTML = items.map(n => {
+      const langLabel = isProject
+        ? '<span class="project-badge">Project</span>'
+        : `<span class="lang">${n.lang || 'txt'}</span>`;
+      return `
+      <div class="note-card-home" data-id="${n.id}">
+        <div class="title">${esc(n.title || 'Untitled')}</div>
+        ${langLabel}
+        <button class="delete-btn" data-del="${n.id}">Delete</button>
+      </div>`;
+    }).join('');
+
+    grid.querySelectorAll('.note-card-home').forEach(card => {
+      card.addEventListener('click', e => {
+        if (!e.target.closest('[data-del]')) openNote(card.dataset.id);
+      });
     });
-    notesGrid.querySelectorAll('[data-del]').forEach(btn => {
+    grid.querySelectorAll('[data-del]').forEach(btn => {
       btn.addEventListener('click', e => {
         e.stopPropagation();
         const id = btn.dataset.del;
         if (confirm('Delete this note?')) {
           notes = notes.filter(n => n.id !== id);
-          deleteFromCloud(id);
+          deleteNoteFromCloud(id);
           renderHome();
           toast('Deleted');
         }
@@ -458,11 +516,15 @@
     });
   }
 
+  // ── OPEN / CLOSE NOTES ──
   function openNote(id) {
     if (previewVisible) togglePreview();
     const note = notes.find(n => n.id === id);
     if (!note) return;
     currentId = id;
+    // Save a deep copy of the original note for discard
+    originalNote = JSON.parse(JSON.stringify(note));
+
     $('noteTitle').value = note.title || '';
     isMultiFile = !!note.files;
     if (isMultiFile) {
@@ -485,35 +547,49 @@
     codeTextarea.focus();
   }
 
+  // Create new single note (not saved until explicit Save)
   async function openNewNote() {
     const fixedId = Date.now().toString(36) + Math.random().toString(36).substr(2,9);
-    const note = { id: fixedId, title: '', content: '', lang: 'html', updated: Date.now() };
-    notes.unshift(note);
-    openNote(fixedId);
+    const newNote = {
+      id: fixedId,
+      title: '',
+      content: '',
+      lang: 'html',
+      updated: Date.now(),
+      // Mark as unsaved (will be deleted if not saved)
+    };
+    notes.unshift(newNote);
+    // Create empty doc in Firestore anyway (so it exists if saved later)
     try {
-      if (!auth.currentUser) return;
-      await db.collection('users').doc(auth.currentUser.uid).collection('notes').doc(fixedId).set({
-        title: '', content: '', lang: 'html', updated: Date.now()
-      }, { merge: true });
-    } catch (e) { toast('⚠️ Cloud sync delayed'); console.error(e); }
+      if (auth.currentUser) {
+        await db.collection('users').doc(auth.currentUser.uid).collection('notes').doc(fixedId).set({
+          title: '', content: '', lang: 'html', updated: Date.now()
+        }, { merge: true });
+      }
+    } catch (e) { toast('Sync delayed'); console.error(e); }
+    openNote(fixedId);
     renderHome();
   }
 
+  // Create new multi-file project (unsaved)
   async function openNewProject() {
     const fixedId = Date.now().toString(36) + Math.random().toString(36).substr(2,9);
-    const note = {
-      id: fixedId, title: '',
+    const newNote = {
+      id: fixedId,
+      title: '',
       files: { 'index.html': '', 'style.css': '', 'script.js': '' },
-      updated: Date.now(), lang: 'html'
+      updated: Date.now(),
+      lang: 'html'
     };
-    notes.unshift(note);
-    openNote(fixedId);
+    notes.unshift(newNote);
     try {
-      if (!auth.currentUser) return;
-      await db.collection('users').doc(auth.currentUser.uid).collection('notes').doc(fixedId).set({
-        title: '', files: note.files, updated: Date.now(), lang: 'html'
-      }, { merge: true });
-    } catch (e) { toast('⚠️ Cloud sync delayed'); console.error(e); }
+      if (auth.currentUser) {
+        await db.collection('users').doc(auth.currentUser.uid).collection('notes').doc(fixedId).set({
+          title: '', files: newNote.files, updated: Date.now(), lang: 'html'
+        }, { merge: true });
+      }
+    } catch (e) { toast('Sync delayed'); console.error(e); }
+    openNote(fixedId);
     renderHome();
   }
 
@@ -536,7 +612,7 @@
     tabsContainer.innerHTML = Object.keys(currentFiles).map(name => `
       <div class="tab ${name === activeFileName ? 'active' : ''}" data-file="${name}">
         <span>${name}</span>
-        <span class="tab-close" data-close="${name}">×</span>
+        <span class="tab-close" data-close="${name}">&times;</span>
       </div>
     `).join('');
     tabsContainer.querySelectorAll('.tab').forEach(tab => {
@@ -550,7 +626,6 @@
             updateEditorContent();
             refreshHighlight(); updateStats();
             pushToUndo();
-            saveCurrentMulti();
           }
         } else {
           activeFileName = tab.dataset.file;
@@ -564,26 +639,12 @@
     });
   }
 
-  document.getElementById('addFileBtn').addEventListener('click', () => {
-    let name = prompt('File name (e.g., main.js):');
-    if (!name) return;
-    if (!/\.\w+$/.test(name)) name += '.html';
-    if (currentFiles[name]) return toast('File already exists');
-    currentFiles[name] = '';
-    activeFileName = name;
-    renderTabs();
-    updateEditorContent();
-    refreshHighlight(); updateStats();
-    resetUndoRedo();
-    codeTextarea.focus();
-    saveCurrentMulti();
-  });
-
-  function saveCurrentMulti() {
-    if (!currentId) return;
+  // ── SAVE / DISCARD LOGIC ──
+  function buildCurrentNoteFromUI() {
     const note = notes.find(n => n.id === currentId);
-    if (!note) return;
+    if (!note) return null;
     note.title = $('noteTitle').value.trim();
+    note.updated = Date.now();
     if (isMultiFile) {
       note.files = { ...currentFiles };
       delete note.content;
@@ -591,13 +652,49 @@
       note.content = codeTextarea.value;
       note.lang = $('langPicker').value;
     }
-    note.updated = Date.now();
-    saveToCloud(note);
+    return note;
   }
 
-  function closeEditor() {
-    if (currentId) saveCurrentMulti();
-    currentId = null; isMultiFile = false; currentFiles = null;
+  function saveCurrent() {
+    if (!currentId) return;
+    const updatedNote = buildCurrentNoteFromUI();
+    if (!updatedNote) return;
+    // Update local note permanently
+    const idx = notes.findIndex(n => n.id === currentId);
+    if (idx !== -1) notes[idx] = { ...updatedNote };
+    // Save to cloud
+    saveNoteToCloud(updatedNote);
+    // Mark as saved (update original snapshot)
+    originalNote = JSON.parse(JSON.stringify(updatedNote));
+    toast('Saved');
+    renderHome();
+  }
+
+  async function closeEditor() {
+    if (!currentId) {
+      editorView.classList.remove('active');
+      homeView.style.display = 'flex';
+      return;
+    }
+    const note = notes.find(n => n.id === currentId);
+    // If note was just created and never saved (originalNote had empty title/content/files), discard it completely
+    const isNewUnsaved = originalNote && !originalNote.title && 
+      (!originalNote.files ? !originalNote.content : Object.values(originalNote.files).every(v => !v));
+    if (isNewUnsaved) {
+      // Remove from cloud and local notes
+      await deleteNoteFromCloud(currentId);
+      notes = notes.filter(n => n.id !== currentId);
+    } else if (originalNote) {
+      // Restore original data in local notes
+      const idx = notes.findIndex(n => n.id === currentId);
+      if (idx !== -1) notes[idx] = { ...originalNote };
+      // If multi-file, also restore original files to currentFiles? irrelevant, we close.
+    }
+
+    currentId = null;
+    originalNote = null;
+    isMultiFile = false;
+    currentFiles = null;
     editorView.classList.remove('active');
     homeView.style.display = 'flex';
     $('noteTitle').value = '';
@@ -609,21 +706,18 @@
     renderHome();
   }
 
-  function saveCurrent() {
-    saveCurrentMulti();
-    toast('✅ Saved');
-    renderHome();
-  }
-
   async function deleteCurrent() {
     if (!currentId) return;
-    if (!confirm('Delete this note?')) return;
-    await deleteFromCloud(currentId);
+    if (!confirm('Delete this note permanently?')) return;
+    await deleteNoteFromCloud(currentId);
     notes = notes.filter(n => n.id !== currentId);
+    currentId = null;
+    originalNote = null;
     closeEditor();
-    toast('🗑 Deleted');
+    toast('Deleted');
   }
 
+  // ── PREVIEW ──
   function togglePreview() {
     previewVisible = !previewVisible;
     if (previewVisible) {
@@ -662,6 +756,7 @@
     }, 80);
   }
 
+  // ── UNDO / REDO ──
   function resetUndoRedo() { undoStack=[]; redoStack=[]; currentSnapshot=codeTextarea.value; updateUndoButtons(); }
   function updateUndoButtons() { $('undoBtn').disabled=undoStack.length===0; $('redoBtn').disabled=redoStack.length===0; }
   function pushToUndo() { const val=codeTextarea.value; if(val!==currentSnapshot&&!isUndoRedo){undoStack.push(currentSnapshot);currentSnapshot=val;redoStack=[];updateUndoButtons();} }
@@ -682,6 +777,7 @@
     updateUndoButtons(); isUndoRedo=false;
   }
 
+  // ── EDITOR HELPERS ──
   function refreshHighlight() {
     const code = codeTextarea.value, lang = $('langPicker').value;
     let out; try { out = lang === 'plaintext' ? esc(code) : hljs.highlight(code, { language: lang, ignoreIllegals: true }).value; } catch(e) { out = esc(code); }
@@ -701,15 +797,14 @@
         btn.classList.remove('copied');
         btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy';
       }, 2000);
-      toast('Copied!');
+      toast('Copied');
     } catch(e) { toast('Copy failed'); }
   }
   function selectAllCode() { codeTextarea.focus(); codeTextarea.select(); toast('All code selected (Ctrl+C to copy)'); }
   function updateStats() { const code=codeTextarea.value; $('charCount').textContent=code.length+' chars'; $('lineCount').textContent='Ln '+code.split('\n').length; }
   function esc(s) { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
-  function toast(msg) { const t=document.createElement('div'); t.className='toast'; t.textContent=msg; $('toastPanel').appendChild(t); setTimeout(()=>t.remove(),2500); }
 
-  // Events
+  // ── EVENT LISTENERS ──
   $('homeNewBtn').addEventListener('click', openNewNote);
   $('homeProjectBtn').addEventListener('click', openNewProject);
   $('editorBackBtn').addEventListener('click', closeEditor);
@@ -729,15 +824,18 @@
     renderHome();
   }));
 
-  $('noteTitle').addEventListener('input', () => { if (currentId) saveCurrentMulti(); });
+  // Note title changes are not auto-saved; only applied on Save
   $('langPicker').addEventListener('change', () => {
     refreshHighlight();
-    if (currentId && !isMultiFile) { let n = notes.find(n=>n.id===currentId); if(n) { n.lang=$('langPicker').value; n.updated=Date.now(); saveToCloud(n); } }
+    // Do not auto-save; user must click Save
   });
+
+  // Code textarea input: no auto-save to cloud, only local undo and preview update
   codeTextarea.addEventListener('input', () => {
     refreshHighlight(); updateStats(); pushToUndo();
-    if (isMultiFile && activeFileName) { currentFiles[activeFileName] = codeTextarea.value; saveCurrentMulti(); }
-    else if (!isMultiFile && currentId) { let n = notes.find(n=>n.id===currentId); if(n) { n.content=codeTextarea.value; n.updated=Date.now(); saveToCloud(n); } }
+    if (isMultiFile && activeFileName) {
+      currentFiles[activeFileName] = codeTextarea.value;
+    }
     if (previewVisible) updatePreview();
   });
   codeTextarea.addEventListener('scroll', () => { syncScroll(); drawLineNumbers(); });
@@ -751,9 +849,25 @@
     if ((e.ctrlKey||e.metaKey)&&e.key==='z'){e.preventDefault();performUndo();}
     if ((e.ctrlKey||e.metaKey)&&(e.key==='y'||(e.key==='Z'&&e.shiftKey))){e.preventDefault();performRedo();}
   });
+
   document.addEventListener('keydown', e => {
     if ((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();saveCurrent();}
     if ((e.ctrlKey||e.metaKey)&&e.key==='n'){e.preventDefault();openNewNote();}
+  });
+
+  $('addFileBtn').addEventListener('click', () => {
+    let name = prompt('File name (e.g., main.js):');
+    if (!name) return;
+    if (!/\.\w+$/.test(name)) name += '.html';
+    if (currentFiles[name]) return toast('File already exists');
+    currentFiles[name] = '';
+    activeFileName = name;
+    renderTabs();
+    updateEditorContent();
+    refreshHighlight(); updateStats();
+    resetUndoRedo();
+    codeTextarea.focus();
+    // We do not save to cloud automatically; user must click Save
   });
 
 })();
