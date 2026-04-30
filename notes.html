@@ -43,7 +43,7 @@
     ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 
     .home-view { display: none; flex-direction: column; flex: 1; padding: 16px; }
-    .home-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .home-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; gap: 8px; }
     .home-title {
       font-size: 1.8rem;
       font-weight: 800;
@@ -52,15 +52,19 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+      flex: 1;
     }
-    .home-new-btn {
+    .home-actions { display: flex; gap: 8px; }
+    .home-new-btn, .home-project-btn {
       width: 42px; height: 42px; border-radius: 50%;
       background: var(--accent); color: #fff; border: none;
       font-size: 1.6rem; display: flex; align-items: center; justify-content: center;
       cursor: pointer; transition: background 0.2s, transform 0.2s;
       box-shadow: 0 4px 12px rgba(10,132,255,0.3);
     }
-    .home-new-btn:hover { background: var(--accent2); transform: scale(1.05); }
+    .home-new-btn:hover, .home-project-btn:hover { background: var(--accent2); transform: scale(1.05); }
+    .home-project-btn { background: #444; box-shadow: none; font-size: 1.4rem; }
+    .home-project-btn:hover { background: #555; }
     .home-tools { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
     .search-input {
       flex: 1; min-width: 150px;
@@ -97,6 +101,13 @@
       background: rgba(10,132,255,0.08);
       padding: 2px 8px; border-radius: 4px;
     }
+    .note-card-home .project-badge {
+      font-size: 0.65rem; text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.1);
+      padding: 2px 8px; border-radius: 4px;
+      margin-left: 4px;
+    }
     .note-card-home .delete-btn {
       margin-top: 8px; background: none; border: none;
       color: var(--secondary); cursor: pointer; font-size: 0.8rem;
@@ -112,7 +123,6 @@
       margin-top: 16px; align-self: flex-start;
     }
 
-    /* Editor & Tabs */
     .editor-view { display: none; flex-direction: column; flex: 1; }
     .editor-view.active { display: flex; }
     .navbar { padding: 8px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); min-height: 52px; }
@@ -206,6 +216,8 @@
       animation: toastIn 0.4s ease; pointer-events: auto;
     }
     @keyframes toastIn { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: none; } }
+
+    @media (max-width: 480px) { .notes-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -214,7 +226,10 @@
   <div class="home-view" id="homeView">
     <div class="home-header">
       <span class="home-title">Notes</span>
-      <button class="home-new-btn" id="homeNewBtn">+</button>
+      <div class="home-actions">
+        <button class="home-new-btn" id="homeNewBtn" title="New single-file note">+</button>
+        <button class="home-project-btn" id="homeProjectBtn" title="New multi-file project">📁</button>
+      </div>
     </div>
     <div class="home-tools">
       <input type="text" class="search-input" id="homeSearch" placeholder="Search notes..." autocomplete="off">
@@ -239,7 +254,6 @@
       </button>
       <input type="text" class="nav-title-input" id="noteTitle" placeholder="Note title">
     </div>
-    <!-- شريط التبويبات يظهر فقط للمشاريع -->
     <div class="tabs-bar" id="tabsBar" style="display:none;">
       <span id="tabsContainer"></span>
       <button class="add-file-btn" id="addFileBtn">
@@ -333,7 +347,7 @@
   let searchTerm = '';
 
   // Multi-file state
-  let currentFiles = {};           // { 'index.html': '...', 'style.css': '...' }
+  let currentFiles = {};
   let activeFileName = 'index.html';
   let isMultiFile = false;
 
@@ -413,15 +427,18 @@
     filtered.sort((a,b) => b.updated - a.updated);
 
     if (!filtered.length) {
-      notesGrid.innerHTML = '<div class="empty-notes">No notes yet.<br>Tap + to create one.</div>';
+      notesGrid.innerHTML = '<div class="empty-notes">No notes yet.<br>Tap + or 📁 to create one.</div>';
     } else {
-      notesGrid.innerHTML = filtered.map(n => `
+      notesGrid.innerHTML = filtered.map(n => {
+        const isProject = !!n.files;
+        const langLabel = isProject ? '<span class="project-badge">📁 Project</span>' : `<span class="lang">${n.lang||'txt'}</span>`;
+        return `
         <div class="note-card-home" data-id="${n.id}">
           <div class="title">${esc(n.title || 'Untitled')}</div>
-          <span class="lang">${n.lang||'txt'}</span>
+          ${langLabel}
           <button class="delete-btn" data-del="${n.id}">Delete</button>
-        </div>
-      `).join('');
+        </div>`;
+      }).join('');
     }
 
     notesGrid.querySelectorAll('.note-card-home').forEach(card => {
@@ -447,7 +464,7 @@
     if (!note) return;
     currentId = id;
     $('noteTitle').value = note.title || '';
-    isMultiFile = !!note.files;  // وجود files يعني مشروع متعدد الملفات
+    isMultiFile = !!note.files;
     if (isMultiFile) {
       currentFiles = { ...note.files };
       activeFileName = Object.keys(currentFiles)[0] || 'index.html';
@@ -550,7 +567,7 @@
   document.getElementById('addFileBtn').addEventListener('click', () => {
     let name = prompt('File name (e.g., main.js):');
     if (!name) return;
-    if (!/\.\w+$/.test(name)) name += '.html'; // default extension
+    if (!/\.\w+$/.test(name)) name += '.html';
     if (currentFiles[name]) return toast('File already exists');
     currentFiles[name] = '';
     activeFileName = name;
@@ -569,7 +586,7 @@
     note.title = $('noteTitle').value.trim();
     if (isMultiFile) {
       note.files = { ...currentFiles };
-      delete note.content; // remove old field
+      delete note.content;
     } else {
       note.content = codeTextarea.value;
       note.lang = $('langPicker').value;
@@ -629,15 +646,15 @@
       if (!previewVisible) return;
       let content = '';
       if (isMultiFile && currentFiles) {
-        // Build combined HTML from project files
         const html = currentFiles['index.html'] || currentFiles[Object.keys(currentFiles).find(f=>f.endsWith('.html'))] || '';
         const css = Object.keys(currentFiles).filter(f=>f.endsWith('.css')).map(f=>currentFiles[f]).join('\n');
         const js = Object.keys(currentFiles).filter(f=>f.endsWith('.js')).map(f=>currentFiles[f]).join('\n');
-        content = html
-          .replace('</head>', `<style>${css}</style></head>`)
-          .replace('</body>', `<script>${js}<\/script></body>`);
-        // إذا لم تكن هناك وسوم head/body، ادمج مباشرة
-        if (!/<head/i.test(html)) content = `<style>${css}</style>${html}<script>${js}<\/script>`;
+        if (html) {
+          content = html
+            .replace('</head>', `<style>${css}</style></head>`)
+            .replace('</body>', `<script>${js}<\/script></body>`);
+          if (!/<head/i.test(html)) content = `<style>${css}</style>${html}<script>${js}<\/script>`;
+        }
       } else {
         content = codeTextarea.value;
       }
@@ -645,7 +662,6 @@
     }, 80);
   }
 
-  // بقية الدوال (undo/redo, highlight, copy, selectAll) تبقى كما هي مع تعديل بسيط لتحفظ الملف النشط
   function resetUndoRedo() { undoStack=[]; redoStack=[]; currentSnapshot=codeTextarea.value; updateUndoButtons(); }
   function updateUndoButtons() { $('undoBtn').disabled=undoStack.length===0; $('redoBtn').disabled=redoStack.length===0; }
   function pushToUndo() { const val=codeTextarea.value; if(val!==currentSnapshot&&!isUndoRedo){undoStack.push(currentSnapshot);currentSnapshot=val;redoStack=[];updateUndoButtons();} }
@@ -666,14 +682,28 @@
     updateUndoButtons(); isUndoRedo=false;
   }
 
-  function refreshHighlight() { /* (كما هي دون تغيير) */
+  function refreshHighlight() {
     const code = codeTextarea.value, lang = $('langPicker').value;
     let out; try { out = lang === 'plaintext' ? esc(code) : hljs.highlight(code, { language: lang, ignoreIllegals: true }).value; } catch(e) { out = esc(code); }
     codeHighlight.innerHTML = out; syncScroll(); drawLineNumbers();
   }
   function syncScroll() { const pre=codeHighlight.parentElement; pre.scrollTop=codeTextarea.scrollTop; pre.scrollLeft=codeTextarea.scrollLeft; }
   function drawLineNumbers() { const lines=codeTextarea.value.split('\n'); lineNums.innerHTML=lines.map((_,i)=>`<span>${i+1}</span>`).join(''); lineNums.scrollTop=codeTextarea.scrollTop; }
-  async function copyCode() { /* كما هي */ }
+  async function copyCode() {
+    const code = codeTextarea.value;
+    if (!code.trim()) { toast('Nothing to copy'); return; }
+    try {
+      await navigator.clipboard.writeText(code);
+      const btn = $('copyBtn');
+      btn.classList.add('copied');
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy';
+      }, 2000);
+      toast('Copied!');
+    } catch(e) { toast('Copy failed'); }
+  }
   function selectAllCode() { codeTextarea.focus(); codeTextarea.select(); toast('All code selected (Ctrl+C to copy)'); }
   function updateStats() { const code=codeTextarea.value; $('charCount').textContent=code.length+' chars'; $('lineCount').textContent='Ln '+code.split('\n').length; }
   function esc(s) { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
@@ -681,13 +711,7 @@
 
   // Events
   $('homeNewBtn').addEventListener('click', openNewNote);
-  // نضيف زر مشروع جديد بجانب الزر الموجود – سأضيفه في الـ HTML لكن باختصار يمكنك استدعاء openNewProject() من مكان ما.
-  // حالياً، يمكنك فتح مشروع جديد عن طريق تعديل أي ملاحظة موجودة وحفظها كـ multi-file، أو نضيف زر "New Project" يدوياً.
-  // سأضيف زراً صغيراً في شريط الأدوات أو نضغط ضغطة طويلة على زر + لاختيار النوع.
-  // للتبسيط، سنجعل زر + العادي ينشئ مشروعاً إذا ضغطت مع Shift مثلاً. لكن الأفضل زرين منفصلين.
-  // سنضيف زر "New Project" مؤقتاً عبر الكود: سنضيف مستمع لحدث الضغط المطول.
-  // لكن لتجربة فورية، افتح console واكتب openNewProject() أو سنضيف زراً في المرة القادمة.
-
+  $('homeProjectBtn').addEventListener('click', openNewProject);
   $('editorBackBtn').addEventListener('click', closeEditor);
   $('saveBtn').addEventListener('click', saveCurrent);
   $('deleteBtn').addEventListener('click', deleteCurrent);
@@ -732,8 +756,6 @@
     if ((e.ctrlKey||e.metaKey)&&e.key==='n'){e.preventDefault();openNewNote();}
   });
 
-  // للإطلاق السريع لمشروع جديد: استدع openNewProject() من الكونسول أو سنضيف زر بمكان ما
-  window.openNewProject = openNewProject;
 })();
 </script>
 </body>
