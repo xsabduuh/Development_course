@@ -439,9 +439,8 @@
     $('codeTextarea').focus();
   }
 
-  // ✅ زر + الثابت عبر تفويض الأحداث
-  document.addEventListener('click', async function(e) {
-    if (!e.target.closest('#homeNewBtn')) return;
+  // ✅ زر + الثابت عبر تفويض الأحداث// ✅ زر + مربوط مباشرة
+$('homeNewBtn').addEventListener('click', async function() {
     if (!auth.currentUser) { toast('Please sign in first'); return; }
     const note = {
       id: Date.now().toString(36) + Math.random().toString(36).substr(2,7),
