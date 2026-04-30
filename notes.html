@@ -7,7 +7,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>DevPath 180 • Notes Pro</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -46,7 +45,6 @@
     .app { flex: 1; display: flex; flex-direction: column; min-height: 100dvh; }
     ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 
-    /* ── LOGIN SCREEN ── */
     .login-screen {
       display: flex; flex-direction: column; align-items: center;
       justify-content: center; flex: 1; padding: 40px 20px;
@@ -63,7 +61,6 @@
     }
     .error-msg { color: var(--red); font-size: 0.85rem; text-align: center; min-height: 20px; }
 
-    /* ── HOME (قائمة الملاحظات) ── */
     .home-view { display: flex; flex-direction: column; flex: 1; padding: 16px; }
     .home-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
     .home-title { font-size: 1.7rem; font-weight: 700; letter-spacing: -0.5px; }
@@ -121,7 +118,6 @@
       margin-top: 16px; align-self: flex-start;
     }
 
-    /* ── EDITOR (مشهد المحرر) ── */
     .editor-view { display: none; flex-direction: column; flex: 1; }
     .editor-view.active { display: flex; }
     .navbar {
@@ -204,7 +200,6 @@
       font-size: 0.7rem; color: var(--secondary); font-family: var(--mono);
     }
 
-    /* Toast */
     .toast-panel {
       position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
       z-index: 200; display: flex; flex-direction: column; gap: 6px;
@@ -227,7 +222,6 @@
 <body>
 <div class="app" id="appRoot">
 
-  <!-- ════ LOGIN SCREEN ════ -->
   <div class="login-screen" id="loginScreen">
     <div class="login-card">
       <div class="login-title">DevPath Notes</div>
@@ -239,7 +233,6 @@
     </div>
   </div>
 
-  <!-- ════ HOME VIEW ════ -->
   <div class="home-view" id="homeView" style="display:none;">
     <div class="home-header">
       <span class="home-title">📝 Notes</span>
@@ -254,13 +247,12 @@
       <button class="filter-chip" data-lang="python">Python</button>
     </div>
     <div class="notes-grid" id="notesGrid"></div>
-    <a href="index.html" class="dashboard-link">
+    <a href="./index.html" class="dashboard-link">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
       Dashboard
     </a>
   </div>
 
-  <!-- ════ EDITOR VIEW ════ -->
   <div class="editor-view" id="editorView">
     <div class="navbar">
       <button class="back-btn" id="editorBackBtn">
@@ -325,7 +317,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script>
 (function(){
-  // ═══════════════ FIREBASE CONFIG ═══════════════
   const firebaseConfig = {
     apiKey: "AIzaSyAszFGDs1J92_53jHvj5aABmeiKZdc-mf0",
     authDomain: "gen-lang-client-0501601606.firebaseapp.com",
@@ -339,7 +330,6 @@
   const auth = firebase.auth();
   const db = firebase.firestore();
 
-  // ═══════════════ STATE ═══════════════
   let notes = [];
   let currentId = null;
   let filterLang = 'all';
@@ -354,7 +344,6 @@
   const homeView = $('homeView');
   const editorView = $('editorView');
 
-  // ═══════════════ AUTH ═══════════════
   auth.onAuthStateChanged(async (user) => {
     if (user) {
       $('loginScreen').style.display = 'none';
@@ -381,7 +370,6 @@
     } catch(e) { $('loginError').textContent = e.message; }
   });
 
-  // ═══════════════ FIRESTORE (آمن تماماً) ═══════════════
   async function loadNotes() {
     if (!auth.currentUser) return;
     try {
@@ -390,22 +378,20 @@
       notes = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       renderHome();
     } catch (e) {
-      toast('⚠️ Failed to load notes from cloud');
+      toast('⚠️ Failed to load notes');
       console.error(e);
     }
   }
 
-  // حفظ آمن مع تجاهل حقل id الداخلي وضمان عدم إرساله
   async function saveToCloud(note) {
     if (!auth.currentUser) return;
     try {
-      // ننزع حقل id حتى لا نخزنه داخل بيانات المستند
       const { id, ...data } = note;
       await db.collection('users').doc(auth.currentUser.uid)
         .collection('notes').doc(note.id).set(data, { merge: true });
     } catch (e) {
-      toast('❌ Cloud save failed – check connection');
-      console.error('Cloud save error:', e);
+      toast('❌ Cloud save failed');
+      console.error(e);
     }
   }
 
@@ -420,7 +406,6 @@
     }
   }
 
-  // ═══════════════ HOME ═══════════════
   function renderHome() {
     let filtered = [...notes];
     if (filterLang !== 'all') filtered = filtered.filter(n => n.lang === filterLang);
@@ -431,7 +416,7 @@
     filtered.sort((a,b) => b.updated - a.updated);
 
     const grid = $('notesGrid');
-    if (filtered.length === 0) {
+    if (!filtered.length) {
       grid.innerHTML = '<div class="empty-notes">No notes yet.<br>Tap + to create one.</div>';
     } else {
       grid.innerHTML = filtered.map(n => `
@@ -463,7 +448,6 @@
     });
   }
 
-  // ═══════════════ EDITOR ═══════════════
   function openEditor(id) {
     currentId = id;
     const note = notes.find(n => n.id === id);
@@ -479,36 +463,21 @@
     $('codeTextarea').focus();
   }
 
-  // 🟢 النقطة الجوهرية: إنشاء ملاحظة بمعرّف ثابت من البداية (لا حاجة للتغيير لاحقاً)
   async function openNewNote() {
-    // توليد معرّف فريد نستخدمه كمُعرّف المستند في Firestore
     const fixedId = Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
-    const note = {
-      id: fixedId,
-      title: '',
-      content: '',
-      lang: 'html',
-      updated: Date.now()
-    };
-
-    // نضيفها محلياً ونفتح المحرر فوراً
+    const note = { id: fixedId, title: '', content: '', lang: 'html', updated: Date.now() };
     notes.unshift(note);
     openEditor(fixedId);
 
-    // ننشئ المستند في Firestore بنفس المعرّف (إذا لم يكن موجوداً)
     try {
       if (!auth.currentUser) return;
-      // استخدم set مع merge لتجنب الكتابة فوق أي بيانات قديمة (غير موجودة أصلاً)
       await db.collection('users').doc(auth.currentUser.uid)
         .collection('notes').doc(fixedId).set({
-          title: note.title,
-          content: note.content,
-          lang: note.lang,
-          updated: note.updated
+          title: '', content: '', lang: 'html', updated: Date.now()
         }, { merge: true });
     } catch (e) {
-      toast('⚠️ Cloud sync delayed – will retry');
-      console.error('Initial save error:', e);
+      toast('⚠️ Cloud sync delayed');
+      console.error(e);
     }
     renderHome();
   }
@@ -521,7 +490,7 @@
         note.content = $('codeTextarea').value;
         note.lang = $('langPicker').value;
         note.updated = Date.now();
-        saveToCloud(note);  // هذا حفظ معرّف ثابت تماماً
+        saveToCloud(note);
       }
     }
     currentId = null;
@@ -556,7 +525,6 @@
     toast('🗑 Deleted');
   }
 
-  // ═══════════════ UNDO / REDO ═══════════════
   function resetUndoRedo() {
     undoStack = [];
     redoStack = [];
@@ -570,52 +538,47 @@
   }
 
   function pushToUndo() {
-    const newVal = $('codeTextarea').value;
-    if (newVal !== currentSnapshot && !isUndoRedo) {
+    const val = $('codeTextarea').value;
+    if (val !== currentSnapshot && !isUndoRedo) {
       undoStack.push(currentSnapshot);
-      currentSnapshot = newVal;
+      currentSnapshot = val;
       redoStack = [];
       updateUndoButtons();
     }
   }
 
   function performUndo() {
-    if (undoStack.length === 0) return;
+    if (!undoStack.length) return;
     isUndoRedo = true;
     const prev = undoStack.pop();
     redoStack.push(currentSnapshot);
     $('codeTextarea').value = prev;
     currentSnapshot = prev;
-    refreshHighlight();
-    updateStats();
+    refreshHighlight(); updateStats();
     updateUndoButtons();
     isUndoRedo = false;
   }
 
   function performRedo() {
-    if (redoStack.length === 0) return;
+    if (!redoStack.length) return;
     isUndoRedo = true;
-    const next = redoStack.pop();
+    const nxt = redoStack.pop();
     undoStack.push(currentSnapshot);
-    $('codeTextarea').value = next;
-    currentSnapshot = next;
-    refreshHighlight();
-    updateStats();
+    $('codeTextarea').value = nxt;
+    currentSnapshot = nxt;
+    refreshHighlight(); updateStats();
     updateUndoButtons();
     isUndoRedo = false;
   }
 
-  // ═══════════════ SYNTAX ═══════════════
   function refreshHighlight() {
     const code = $('codeTextarea').value;
     const lang = $('langPicker').value;
     let out;
-    try {
-      out = lang === 'plaintext' ? esc(code) : hljs.highlight(code, { language: lang, ignoreIllegals: true }).value;
-    } catch(e) { out = esc(code); }
+    try { out = lang === 'plaintext' ? esc(code) : hljs.highlight(code, { language: lang, ignoreIllegals: true }).value; }
+    catch(e) { out = esc(code); }
     $('codeHighlight').innerHTML = out;
-    syncScroll();
-    drawLineNumbers();
+    syncScroll(); drawLineNumbers();
   }
 
   function syncScroll() {
@@ -652,7 +615,6 @@
     $('lineCount').textContent = 'Ln ' + code.split('\n').length;
   }
 
-  // ═══════════════ HELPERS ═══════════════
   function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
   function toast(msg) {
     const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
@@ -660,7 +622,6 @@
     setTimeout(() => t.remove(), 2500);
   }
 
-  // ═══════════════ EVENTS ═══════════════
   $('homeNewBtn').addEventListener('click', openNewNote);
   $('editorBackBtn').addEventListener('click', closeEditor);
   $('saveBtn').addEventListener('click', saveCurrent);
@@ -669,85 +630,37 @@
   $('undoBtn').addEventListener('click', performUndo);
   $('redoBtn').addEventListener('click', performRedo);
 
-  $('homeSearch').addEventListener('input', (e) => {
-    searchTerm = e.target.value;
+  $('homeSearch').addEventListener('input', e => { searchTerm = e.target.value; renderHome(); });
+  document.querySelectorAll('.filter-chip').forEach(chip => chip.addEventListener('click', () => {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    filterLang = chip.dataset.lang;
     renderHome();
-  });
-
-  document.querySelectorAll('.filter-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-      filterLang = chip.dataset.lang;
-      renderHome();
-    });
-  });
+  }));
 
   $('noteTitle').addEventListener('input', () => {
-    if (currentId) {
-      const note = notes.find(n => n.id === currentId);
-      if (note) { 
-        note.title = $('noteTitle').value.trim(); 
-        note.updated = Date.now(); 
-        saveToCloud(note); 
-      }
-    }
+    if (currentId) { let n = notes.find(n => n.id === currentId); if (n) { n.title = $('noteTitle').value.trim(); n.updated = Date.now(); saveToCloud(n); } }
   });
-
   $('langPicker').addEventListener('change', () => {
     refreshHighlight();
-    if (currentId) {
-      const note = notes.find(n => n.id === currentId);
-      if (note) { 
-        note.lang = $('langPicker').value; 
-        note.updated = Date.now(); 
-        saveToCloud(note); 
-      }
-    }
+    if (currentId) { let n = notes.find(n => n.id === currentId); if (n) { n.lang = $('langPicker').value; n.updated = Date.now(); saveToCloud(n); } }
   });
-
   $('codeTextarea').addEventListener('input', () => {
-    refreshHighlight();
-    updateStats();
-    pushToUndo();
-    if (currentId) {
-      const note = notes.find(n => n.id === currentId);
-      if (note) { 
-        note.content = $('codeTextarea').value; 
-        note.updated = Date.now(); 
-        saveToCloud(note); 
-      }
-    }
+    refreshHighlight(); updateStats(); pushToUndo();
+    if (currentId) { let n = notes.find(n => n.id === currentId); if (n) { n.content = $('codeTextarea').value; n.updated = Date.now(); saveToCloud(n); } }
   });
-
-  $('codeTextarea').addEventListener('scroll', () => {
-    syncScroll();
-    drawLineNumbers();
-  });
-
-  // Tab support
+  $('codeTextarea').addEventListener('scroll', () => { syncScroll(); drawLineNumbers(); });
   $('codeTextarea').addEventListener('keydown', e => {
     if (e.key === 'Tab') {
       e.preventDefault();
-      const ta = $('codeTextarea');
-      const s = ta.selectionStart;
+      const ta = $('codeTextarea'), s = ta.selectionStart;
       ta.value = ta.value.substring(0, s) + '  ' + ta.value.substring(ta.selectionEnd);
       ta.selectionStart = ta.selectionEnd = s + 2;
-      refreshHighlight();
-      updateStats();
-      pushToUndo();
+      refreshHighlight(); updateStats(); pushToUndo();
     }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
-      e.preventDefault();
-      performUndo();
-    }
-    if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'Z' && e.shiftKey))) {
-      e.preventDefault();
-      performRedo();
-    }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); performUndo(); }
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'Z' && e.shiftKey))) { e.preventDefault(); performRedo(); }
   });
-
-  // Shortcuts
   document.addEventListener('keydown', e => {
     if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); saveCurrent(); }
     if ((e.ctrlKey || e.metaKey) && e.key === 'n') { e.preventDefault(); openNewNote(); }
