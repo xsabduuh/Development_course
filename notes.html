@@ -189,7 +189,6 @@
     .tool-btn.delete { color: var(--red); border-color: rgba(255,69,58,0.3); }
     .tool-btn svg { width: 16px; height: 16px; }
 
-    /* أزرار Undo/Redo – إضافة بسيطة للتمييز */
     .tool-btn.undo,
     .tool-btn.redo {
       color: var(--secondary);
@@ -294,7 +293,6 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
         Copy
       </button>
-      <!-- 🆕 زري Undo و Redo -->
       <button class="tool-btn undo" id="undoBtn" disabled>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="1 4 1 10 7 10"/>
@@ -307,7 +305,6 @@
           <path d="M20.49 15.05a9 9 0 11-2.83-9.11L23 10"/>
         </svg>
       </button>
-      <!-- نهاية الإضافة -->
       <button class="tool-btn delete" id="deleteBtn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
       </button>
@@ -348,11 +345,10 @@
   let filterLang = 'all';
   let searchTerm = '';
 
-  // 🆕 Stack للتراجع والإعادة
   let undoStack = [];
   let redoStack = [];
-  let currentSnapshot = '';        // آخر حالة معروفة للنص
-  let isUndoRedo = false;         // لتجنب تسجيل التغييرات أثناء تنفيذ undo/redo
+  let currentSnapshot = '';
+  let isUndoRedo = false;
 
   const $ = id => document.getElementById(id);
   const homeView = $('homeView');
@@ -388,19 +384,40 @@
   // ═══════════════ FIRESTORE ═══════════════
   async function loadNotes() {
     if (!auth.currentUser) return;
-    const snap = await db.collection('users').doc(auth.currentUser.uid).collection('notes').orderBy('updated','desc').get();
-    notes = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    renderHome();
+    try {
+      const snap = await db.collection('users').doc(auth.currentUser.uid)
+        .collection('notes').orderBy('updated','desc').get();
+      notes = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      renderHome();
+    } catch (e) {
+      toast('Failed to load notes');
+      console.error(e);
+    }
   }
 
+  // دالة حفظ محمية ضد الأخطاء
   async function saveToCloud(note) {
     if (!auth.currentUser) return;
-    await db.collection('users').doc(auth.currentUser.uid).collection('notes').doc(note.id).set(note, { merge: true });
+    try {
+      // لا نُرسل المعرف المؤقت (إن وُجد) لنحافظ على المعرف الحقيقي فقط
+      const { id, ...data } = note;
+      await db.collection('users').doc(auth.currentUser.uid)
+        .collection('notes').doc(note.id).set(data, { merge: true });
+    } catch (e) {
+      toast('Save failed – check connection');
+      console.error('Cloud save error:', e);
+    }
   }
 
   async function deleteFromCloud(id) {
     if (!auth.currentUser) return;
-    await db.collection('users').doc(auth.currentUser.uid).collection('notes').doc(id).delete();
+    try {
+      await db.collection('users').doc(auth.currentUser.uid)
+        .collection('notes').doc(id).delete();
+    } catch (e) {
+      toast('Delete failed');
+      console.error(e);
+    }
   }
 
   // ═══════════════ HOME ═══════════════
@@ -458,12 +475,12 @@
     editorView.classList.add('active');
     refreshHighlight();
     updateStats();
-    // 🆕 تهيئة undo/redo عند فتح ملاحظة
     resetUndoRedo();
     $('codeTextarea').focus();
   }
 
   async function openNewNote() {
+    // 1. إنشاء معرّف مؤقت للمظهر المحلي
     const tempId = Date.now().toString(36) + Math.random().toString(36).substr(2, 7);
     const note = {
       id: tempId,
@@ -472,20 +489,29 @@
       lang: 'html',
       updated: Date.now()
     };
+
+    // 2. إضافة محلية وفتح المحرر فوراً
     notes.unshift(note);
     openEditor(tempId);
 
+    // 3. إنشاء وثيقة فايرستور (بدون المعرف المؤقت)
     try {
       if (!auth.currentUser) return;
-      const docRef = await db.collection('users').doc(auth.currentUser.uid).collection('notes').add(note);
+      const docRef = await db.collection('users').doc(auth.currentUser.uid)
+        .collection('notes').add({
+          title: '',
+          content: '',
+          lang: 'html',
+          updated: Date.now()
+        });
       const realId = docRef.id;
-      const localNote = notes.find(n => n.id === tempId);
-      if (localNote) localNote.id = realId;
+      // تحديث المعرّف المحلي ليطابق الوثيقة الحقيقية
+      const local = notes.find(n => n.id === tempId);
+      if (local) local.id = realId;
       if (currentId === tempId) currentId = realId;
-      await db.collection('users').doc(auth.currentUser.uid).collection('notes').doc(realId).set(localNote || note, { merge: true });
-    } catch (error) {
-      console.error('Firestore save failed:', error);
-      toast('Could not sync to cloud. Note saved locally.');
+    } catch (e) {
+      console.error('Cannot create cloud note:', e);
+      toast('Created locally – sync pending');
     }
     renderHome();
   }
@@ -507,7 +533,6 @@
     $('noteTitle').value = '';
     $('codeTextarea').value = '';
     $('codeHighlight').textContent = '';
-    // 🆕 تنظيف الـ stacks
     resetUndoRedo();
     renderHome();
   }
@@ -552,7 +577,7 @@
     if (newVal !== currentSnapshot && !isUndoRedo) {
       undoStack.push(currentSnapshot);
       currentSnapshot = newVal;
-      redoStack = [];         // أي تغيير جديد يلغي إمكانية الإعادة
+      redoStack = [];
       updateUndoButtons();
     }
   }
@@ -664,7 +689,11 @@
   $('noteTitle').addEventListener('input', () => {
     if (currentId) {
       const note = notes.find(n => n.id === currentId);
-      if (note) { note.title = $('noteTitle').value.trim(); note.updated = Date.now(); saveToCloud(note); }
+      if (note) { 
+        note.title = $('noteTitle').value.trim(); 
+        note.updated = Date.now(); 
+        saveToCloud(note); 
+      }
     }
   });
 
@@ -672,18 +701,25 @@
     refreshHighlight();
     if (currentId) {
       const note = notes.find(n => n.id === currentId);
-      if (note) { note.lang = $('langPicker').value; note.updated = Date.now(); saveToCloud(note); }
+      if (note) { 
+        note.lang = $('langPicker').value; 
+        note.updated = Date.now(); 
+        saveToCloud(note); 
+      }
     }
   });
 
-  // 🆕 تسجيل التغييرات للتراجع
   $('codeTextarea').addEventListener('input', () => {
     refreshHighlight();
     updateStats();
-    pushToUndo();                     // يُسجل الحالة قبل التغيير
+    pushToUndo();
     if (currentId) {
       const note = notes.find(n => n.id === currentId);
-      if (note) { note.content = $('codeTextarea').value; note.updated = Date.now(); saveToCloud(note); }
+      if (note) { 
+        note.content = $('codeTextarea').value; 
+        note.updated = Date.now(); 
+        saveToCloud(note); 
+      }
     }
   });
 
@@ -702,10 +738,8 @@
       ta.selectionStart = ta.selectionEnd = s + 2;
       refreshHighlight();
       updateStats();
-      // تسجيل حالة للتراجع بعد إدراج المسافة
       pushToUndo();
     }
-    // 🆕 اختصارات لوحة المفاتيح للتراجع والإعادة
     if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
       e.preventDefault();
       performUndo();
@@ -722,8 +756,6 @@
     if ((e.ctrlKey || e.metaKey) && e.key === 'n') { e.preventDefault(); openNewNote(); }
   });
 
-  // ═══════════════ INIT ═══════════════
-  if (notes.length > 0) renderHome();
 })();
 </script>
 </body>
