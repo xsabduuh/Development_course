@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>DevPath 180 • Notes</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>DevPath 180 • Notes Pro</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
   <style>
     :root {
@@ -13,101 +15,224 @@
       --text: #f5f5f7;
       --secondary: #8e8e93;
       --accent: #0a84ff;
+      --accent2: #409cff;
       --green: #30d158;
       --red: #ff453a;
       --radius: 14px;
-      --font: -apple-system, 'SF Pro Text', sans-serif;
-      --mono: 'SF Mono', 'JetBrains Mono', monospace;
+      --font: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+      --mono: 'SF Mono', 'JetBrains Mono', 'Fira Code', monospace;
+      --shadow: 0 2px 20px rgba(0,0,0,0.5);
     }
     *{margin:0;padding:0;box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      font-family:var(--font);background:var(--bg);color:var(--text);
-      display:flex;overflow:hidden;-webkit-font-smoothing:antialiased;
-      user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;
+    html { height: 100%; overflow: hidden; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      height: 100%;
+      display: flex;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: auto;
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
-    .app{flex:1;display:flex;flex-direction:column;height:100%}
-    ::-webkit-scrollbar{width:3px}
-    ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+    .app { flex: 1; display: flex; flex-direction: column; min-height: 100dvh; }
+    ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 
-    .login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:20px}
-    .login-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px 24px;width:100%;max-width:400px;display:flex;flex-direction:column;gap:14px}
-    .login-title{font-size:1.6rem;font-weight:700;text-align:center;color:var(--accent)}
-    .input-field{background:#1c1c2e;border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:12px;font-size:1rem;outline:none}
-    .error-msg{color:var(--red);font-size:0.85rem;text-align:center;min-height:20px}
+    /* ── LOGIN ── */
+    .login-screen {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; flex: 1; padding: 40px 20px;
+    }
+    .login-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 32px 24px; width: 100%; max-width: 400px;
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .login-title { font-size: 1.6rem; font-weight: 700; text-align: center; color: var(--accent); }
+    .input-field {
+      background: #1c1c2e; border: 1px solid var(--border); color: var(--text);
+      padding: 12px 16px; border-radius: 12px; font-size: 1rem; outline: none;
+    }
+    .error-msg { color: var(--red); font-size: 0.85rem; text-align: center; min-height: 20px; }
 
-    .home-view{display:flex;flex-direction:column;flex:1;padding:16px;overflow-y:auto}
-    .home-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-    .home-title{font-size:1.7rem;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-    .home-new-btn{width:42px;height:42px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:1.8rem;display:flex;align-items:center;justify-content:center;cursor:pointer}
-    .home-tools{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
-    .search-input{flex:1;min-width:150px;background:var(--card);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;outline:none}
-    .search-input::placeholder{color:var(--secondary)}
-    .filter-chip{padding:8px 14px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--secondary);cursor:pointer;font-size:0.8rem;font-weight:600}
-    .filter-chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-    .notes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
-    .note-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer}
-    .note-card .title{font-weight:600;font-size:0.9rem}
-    .note-card .lang{font-size:0.65rem;color:var(--accent);background:rgba(10,132,255,0.15);padding:2px 8px;border-radius:4px;margin-top:6px;display:inline-block}
-    .note-card .del-btn{margin-top:8px;background:none;border:none;color:var(--secondary);cursor:pointer;font-size:0.8rem}
-    .note-card .del-btn:hover{color:var(--red)}
-    .dashboard-link{display:inline-flex;align-items:center;gap:6px;color:var(--accent);text-decoration:none;font-weight:500;margin-top:16px}
+    /* ── HOME ── */
+    .home-view { display: flex; flex-direction: column; flex: 1; padding: 16px; }
+    .home-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .home-title { font-size: 1.7rem; font-weight: 700; letter-spacing: -0.5px; }
+    .home-new-btn {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: var(--accent); color: #fff; border: none;
+      font-size: 1.6rem; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .home-new-btn:hover { background: var(--accent2); }
+    .home-tools { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .search-input {
+      flex: 1; min-width: 150px;
+      background: var(--card); border: 1px solid var(--border);
+      color: var(--text); padding: 10px 14px; border-radius: 10px;
+      font-size: 0.9rem; outline: none;
+    }
+    .search-input::placeholder { color: var(--secondary); }
+    .filter-chip {
+      padding: 8px 14px; border-radius: 20px;
+      border: 1px solid var(--border); background: var(--card);
+      color: var(--secondary); cursor: pointer; font-size: 0.8rem;
+      font-weight: 600; white-space: nowrap;
+    }
+    .filter-chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .notes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+    }
+    .note-card-home {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .note-card-home:active { background: #222; }
+    .note-card-home .title { font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; }
+    .note-card-home .lang {
+      font-size: 0.65rem; text-transform: uppercase;
+      color: var(--accent); background: rgba(10,132,255,0.15);
+      padding: 2px 8px; border-radius: 4px;
+    }
+    .note-card-home .delete-btn {
+      margin-top: 8px; background: none; border: none;
+      color: var(--secondary); cursor: pointer; font-size: 0.8rem;
+    }
+    .note-card-home .delete-btn:hover { color: var(--red); }
+    .empty-notes {
+      grid-column: 1 / -1; text-align: center;
+      padding: 60px 20px; color: var(--secondary);
+    }
+    .dashboard-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--accent); text-decoration: none; font-weight: 500;
+      margin-top: 16px; align-self: flex-start;
+    }
 
-    .editor-view{display:none;flex-direction:column;flex:1}
-    .editor-view.active{display:flex}
-    .navbar{padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
-    .back-btn{background:none;border:none;color:var(--accent);font-size:1rem;cursor:pointer}
-    .title-input{flex:1;background:transparent;border:none;font-size:1.1rem;font-weight:600;color:var(--text);outline:none}
-    .title-input::placeholder{color:var(--secondary)}
-    .code-area{flex:1;position:relative;overflow:hidden}
-    .code-stage{position:absolute;inset:8px 8px 8px 48px;display:flex}
-    .code-layer{flex:1;font-family:var(--mono);font-size:0.9rem;line-height:1.7;white-space:pre-wrap;overflow:auto;border:none;outline:none;background:transparent}
-    .code-textarea{color:#f5f5f7;caret-color:var(--accent);resize:none;z-index:2}
-    .code-preview{pointer-events:none;z-index:1;position:absolute;top:0;left:0;right:0;bottom:0}
-    .code-preview code{background:transparent!important}
-    .line-numbers{position:absolute;left:4px;top:8px;bottom:8px;width:36px;font-family:var(--mono);font-size:0.8rem;color:var(--secondary);text-align:right;overflow:hidden;z-index:3;pointer-events:none;line-height:1.7;padding-right:6px}
-    .line-numbers span{display:block}
-    .live-preview{position:absolute;inset:0;border:none;background:#fff;display:none;z-index:10}
-    .live-preview.active{display:block}
+    /* ── EDITOR ── */
+    .editor-view { display: none; flex-direction: column; flex: 1; }
+    .editor-view.active { display: flex; }
+    .navbar {
+      padding: 12px 16px; display: flex; align-items: center;
+      gap: 10px; border-bottom: 1px solid var(--border);
+      min-height: 52px;
+    }
+    .back-btn {
+      background: none; border: none; color: var(--accent);
+      font-size: 1rem; cursor: pointer; display: flex; align-items: center; gap: 4px;
+    }
+    .nav-title-input {
+      flex: 1; background: transparent; border: none;
+      font-size: 1.1rem; font-weight: 600; color: var(--text);
+      outline: none; min-width: 0;
+    }
+    .nav-title-input::placeholder { color: var(--secondary); }
+    .editor-container { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+    .code-stage {
+      flex: 1; position: relative; display: flex; overflow: hidden;
+    }
+    .code-layer {
+      position: absolute; inset: 12px 12px 12px 50px;
+      font-family: var(--mono); font-size: 0.88rem;
+      line-height: 1.75; white-space: pre-wrap;
+      overflow: auto; border: none; outline: none; background: transparent;
+    }
+    .code-textarea {
+      color: transparent; caret-color: var(--accent);
+      resize: none; z-index: 2;
+    }
+    .code-textarea::selection { background: rgba(10,132,255,0.3); }
+    .code-preview { pointer-events: none; z-index: 1; }
+    .code-preview code { background: transparent !important; padding: 0 !important; }
+    .line-numbers {
+      position: absolute; top: 12px; left: 4px; bottom: 12px;
+      width: 40px; font-family: var(--mono); font-size: 0.78rem;
+      color: var(--secondary); text-align: right;
+      overflow: hidden; z-index: 3; pointer-events: none;
+      line-height: 1.75; padding-right: 6px;
+    }
+    .line-numbers span { display: block; }
+    .live-preview { flex: 1; display: none; border: none; background: #fff; }
+    .live-preview.active { display: block; }
 
-    .bottom-bar{display:flex;align-items:center;gap:6px;padding:8px 16px;border-top:1px solid var(--border);flex-shrink:0;overflow-x:auto}
-    .lang-picker{background:var(--card);border:1px solid var(--border);color:var(--text);padding:7px 12px;border-radius:20px;font-size:0.8rem;outline:none;cursor:pointer}
-    .btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:0.8rem;font-weight:500;cursor:pointer;white-space:nowrap}
-    .btn.save{background:var(--accent);color:#fff;border-color:var(--accent)}
-    .btn.copy{color:var(--green)}
-    .btn.delete{color:var(--red)}
-    .status-bar{padding:4px 16px;display:flex;justify-content:space-between;font-size:0.7rem;color:var(--secondary);font-family:var(--mono)}
+    .bottom-toolbar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 14px; border-top: 1px solid var(--border);
+      background: var(--bg); flex-wrap: wrap;
+    }
+    .lang-picker {
+      background: var(--card); border: 1px solid var(--border);
+      color: var(--text); padding: 7px 12px; border-radius: 20px;
+      font-size: 0.8rem; outline: none; cursor: pointer;
+    }
+    .tool-btn {
+      padding: 8px 14px; border-radius: 20px;
+      border: 1px solid var(--border); background: var(--card);
+      color: var(--text); font-size: 0.8rem; font-weight: 500;
+      cursor: pointer; display: flex; align-items: center; gap: 5px;
+      transition: all 0.2s;
+    }
+    .tool-btn:active { transform: scale(0.95); }
+    .tool-btn:disabled { opacity: 0.4; pointer-events: none; }
+    .tool-btn.copy { color: var(--green); border-color: rgba(48,209,88,0.3); }
+    .tool-btn.copy.copied { background: rgba(48,209,88,0.2); border-color: var(--green); }
+    .tool-btn.save { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .tool-btn.save:active { background: var(--accent2); }
+    .tool-btn.delete { color: var(--red); border-color: rgba(255,69,58,0.3); }
+    .tool-btn svg { width: 16px; height: 16px; }
+    .status-bar {
+      padding: 4px 16px; display: flex; justify-content: space-between;
+      font-size: 0.7rem; color: var(--secondary); font-family: var(--mono);
+    }
 
-    .toast-panel{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;gap:6px;pointer-events:none}
-    .toast{background:var(--card);border:1px solid var(--border);padding:10px 20px;border-radius:20px;font-weight:500;font-size:0.85rem;text-align:center;animation:toastIn 0.4s ease}
-    @keyframes toastIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
+    .toast-panel {
+      position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+      z-index: 200; display: flex; flex-direction: column; gap: 6px; pointer-events: none;
+    }
+    .toast {
+      background: var(--card); border: 1px solid var(--border);
+      padding: 10px 20px; border-radius: 20px;
+      font-weight: 500; font-size: 0.85rem;
+      box-shadow: var(--shadow); text-align: center;
+      animation: toastIn 0.4s ease; pointer-events: auto;
+    }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: none; } }
 
-    @media(min-width:769px){.app{flex-direction:row;max-width:1000px;margin:0 auto}}
-    @media(max-width:480px){.notes-grid{grid-template-columns:1fr}}
+    @media (max-width: 480px) {
+      .notes-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-<div class="app" id="app">
-  <!-- LOGIN -->
+<div class="app" id="appRoot">
+  <!-- LOGIN SCREEN -->
   <div class="login-screen" id="loginScreen">
     <div class="login-card">
       <div class="login-title">DevPath Notes</div>
-      <input type="email" class="input-field" id="emailInput" placeholder="Email">
-      <input type="password" class="input-field" id="passwordInput" placeholder="Password">
+      <input type="email" class="input-field" id="emailInput" placeholder="Email" autocomplete="email">
+      <input type="password" class="input-field" id="passwordInput" placeholder="Password" autocomplete="current-password">
       <div class="error-msg" id="loginError"></div>
-      <button class="btn save" id="loginBtn" style="width:100%;justify-content:center;padding:12px">Sign In</button>
-      <button class="btn" id="registerBtn" style="width:100%;justify-content:center;padding:12px">Create Account</button>
+      <button class="tool-btn save" id="loginBtn" style="width:100%;justify-content:center;padding:12px;">Sign In</button>
+      <button class="tool-btn" id="registerBtn" style="width:100%;justify-content:center;padding:12px;background:transparent;border:1px solid var(--border);">Create Account</button>
     </div>
   </div>
 
-  <!-- HOME -->
-  <div class="home-view" id="homeView" style="display:none">
+  <!-- HOME VIEW -->
+  <div class="home-view" id="homeView" style="display:none;">
     <div class="home-header">
-      <span class="home-title">Notes</span>
+      <span class="home-title">📝 Notes</span>
       <button class="home-new-btn" id="homeNewBtn">+</button>
     </div>
     <div class="home-tools">
-      <input type="text" class="search-input" id="homeSearch" placeholder="Search notes...">
+      <input type="text" class="search-input" id="homeSearch" placeholder="Search notes..." autocomplete="off">
       <button class="filter-chip active" data-lang="all">All</button>
       <button class="filter-chip" data-lang="html">HTML</button>
       <button class="filter-chip" data-lang="css">CSS</button>
@@ -121,33 +246,37 @@
     </a>
   </div>
 
-  <!-- EDITOR -->
+  <!-- EDITOR VIEW -->
   <div class="editor-view" id="editorView">
     <div class="navbar">
-      <button class="back-btn" id="editorBackBtn">← Back</button>
-      <input type="text" class="title-input" id="noteTitle" placeholder="Note title">
+      <button class="back-btn" id="editorBackBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg> Back
+      </button>
+      <input type="text" class="nav-title-input" id="noteTitle" placeholder="Note title">
     </div>
-    <div class="code-area">
-      <div class="line-numbers" id="lineNums"><span>1</span></div>
+    <div class="editor-container">
       <div class="code-stage" id="codeStage">
-        <textarea class="code-layer code-textarea" id="codeTextarea" placeholder="Write code…" spellcheck="false"></textarea>
+        <div class="line-numbers" id="lineNums">1</div>
+        <textarea class="code-layer code-textarea" id="codeTextarea" placeholder="Write code…" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
         <pre class="code-layer code-preview"><code class="hljs" id="codeHighlight"></code></pre>
       </div>
-      <iframe class="live-preview" id="livePreview" sandbox="allow-scripts allow-same-origin"></iframe>
+      <iframe class="live-preview" id="livePreview" sandbox="allow-scripts allow-same-origin" title="Live Preview"></iframe>
     </div>
-    <div class="bottom-bar">
+    <div class="bottom-toolbar">
       <select class="lang-picker" id="langPicker">
         <option value="html">HTML</option><option value="css">CSS</option>
-        <option value="javascript">JavaScript</option><option value="python">Python</option>
+        <option value="javascript">JavaScript</option><option value="jsx">React JSX</option>
+        <option value="typescript">TypeScript</option><option value="python">Python</option>
         <option value="sql">SQL</option><option value="json">JSON</option>
-        <option value="plaintext">Plain Text</option>
+        <option value="bash">Bash</option><option value="plaintext">Plain Text</option>
       </select>
-      <button class="btn" id="undoBtn" disabled>↩</button>
-      <button class="btn" id="redoBtn" disabled>↪</button>
-      <button class="btn" id="previewBtn">👁</button>
-      <button class="btn copy" id="copyBtn">📋 Copy</button>
-      <button class="btn delete" id="deleteBtn">🗑 Delete</button>
-      <button class="btn save" id="saveBtn">💾 Save</button>
+      <button class="tool-btn" id="undoBtn" disabled>↩ Undo</button>
+      <button class="tool-btn" id="redoBtn" disabled>↪ Redo</button>
+      <button class="tool-btn" id="selectAllBtn">Select All</button>
+      <button class="tool-btn" id="previewBtn">👁 Preview</button>
+      <button class="tool-btn copy" id="copyBtn">📋 Copy</button>
+      <button class="tool-btn delete" id="deleteBtn">🗑 Delete</button>
+      <button class="tool-btn save" id="saveBtn">💾 Save</button>
     </div>
     <div class="status-bar">
       <span id="lineCount">Ln 1</span>
@@ -162,6 +291,318 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-<script src="app.js"></script>
+<script>
+(function(){
+  const firebaseConfig = {
+    apiKey: "AIzaSyAszFGDs1J92_53jHvj5aABmeiKZdc-mf0",
+    authDomain: "gen-lang-client-0501601606.firebaseapp.com",
+    projectId: "gen-lang-client-0501601606",
+    storageBucket: "gen-lang-client-0501601606.firebasestorage.app",
+    messagingSenderId: "1079712784218",
+    appId: "1:1079712784218:web:598465155aa70938a6dd63",
+    measurementId: "G-CRHRGYX74V"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  let notes = [], currentId = null;
+  let filterLang = 'all', searchTerm = '', isPreview = false;
+
+  const $ = id => document.getElementById(id);
+
+  // ══════ UNDO / REDO ══════
+  let undoStack = [], redoStack = [], lastSavedState = '';
+  function pushUndoState() {
+    const ta = $('codeTextarea');
+    if (!ta || ta.value === lastSavedState) return;
+    undoStack.push(lastSavedState);
+    if (undoStack.length > 100) undoStack.shift();
+    redoStack = [];
+    lastSavedState = ta.value;
+    updateUndoRedoButtons();
+  }
+  function applyState(s) {
+    $('codeTextarea').value = s; lastSavedState = s;
+    refreshHighlight(); updateStats(); drawLineNumbers(); syncScroll(); updateUndoRedoButtons();
+  }
+  function performUndo() {
+    if (!undoStack.length) return;
+    redoStack.push($('codeTextarea').value);
+    applyState(undoStack.pop());
+    autosaveCurrent();
+    $('codeTextarea').blur();
+  }
+  function performRedo() {
+    if (!redoStack.length) return;
+    undoStack.push($('codeTextarea').value);
+    applyState(redoStack.pop());
+    autosaveCurrent();
+    $('codeTextarea').blur();
+  }
+  function updateUndoRedoButtons() {
+    $('undoBtn').disabled = !undoStack.length;
+    $('redoBtn').disabled = !redoStack.length;
+  }
+  function resetHistory(initial = '') { undoStack = []; redoStack = []; lastSavedState = initial; updateUndoRedoButtons(); }
+
+  // ══════ AUTH ══════
+  auth.onAuthStateChanged(async (user) => {
+    if (user) {
+      $('loginScreen').style.display = 'none';
+      $('homeView').style.display = 'flex';
+      await loadNotes();
+    } else {
+      $('loginScreen').style.display = 'flex';
+      $('homeView').style.display = 'none';
+      $('editorView').classList.remove('active');
+    }
+  });
+
+  $('loginBtn').addEventListener('click', async () => {
+    try {
+      await auth.signInWithEmailAndPassword($('emailInput').value, $('passwordInput').value);
+      $('loginError').textContent = '';
+    } catch (e) { $('loginError').textContent = e.message; }
+  });
+  $('registerBtn').addEventListener('click', async () => {
+    try {
+      await auth.createUserWithEmailAndPassword($('emailInput').value, $('passwordInput').value);
+      $('loginError').textContent = '';
+    } catch (e) { $('loginError').textContent = e.message; }
+  });
+
+  // ══════ FIRESTORE ══════
+  async function loadNotes() {
+    if (!auth.currentUser) return;
+    const snap = await db.collection('users').doc(auth.currentUser.uid).collection('notes').orderBy('updated','desc').get();
+    notes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderHome();
+  }
+  async function saveToCloud(n) {
+    if (!auth.currentUser) return;
+    await db.collection('users').doc(auth.currentUser.uid).collection('notes').doc(n.id).set(n, { merge: true });
+  }
+  async function deleteFromCloud(id) {
+    if (!auth.currentUser) return;
+    await db.collection('users').doc(auth.currentUser.uid).collection('notes').doc(id).delete();
+  }
+
+  // ══════ HOME RENDER ══════
+  function renderHome() {
+    let filtered = [...notes];
+    if (filterLang !== 'all') filtered = filtered.filter(n => n.lang === filterLang);
+    if (searchTerm.trim()) {
+      const q = searchTerm.toLowerCase();
+      filtered = filtered.filter(n => (n.title||'').toLowerCase().includes(q) || (n.content||'').toLowerCase().includes(q));
+    }
+    filtered.sort((a,b) => b.updated - a.updated);
+
+    const grid = $('notesGrid');
+    grid.innerHTML = filtered.length ? filtered.map(n => `
+      <div class="note-card-home" data-id="${n.id}">
+        <div class="title">${esc(n.title || 'Untitled')}</div>
+        <span class="lang">${n.lang||'txt'}</span>
+        <button class="delete-btn" data-del="${n.id}">Delete</button>
+      </div>
+    `).join('') : '<div class="empty-notes">No notes yet.<br>Tap + to create one.</div>';
+
+    grid.querySelectorAll('.note-card-home').forEach(c => c.addEventListener('click', e => {
+      if (!e.target.closest('[data-del]')) openEditor(c.dataset.id);
+    }));
+    grid.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', e => {
+      e.stopPropagation();
+      if (confirm('Delete this note?')) {
+        notes = notes.filter(n => n.id !== b.dataset.del);
+        deleteFromCloud(b.dataset.del);
+        renderHome();
+        toast('Deleted');
+      }
+    }));
+  }
+
+  // ══════ EDITOR ══════
+  function openEditor(id) {
+    const note = notes.find(n => n.id === id);
+    if (!note) return;
+    currentId = id;
+    $('noteTitle').value = note.title || '';
+    $('codeTextarea').value = note.content || '';
+    $('langPicker').value = note.lang || 'plaintext';
+    $('homeView').style.display = 'none';
+    $('editorView').classList.add('active');
+    switchToCode();
+    refreshHighlight();
+    updateStats();
+    drawLineNumbers();
+    resetHistory(note.content || '');
+    $('codeTextarea').focus();
+  }
+
+  // ✅ زر + الثابت عبر تفويض الأحداث
+  document.addEventListener('click', async function(e) {
+    if (!e.target.closest('#homeNewBtn')) return;
+    if (!auth.currentUser) { toast('Please sign in first'); return; }
+    const note = {
+      id: Date.now().toString(36) + Math.random().toString(36).substr(2,7),
+      title: '', content: '', lang: 'html', updated: Date.now()
+    };
+    const ref = await db.collection('users').doc(auth.currentUser.uid).collection('notes').add(note);
+    note.id = ref.id;
+    notes.unshift(note);
+    openEditor(note.id);
+    toast('New note created');
+  });
+
+  function closeEditor() {
+    if (currentId) {
+      const n = notes.find(x => x.id === currentId);
+      if (n) {
+        n.title = $('noteTitle').value.trim();
+        n.content = $('codeTextarea').value;
+        n.lang = $('langPicker').value;
+        n.updated = Date.now();
+        saveToCloud(n);
+      }
+    }
+    currentId = null;
+    $('editorView').classList.remove('active');
+    $('homeView').style.display = 'flex';
+    $('noteTitle').value = ''; $('codeTextarea').value = ''; $('codeHighlight').textContent = '';
+    switchToCode();
+    renderHome();
+  }
+
+  function saveAndClose() {
+    if (!currentId) {
+      toast('Saving…');
+      setTimeout(() => {
+        if (currentId) {
+          const n = notes.find(x => x.id === currentId);
+          if (n) { n.title = $('noteTitle').value.trim(); n.content = $('codeTextarea').value; n.lang = $('langPicker').value; n.updated = Date.now(); saveToCloud(n); }
+        }
+        closeEditor();
+      }, 200);
+      return;
+    }
+    const n = notes.find(x => x.id === currentId);
+    if (!n) return;
+    n.title = $('noteTitle').value.trim(); n.content = $('codeTextarea').value; n.lang = $('langPicker').value; n.updated = Date.now();
+    saveToCloud(n); toast('Saved'); closeEditor();
+  }
+
+  async function deleteCurrent() {
+    if (!currentId || !confirm('Delete?')) return;
+    await deleteFromCloud(currentId);
+    notes = notes.filter(n => n.id !== currentId);
+    closeEditor();
+  }
+
+  function autosaveCurrent() {
+    if (!currentId) return;
+    const n = notes.find(x => x.id === currentId);
+    if (n) { n.content = $('codeTextarea').value; saveToCloud(n); }
+  }
+
+  // ══════ PREVIEW ══════
+  function switchToPreview() {
+    isPreview = true; $('codeStage').style.display = 'none'; $('livePreview').classList.add('active');
+    updatePreview();
+  }
+  function switchToCode() {
+    isPreview = false; $('codeStage').style.display = 'flex'; $('livePreview').classList.remove('active');
+  }
+  function updatePreview() {
+    if (!isPreview) return;
+    const code = $('codeTextarea').value, lang = $('langPicker').value;
+    let html = code;
+    if (lang === 'css') html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>${code}</style></head><body></body></html>`;
+    else if (lang === 'javascript') html = `<!DOCTYPE html><html><body><script>${code}<\/script></body></html>`;
+    else if (lang === 'html' && !code.includes('<!DOCTYPE')) html = `<!DOCTYPE html><html>${code}</html>`;
+    $('livePreview').srcdoc = html;
+  }
+
+  // ══════ HIGHLIGHT ══════
+  function refreshHighlight() {
+    const code = $('codeTextarea').value, lang = $('langPicker').value;
+    let out;
+    try { out = lang === 'plaintext' ? esc(code) : hljs.highlight(code, { language: lang, ignoreIllegals: true }).value; }
+    catch (e) { out = esc(code); }
+    $('codeHighlight').innerHTML = out;
+    syncScroll();
+  }
+  function syncScroll() {
+    const pre = $('codeHighlight').parentElement, ta = $('codeTextarea');
+    if (!pre || !ta) return;
+    pre.scrollTop = ta.scrollTop; pre.scrollLeft = ta.scrollLeft;
+  }
+  function drawLineNumbers() {
+    const lines = $('codeTextarea').value.split('\n');
+    $('lineNums').innerHTML = lines.map((_, i) => `<span>${i+1}</span>`).join('');
+    $('lineNums').scrollTop = $('codeTextarea').scrollTop;
+  }
+  function updateStats() {
+    const code = $('codeTextarea').value;
+    $('charCount').textContent = code.length + ' chars';
+    $('lineCount').textContent = 'Ln ' + code.split('\n').length;
+  }
+
+  function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+  function toast(msg) {
+    const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
+    $('toastPanel').appendChild(t); setTimeout(() => t.remove(), 2200);
+  }
+
+  // ══════ EVENTS ══════
+  $('editorBackBtn').addEventListener('click', closeEditor);
+  $('saveBtn').addEventListener('click', saveAndClose);
+  $('deleteBtn').addEventListener('click', deleteCurrent);
+  $('copyBtn').addEventListener('click', async () => { try { await navigator.clipboard.writeText($('codeTextarea').value); toast('Copied!'); } catch (e) { toast('Copy failed'); } });
+  $('selectAllBtn').addEventListener('click', () => { $('codeTextarea').focus(); $('codeTextarea').select(); });
+  $('undoBtn').addEventListener('click', performUndo);
+  $('redoBtn').addEventListener('click', performRedo);
+  $('previewBtn').addEventListener('click', () => isPreview ? switchToCode() : switchToPreview());
+
+  $('codeTextarea').addEventListener('input', () => {
+    refreshHighlight(); updateStats(); drawLineNumbers();
+    if (currentId) { const n = notes.find(x => x.id === currentId); if (n) { n.content = $('codeTextarea').value; n.updated = Date.now(); saveToCloud(n); } }
+    if (isPreview) updatePreview();
+    clearTimeout(window._undoDebounce); window._undoDebounce = setTimeout(pushUndoState, 500);
+  });
+  $('codeTextarea').addEventListener('scroll', () => { syncScroll(); drawLineNumbers(); });
+
+  $('homeSearch').addEventListener('input', e => { searchTerm = e.target.value; renderHome(); });
+  document.querySelectorAll('.filter-chip').forEach(chip => chip.addEventListener('click', () => {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active'); filterLang = chip.dataset.lang; renderHome();
+  }));
+
+  $('noteTitle').addEventListener('input', () => {
+    if (!currentId) return;
+    const n = notes.find(x => x.id === currentId);
+    if (n) { n.title = $('noteTitle').value; n.updated = Date.now(); saveToCloud(n); }
+  });
+  $('langPicker').addEventListener('change', () => {
+    refreshHighlight();
+    if (currentId) { const n = notes.find(x => x.id === currentId); if (n) { n.lang = $('langPicker').value; n.updated = Date.now(); saveToCloud(n); } }
+    if (isPreview) updatePreview();
+  });
+
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey||e.metaKey) && e.key === 's') { e.preventDefault(); saveAndClose(); }
+    if ((e.ctrlKey||e.metaKey) && e.key === 'n') { e.preventDefault(); document.getElementById('homeNewBtn').click(); }
+    if ((e.ctrlKey||e.metaKey) && e.key === 'z' && !e.shiftKey) { e.preventDefault(); performUndo(); }
+    if ((e.ctrlKey||e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) { e.preventDefault(); performRedo(); }
+  });
+
+  $('codeTextarea').addEventListener('keydown', function(e) {
+    if (e.key === 'Tab') { e.preventDefault(); pushUndoState(); const ta = this, s = ta.selectionStart; ta.setRangeText('  ', s, ta.selectionEnd, 'end'); ta.selectionStart = ta.selectionEnd = s + 2; refreshHighlight(); updateStats(); lastSavedState = ta.value; return; }
+    const pairs = { '(':')', '[':']', '{':'}', '"':'"', "'":"'", '`':'`' };
+    if (pairs[e.key] && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); pushUndoState(); const s = this.selectionStart, end = this.selectionEnd; this.setRangeText(e.key + pairs[e.key], s, end, 'end'); this.selectionStart = this.selectionEnd = s + 1; refreshHighlight(); updateStats(); lastSavedState = this.value; }
+  });
+
+  renderHome();
+})();
+</script>
 </body>
 </html>
