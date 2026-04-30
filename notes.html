@@ -430,19 +430,40 @@
   }
 
   async function openNewNote() {
+    // 1. إنشاء معرّف مؤقت وملاحظة محلية فوراً
+    const tempId = Date.now().toString(36) + Math.random().toString(36).substr(2, 7);
     const note = {
-      id: Date.now().toString(36) + Math.random().toString(36).substr(2,7),
-      title: '', content: '', lang: 'html', updated: Date.now()
+      id: tempId,
+      title: '',
+      content: '',
+      lang: 'html',
+      updated: Date.now()
     };
-    // Save to Firestore
-    const docRef = await db.collection('users').doc(auth.currentUser.uid).collection('notes').add(note);
-    note.id = docRef.id;
+
+    // 2. إضافة محلية وفتح المحرر مباشرة
     notes.unshift(note);
-    openEditor(note.id);
+    openEditor(tempId);
+
+    // 3. حفظ في Firestore في الخلفية (لا يؤثر على سرعة الفتح)
+    try {
+      if (!auth.currentUser) return;
+      const docRef = await db.collection('users').doc(auth.currentUser.uid).collection('notes').add(note);
+      const realId = docRef.id;
+      // تحديث المعرف المحلي
+      const localNote = notes.find(n => n.id === tempId);
+      if (localNote) localNote.id = realId;
+      if (currentId === tempId) currentId = realId;
+      // حفظ النسخة المحدثة بالمعرّف الصحيح
+      await db.collection('users').doc(auth.currentUser.uid).collection('notes').doc(realId).set(localNote || note, { merge: true });
+    } catch (error) {
+      console.error('Firestore save failed:', error);
+      toast('Could not sync to cloud. Note saved locally.');
+    }
+    renderHome();
   }
 
   function closeEditor() {
-    // Auto-save before closing
+    // حفظ تلقائي قبل الإغلاق
     if (currentId) {
       const note = notes.find(n => n.id === currentId);
       if (note) {
@@ -609,7 +630,6 @@
   });
 
   // ═══════════════ INIT ═══════════════
-  // Initial render will happen after auth state changes
   if (notes.length > 0) renderHome();
 })();
 </script>
