@@ -6,28 +6,28 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>DevPath 180 • Notes Pro</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <style>
     :root {
-      --bg: #080810;
-      --surface: #0f0f1a;
-      --card: #13131f;
-      --border: #1e1e2e;
-      --border2: #2a2a3e;
-      --text: #e8e8f0;
-      --muted: #5a5a7a;
-      --accent: #4f6ef7;
-      --accent2: #7c8ff5;
-      --green: #2dd4a0;
-      --red: #f75f6e;
-      --yellow: #f7c948;
-      --radius: 12px;
-      --font: 'Syne', sans-serif;
-      --mono: 'JetBrains Mono', monospace;
+      --bg: #000;
+      --card: #1a1a24;
+      --border: #2a2a36;
+      --text: #f5f5f7;
+      --secondary: #8e8e93;
+      --accent: #0a84ff;
+      --accent2: #409cff;
+      --green: #30d158;
+      --red: #ff453a;
+      --radius: 14px;
+      --font: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+      --mono: 'SF Mono', 'JetBrains Mono', 'Fira Code', monospace;
+      --shadow: 0 2px 20px rgba(0,0,0,0.5);
     }
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    *{margin:0;padding:0;box-sizing:border-box}
     html { height: 100%; overflow: hidden; }
     body {
       font-family: var(--font);
@@ -37,308 +37,236 @@
       display: flex;
       overflow: auto;
       -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: auto;
       -webkit-font-smoothing: antialiased;
-      -webkit-tap-highlight-color: transparent;
       user-select: none;
       -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
     .app { flex: 1; display: flex; flex-direction: column; min-height: 100dvh; }
-    ::-webkit-scrollbar { width: 2px; }
-    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+    ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 
-    #loadingScreen {
-      position: fixed; inset: 0; background: var(--bg);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 999; flex-direction: column; gap: 16px;
-    }
-    .loader-logo { font-size: 2rem; font-weight: 800; color: var(--accent); letter-spacing: -1px; }
-    .loader-dots { display: flex; gap: 6px; }
-    .loader-dots span {
-      width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
-      animation: dotPulse 1.2s ease-in-out infinite;
-    }
-    .loader-dots span:nth-child(2) { animation-delay: 0.2s; }
-    .loader-dots span:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes dotPulse { 0%,80%,100% { opacity: 0.2; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }
-
-    #loginScreen {
-      display: none; flex-direction: column; align-items: center;
-      justify-content: center; flex: 1; padding: 24px;
-      background: radial-gradient(ellipse at 50% 0%, rgba(79,110,247,0.12) 0%, transparent 70%);
+    /* ── LOGIN SCREEN ── */
+    .login-screen {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; flex: 1; padding: 40px 20px;
     }
     .login-card {
-      width: 100%; max-width: 380px;
-      background: var(--card); border: 1px solid var(--border2);
-      border-radius: 20px; padding: 36px 28px;
-      display: flex; flex-direction: column; gap: 14px;
-      box-shadow: 0 0 60px rgba(79,110,247,0.08);
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 32px 24px; width: 100%; max-width: 400px;
+      display: flex; flex-direction: column; gap: 16px;
     }
-    .login-brand { text-align: center; margin-bottom: 8px; }
-    .login-brand .logo { font-size: 1.8rem; font-weight: 800; color: var(--accent); }
-    .login-brand .sub { font-size: 0.8rem; color: var(--muted); margin-top: 4px; letter-spacing: 0.5px; }
-    .field-wrap { display: flex; flex-direction: column; gap: 6px; }
-    .field-label { font-size: 0.72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+    .login-title { font-size: 1.6rem; font-weight: 700; text-align: center; color: var(--accent); }
     .input-field {
-      background: var(--surface); border: 1px solid var(--border2);
-      color: var(--text); padding: 12px 16px; border-radius: 10px;
-      font-size: 0.95rem; font-family: var(--font); outline: none;
-      transition: border-color 0.2s;
+      background: #1c1c2e; border: 1px solid var(--border); color: var(--text);
+      padding: 12px 16px; border-radius: 12px; font-size: 1rem; outline: none;
     }
-    .input-field:focus { border-color: var(--accent); }
-    .error-msg { color: var(--red); font-size: 0.82rem; text-align: center; min-height: 18px; }
-    .btn-primary {
-      background: var(--accent); color: #fff; border: none;
-      padding: 13px; border-radius: 10px; font-size: 0.95rem;
-      font-weight: 700; font-family: var(--font); cursor: pointer;
-      transition: opacity 0.2s, transform 0.1s; width: 100%;
-    }
-    .btn-primary:active { opacity: 0.85; transform: scale(0.98); }
-    .btn-secondary {
-      background: transparent; color: var(--muted); border: 1px solid var(--border2);
-      padding: 13px; border-radius: 10px; font-size: 0.9rem;
-      font-weight: 600; font-family: var(--font); cursor: pointer;
-      transition: all 0.2s; width: 100%;
-    }
-    .btn-secondary:active { color: var(--text); border-color: var(--border2); }
-    .divider { display: flex; align-items: center; gap: 10px; }
-    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-    .divider span { font-size: 0.75rem; color: var(--muted); }
+    .error-msg { color: var(--red); font-size: 0.85rem; text-align: center; min-height: 20px; }
 
-    #homeView { display: none; flex-direction: column; flex: 1; padding: 0; overflow: hidden; }
-    .home-header { padding: 16px 16px 0; display: flex; align-items: center; justify-content: space-between; }
-    .home-title { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; }
-    .home-title span { color: var(--accent); }
-    .new-btn {
-      width: 40px; height: 40px; border-radius: 50%;
+    /* ── HOME (قائمة الملاحظات) ── */
+    .home-view { display: flex; flex-direction: column; flex: 1; padding: 16px; }
+    .home-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .home-title { font-size: 1.7rem; font-weight: 700; letter-spacing: -0.5px; }
+    .home-new-btn {
+      width: 42px; height: 42px; border-radius: 50%;
       background: var(--accent); color: #fff; border: none;
-      font-size: 1.5rem; line-height: 1;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: transform 0.15s, background 0.2s;
-      flex-shrink: 0;
+      font-size: 1.6rem; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background 0.2s;
     }
-    .new-btn:active { transform: scale(0.9); background: var(--accent2); }
-    .home-search-wrap { padding: 12px 16px 0; }
+    .home-new-btn:hover { background: var(--accent2); }
+    .home-tools { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
     .search-input {
-      width: 100%; background: var(--card); border: 1px solid var(--border2);
+      flex: 1; min-width: 150px;
+      background: var(--card); border: 1px solid var(--border);
       color: var(--text); padding: 10px 14px; border-radius: 10px;
-      font-size: 0.88rem; font-family: var(--font); outline: none;
+      font-size: 0.9rem; outline: none;
     }
-    .search-input::placeholder { color: var(--muted); }
-    .filter-row {
-      padding: 10px 16px 0; display: flex; gap: 6px; overflow-x: auto;
-      scrollbar-width: none;
+    .search-input::placeholder { color: var(--secondary); }
+    .filter-chip {
+      padding: 8px 14px; border-radius: 20px;
+      border: 1px solid var(--border); background: var(--card);
+      color: var(--secondary); cursor: pointer; font-size: 0.8rem;
+      font-weight: 600; white-space: nowrap;
     }
-    .filter-row::-webkit-scrollbar { display: none; }
-    .chip {
-      padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border2);
-      background: var(--card); color: var(--muted); font-size: 0.78rem;
-      font-weight: 700; font-family: var(--font); cursor: pointer;
-      white-space: nowrap; transition: all 0.18s; flex-shrink: 0;
-    }
-    .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .notes-scroll { flex: 1; overflow-y: auto; padding: 12px 16px 16px; }
+    .filter-chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
     .notes-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
-      gap: 10px;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
     }
-    .note-card {
+    .note-card-home {
       background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 14px;
-      cursor: pointer; transition: border-color 0.18s, background 0.18s;
-      display: flex; flex-direction: column; gap: 8px;
+      border-radius: var(--radius); padding: 16px;
+      cursor: pointer; transition: all 0.2s;
     }
-    .note-card:active { background: #1a1a2e; border-color: var(--border2); }
-    .note-card .nc-title { font-size: 0.88rem; font-weight: 700; line-height: 1.3; word-break: break-word; }
-    .note-card .nc-lang {
-      font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.8px;
-      color: var(--accent); background: rgba(79,110,247,0.12);
-      padding: 2px 8px; border-radius: 4px; align-self: flex-start;
-      font-family: var(--mono);
+    .note-card-home:active { background: #222; }
+    .note-card-home .title { font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; }
+    .note-card-home .lang {
+      font-size: 0.65rem; text-transform: uppercase;
+      color: var(--accent); background: rgba(10,132,255,0.15);
+      padding: 2px 8px; border-radius: 4px;
     }
-    .note-card .nc-del {
-      background: none; border: none; color: var(--muted);
-      font-size: 0.75rem; font-family: var(--font); cursor: pointer;
-      text-align: left; padding: 0; margin-top: 2px;
+    .note-card-home .delete-btn {
+      margin-top: 8px; background: none; border: none;
+      color: var(--secondary); cursor: pointer; font-size: 0.8rem;
     }
-    .note-card .nc-del:active { color: var(--red); }
-    .empty-state {
-      grid-column: 1/-1; text-align: center;
-      padding: 60px 20px; color: var(--muted);
-      font-size: 0.88rem; line-height: 1.8;
+    .note-card-home .delete-btn:hover { color: var(--red); }
+    .empty-notes {
+      grid-column: 1 / -1; text-align: center;
+      padding: 60px 20px; color: var(--secondary);
     }
-    .empty-state .big { font-size: 2rem; margin-bottom: 8px; }
-    .dash-link {
-      display: inline-flex; align-items: center; gap: 5px;
-      color: var(--accent); text-decoration: none; font-size: 0.85rem;
-      font-weight: 600; margin: 12px 16px 0;
+    .dashboard-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--accent); text-decoration: none; font-weight: 500;
+      margin-top: 16px; align-self: flex-start;
     }
 
-    #editorView { display: none; flex-direction: column; flex: 1; overflow: hidden; }
-    #editorView.active { display: flex; }
-    .editor-nav {
-      padding: 10px 14px; display: flex; align-items: center;
+    /* ── EDITOR (مشهد المحرر) ── */
+    .editor-view { display: none; flex-direction: column; flex: 1; }
+    .editor-view.active { display: flex; }
+    .navbar {
+      padding: 12px 16px; display: flex; align-items: center;
       gap: 10px; border-bottom: 1px solid var(--border);
-      min-height: 50px; flex-shrink: 0;
+      min-height: 52px;
     }
     .back-btn {
       background: none; border: none; color: var(--accent);
-      font-size: 0.88rem; font-weight: 700; font-family: var(--font);
-      cursor: pointer; display: flex; align-items: center; gap: 4px;
-      padding: 6px 0; white-space: nowrap;
+      font-size: 1rem; cursor: pointer; display: flex; align-items: center; gap: 4px;
     }
-    .note-title-input {
+    .nav-title-input {
       flex: 1; background: transparent; border: none;
-      font-size: 1rem; font-weight: 700; font-family: var(--font);
-      color: var(--text); outline: none; min-width: 0;
+      font-size: 1.1rem; font-weight: 600; color: var(--text);
+      outline: none; min-width: 0;
     }
-    .note-title-input::placeholder { color: var(--muted); }
-    .editor-body { flex: 1; display: flex; flex-direction: column; min-height: 0; }
-    .code-stage { flex: 1; position: relative; display: flex; overflow: hidden; }
+    .nav-title-input::placeholder { color: var(--secondary); }
+    .editor-container { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+    .code-stage {
+      flex: 1; position: relative; display: flex; overflow: hidden;
+    }
     .code-layer {
-      position: absolute; inset: 10px 10px 10px 46px;
-      font-family: var(--mono); font-size: 0.84rem;
-      line-height: 1.8; white-space: pre-wrap;
+      position: absolute; inset: 12px 12px 12px 50px;
+      font-family: var(--mono); font-size: 0.88rem;
+      line-height: 1.75; white-space: pre-wrap;
       overflow: auto; border: none; outline: none; background: transparent;
     }
-    .code-ta {
+    .code-textarea {
       color: transparent; caret-color: var(--accent);
       resize: none; z-index: 2;
     }
-    .code-ta::selection { background: rgba(79,110,247,0.25); }
-    .code-pre { pointer-events: none; z-index: 1; }
-    .code-pre code { background: transparent !important; padding: 0 !important; font-family: var(--mono) !important; }
-    .line-nums {
-      position: absolute; top: 10px; left: 0; bottom: 10px;
-      width: 40px; font-family: var(--mono); font-size: 0.72rem;
-      color: var(--muted); text-align: right; overflow: hidden;
-      z-index: 3; pointer-events: none; line-height: 1.8; padding-right: 8px;
+    .code-textarea::selection { background: rgba(10,132,255,0.3); }
+    .code-preview { pointer-events: none; z-index: 1; }
+    .code-preview code { background: transparent !important; padding: 0 !important; }
+    .line-numbers {
+      position: absolute; top: 12px; left: 4px; bottom: 12px;
+      width: 40px; font-family: var(--mono); font-size: 0.78rem;
+      color: var(--secondary); text-align: right;
+      overflow: hidden; z-index: 3; pointer-events: none;
+      line-height: 1.75; padding-right: 6px;
     }
-    .line-nums span { display: block; }
-    .live-frame { flex: 1; display: none; border: none; background: #fff; }
-    .live-frame.on { display: block; }
-    .editor-toolbar {
-      display: flex; align-items: center; gap: 6px;
-      padding: 8px 12px; border-top: 1px solid var(--border);
-      background: var(--bg); flex-wrap: wrap; flex-shrink: 0;
+    .line-numbers span { display: block; }
+    .bottom-toolbar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 14px; border-top: 1px solid var(--border);
+      background: var(--bg); flex-wrap: wrap;
     }
-    .lang-sel {
-      background: var(--card); border: 1px solid var(--border2);
-      color: var(--text); padding: 6px 10px; border-radius: 20px;
-      font-size: 0.76rem; font-family: var(--font); outline: none; cursor: pointer;
+    .lang-picker {
+      background: var(--card); border: 1px solid var(--border);
+      color: var(--text); padding: 7px 12px; border-radius: 20px;
+      font-size: 0.8rem; outline: none; cursor: pointer;
     }
-    .tbtn {
-      padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border2);
-      background: var(--card); color: var(--text); font-size: 0.76rem;
-      font-weight: 600; font-family: var(--font); cursor: pointer;
-      display: flex; align-items: center; gap: 4px; transition: all 0.15s;
-      white-space: nowrap;
+    .tool-btn {
+      padding: 8px 14px; border-radius: 20px;
+      border: 1px solid var(--border); background: var(--card);
+      color: var(--text); font-size: 0.8rem; font-weight: 500;
+      cursor: pointer; display: flex; align-items: center; gap: 5px;
+      transition: all 0.2s;
     }
-    .tbtn:active { transform: scale(0.94); }
-    .tbtn:disabled { opacity: 0.35; pointer-events: none; }
-    .tbtn.green { color: var(--green); border-color: rgba(45,212,160,0.3); }
-    .tbtn.red { color: var(--red); border-color: rgba(247,95,110,0.3); }
-    .tbtn.blue { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .tbtn.blue:active { background: var(--accent2); }
-    .status-row {
-      padding: 3px 14px; display: flex; justify-content: space-between;
-      font-size: 0.67rem; color: var(--muted); font-family: var(--mono);
-      flex-shrink: 0;
+    .tool-btn:active { transform: scale(0.95); }
+    .tool-btn.copy { color: var(--green); border-color: rgba(48,209,88,0.3); }
+    .tool-btn.copy.copied { background: rgba(48,209,88,0.2); border-color: var(--green); }
+    .tool-btn.save { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .tool-btn.save:active { background: var(--accent2); }
+    .tool-btn.delete { color: var(--red); border-color: rgba(255,69,58,0.3); }
+    .tool-btn svg { width: 16px; height: 16px; }
+    .status-bar {
+      padding: 4px 16px; display: flex; justify-content: space-between;
+      font-size: 0.7rem; color: var(--secondary); font-family: var(--mono);
     }
 
-    .toast-wrap {
-      position: fixed; top: 14px; left: 50%; transform: translateX(-50%);
-      z-index: 500; display: flex; flex-direction: column; gap: 5px;
-      pointer-events: none; width: max-content; max-width: 90vw;
+    /* Toast */
+    .toast-panel {
+      position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+      z-index: 200; display: flex; flex-direction: column; gap: 6px;
+      pointer-events: none;
     }
     .toast {
-      background: var(--card); border: 1px solid var(--border2);
-      padding: 9px 20px; border-radius: 20px; font-size: 0.82rem;
-      font-weight: 600; box-shadow: 0 4px 24px rgba(0,0,0,0.5);
-      animation: tIn 0.3s ease; text-align: center;
+      background: var(--card); border: 1px solid var(--border);
+      padding: 10px 20px; border-radius: 20px;
+      font-weight: 500; font-size: 0.85rem;
+      box-shadow: var(--shadow); text-align: center;
+      animation: toastIn 0.4s ease; pointer-events: auto;
     }
-    @keyframes tIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:none; } }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: none; } }
 
-    @media (max-width: 480px) { .notes-grid { grid-template-columns: 1fr 1fr; } }
-    @media (max-width: 340px) { .notes-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 480px) {
+      .notes-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-<div class="app">
+<div class="app" id="appRoot">
 
-  <!-- LOADING -->
-  <div id="loadingScreen">
-    <div class="loader-logo">DevPath</div>
-    <div class="loader-dots"><span></span><span></span><span></span></div>
-  </div>
-
-  <!-- LOGIN -->
-  <div id="loginScreen" style="display:none;">
+  <!-- ════ LOGIN SCREEN ════ -->
+  <div class="login-screen" id="loginScreen">
     <div class="login-card">
-      <div class="login-brand">
-        <div class="logo">DevPath</div>
-        <div class="sub">Notes Pro</div>
-      </div>
-      <div class="field-wrap">
-        <label class="field-label">Email</label>
-        <input type="email" class="input-field" id="emailInput" placeholder="you@example.com" autocomplete="email">
-      </div>
-      <div class="field-wrap">
-        <label class="field-label">Password</label>
-        <input type="password" class="input-field" id="passwordInput" placeholder="••••••••" autocomplete="current-password">
-      </div>
+      <div class="login-title">DevPath Notes</div>
+      <input type="email" class="input-field" id="emailInput" placeholder="Email" autocomplete="email">
+      <input type="password" class="input-field" id="passwordInput" placeholder="Password" autocomplete="current-password">
       <div class="error-msg" id="loginError"></div>
-      <button class="btn-primary" id="loginBtn">Sign In</button>
-      <div class="divider"><span>or</span></div>
-      <button class="btn-secondary" id="registerBtn">Create Account</button>
+      <button class="tool-btn save" id="loginBtn" style="width:100%; justify-content:center; padding:12px;">Sign In</button>
+      <button class="tool-btn" id="registerBtn" style="width:100%; justify-content:center; padding:12px; background:transparent; border:1px solid var(--border);">Create Account</button>
     </div>
   </div>
 
-  <!-- HOME -->
-  <div id="homeView" style="display:none;">
+  <!-- ════ HOME VIEW ════ -->
+  <div class="home-view" id="homeView" style="display:none;">
     <div class="home-header">
-      <div class="home-title"><span>Notes</span></div>
-      <button class="new-btn" id="homeNewBtn" type="button">+</button>
+      <span class="home-title">📝 Notes</span>
+      <button class="home-new-btn" id="homeNewBtn">+</button>
     </div>
-    <div class="home-search-wrap">
-      <input type="text" class="search-input" id="homeSearch" placeholder="Search notes…" autocomplete="off">
+    <div class="home-tools">
+      <input type="text" class="search-input" id="homeSearch" placeholder="Search notes..." autocomplete="off">
+      <button class="filter-chip active" data-lang="all">All</button>
+      <button class="filter-chip" data-lang="html">HTML</button>
+      <button class="filter-chip" data-lang="css">CSS</button>
+      <button class="filter-chip" data-lang="javascript">JS</button>
+      <button class="filter-chip" data-lang="python">Python</button>
     </div>
-    <div class="filter-row">
-      <button class="chip active" data-lang="all">All</button>
-      <button class="chip" data-lang="html">HTML</button>
-      <button class="chip" data-lang="css">CSS</button>
-      <button class="chip" data-lang="javascript">JS</button>
-      <button class="chip" data-lang="python">Python</button>
-      <button class="chip" data-lang="sql">SQL</button>
-    </div>
-    <div class="notes-scroll">
-      <div class="notes-grid" id="notesGrid"></div>
-    </div>
-    <a href="index.html" class="dash-link">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    <div class="notes-grid" id="notesGrid"></div>
+    <a href="index.html" class="dashboard-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
       Dashboard
     </a>
   </div>
 
-  <!-- EDITOR -->
-  <div id="editorView" style="display:none;">
-    <div class="editor-nav">
+  <!-- ════ EDITOR VIEW ════ -->
+  <div class="editor-view" id="editorView">
+    <div class="navbar">
       <button class="back-btn" id="editorBackBtn">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
         Back
       </button>
-      <input type="text" class="note-title-input" id="noteTitle" placeholder="Untitled note">
+      <input type="text" class="nav-title-input" id="noteTitle" placeholder="Note title">
     </div>
-    <div class="editor-body">
+    <div class="editor-container">
       <div class="code-stage" id="codeStage">
-        <div class="line-nums" id="lineNums"><span>1</span></div>
-        <textarea class="code-layer code-ta" id="codeTA" placeholder="Write code…" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
-        <pre class="code-layer code-pre"><code class="hljs" id="codeHL"></code></pre>
+        <div class="line-numbers" id="lineNums">1</div>
+        <textarea class="code-layer code-textarea" id="codeTextarea" placeholder="Write code…" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
+        <pre class="code-layer code-preview"><code class="hljs" id="codeHighlight"></code></pre>
       </div>
-      <iframe class="live-frame" id="liveFrame" sandbox="allow-scripts allow-same-origin" title="Preview"></iframe>
     </div>
-    <div class="editor-toolbar">
-      <select class="lang-sel" id="langPicker">
+    <div class="bottom-toolbar">
+      <select class="lang-picker" id="langPicker">
         <option value="html">HTML</option>
         <option value="css">CSS</option>
         <option value="javascript">JavaScript</option>
@@ -350,179 +278,135 @@
         <option value="bash">Bash</option>
         <option value="plaintext">Plain Text</option>
       </select>
-      <button class="tbtn" id="undoBtn" disabled>↩</button>
-      <button class="tbtn" id="redoBtn" disabled>↪</button>
-      <button class="tbtn" id="selAllBtn">All</button>
-      <button class="tbtn" id="previewBtn">👁</button>
-      <button class="tbtn green" id="copyBtn">Copy</button>
-      <button class="tbtn red" id="deleteBtn">Del</button>
-      <button class="tbtn blue" id="saveBtn">Save</button>
+      <button class="tool-btn copy" id="copyBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        Copy
+      </button>
+      <button class="tool-btn delete" id="deleteBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+      </button>
+      <button class="tool-btn save" id="saveBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+        Save
+      </button>
     </div>
-    <div class="status-row">
+    <div class="status-bar">
       <span id="lineCount">Ln 1</span>
       <span id="charCount">0 chars</span>
     </div>
   </div>
 </div>
 
-<div class="toast-wrap" id="toastWrap"></div>
+<div class="toast-panel" id="toastPanel"></div>
 
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-
 <script>
-(function () {
-  // ── FIREBASE INIT ──
-  const cfg = {
+(function(){
+  // ═══════════════ FIREBASE CONFIG ═══════════════
+  const firebaseConfig = {
     apiKey: "AIzaSyAszFGDs1J92_53jHvj5aABmeiKZdc-mf0",
     authDomain: "gen-lang-client-0501601606.firebaseapp.com",
     projectId: "gen-lang-client-0501601606",
     storageBucket: "gen-lang-client-0501601606.firebasestorage.app",
     messagingSenderId: "1079712784218",
-    appId: "1:1079712784218:web:598465155aa70938a6dd63"
+    appId: "1:1079712784218:web:598465155aa70938a6dd63",
+    measurementId: "G-CRHRGYX74V"
   };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
 
-  let auth, db;
-  try {
-    firebase.initializeApp(cfg);
-    auth = firebase.auth();
-    db = firebase.firestore();
-  } catch (e) {
-    document.getElementById('loadingScreen').style.display = 'none';
-    document.getElementById('loginScreen').style.display = 'flex';
-    return;
-  }
+  // ═══════════════ STATE ═══════════════
+  let notes = [];
+  let currentId = null;
+  let filterLang = 'all';
+  let searchTerm = '';
 
-  // ── STATE ──
-  let notes = [], currentId = null;
-  let filterLang = 'all', searchTerm = '';
-  let isPreview = false;
-  let undoStack = [], redoStack = [], lastVal = '';
-
-  // ── HELPERS ──
   const $ = id => document.getElementById(id);
-  function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-  function toast(msg) {
-    const t = document.createElement('div');
-    t.className = 'toast'; t.textContent = msg;
-    $('toastWrap').appendChild(t);
-    setTimeout(() => t.remove(), 2400);
-  }
+  const homeView = $('homeView');
+  const editorView = $('editorView');
 
-  function showScreen(name) {
-    $('loadingScreen').style.display = 'none';
-    $('loginScreen').style.display = name === 'login' ? 'flex' : 'none';
-    $('homeView').style.display = name === 'home' ? 'flex' : 'none';
-    $('editorView').style.display = name === 'editor' ? 'flex' : 'none';
-    if (name === 'editor') $('editorView').classList.add('active');
-    else $('editorView').classList.remove('active');
-  }
-
-  // ── AUTH ──
-  auth.onAuthStateChanged(async user => {
+  // ═══════════════ AUTH ═══════════════
+  auth.onAuthStateChanged(async (user) => {
     if (user) {
+      $('loginScreen').style.display = 'none';
+      homeView.style.display = 'flex';
       await loadNotes();
-      showScreen('home');
     } else {
-      showScreen('login');
+      $('loginScreen').style.display = 'flex';
+      homeView.style.display = 'none';
+      editorView.classList.remove('active');
     }
   });
 
   $('loginBtn').addEventListener('click', async () => {
-    const email = $('emailInput').value.trim();
-    const pass = $('passwordInput').value;
-    $('loginError').textContent = '';
-    if (!email || !pass) { $('loginError').textContent = 'Please fill all fields'; return; }
-    $('loginBtn').textContent = 'Signing in...';
-    $('loginBtn').disabled = true;
     try {
-      await auth.signInWithEmailAndPassword(email, pass);
-    } catch (e) {
-      $('loginError').textContent = e.message;
-      $('loginBtn').textContent = 'Sign In';
-      $('loginBtn').disabled = false;
-    }
+      await auth.signInWithEmailAndPassword($('emailInput').value, $('passwordInput').value);
+      $('loginError').textContent = '';
+    } catch(e) { $('loginError').textContent = e.message; }
   });
 
   $('registerBtn').addEventListener('click', async () => {
-    const email = $('emailInput').value.trim();
-    const pass = $('passwordInput').value;
-    $('loginError').textContent = '';
-    if (!email || !pass) { $('loginError').textContent = 'Please fill all fields'; return; }
-    $('registerBtn').textContent = 'Creating...';
-    $('registerBtn').disabled = true;
     try {
-      await auth.createUserWithEmailAndPassword(email, pass);
-    } catch (e) {
-      $('loginError').textContent = e.message;
-      $('registerBtn').textContent = 'Create Account';
-      $('registerBtn').disabled = false;
-    }
+      await auth.createUserWithEmailAndPassword($('emailInput').value, $('passwordInput').value);
+      $('loginError').textContent = '';
+    } catch(e) { $('loginError').textContent = e.message; }
   });
 
-  // Enter key to login
-  [$('emailInput'), $('passwordInput')].forEach(el => {
-    el.addEventListener('keydown', e => { if (e.key === 'Enter') $('loginBtn').click(); });
-  });
-
-  // ── FIRESTORE ──
-  function userRef() {
-    return db.collection('users').doc(auth.currentUser.uid).collection('notes');
-  }
+  // ═══════════════ FIRESTORE ═══════════════
   async function loadNotes() {
-    try {
-      const snap = await userRef().orderBy('updated', 'desc').get();
-      notes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    } catch (e) {
-      toast('Load error: ' + e.message);
-      notes = [];
-    }
-  }
-  async function cloudSave(n) {
     if (!auth.currentUser) return;
-    try { await userRef().doc(n.id).set(n, { merge: true }); } catch (e) { /* silent */ }
-  }
-  async function cloudDelete(id) {
-    if (!auth.currentUser) return;
-    try { await userRef().doc(id).delete(); } catch (e) { /* silent */ }
+    const snap = await db.collection('users').doc(auth.currentUser.uid).collection('notes').orderBy('updated','desc').get();
+    notes = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    renderHome();
   }
 
-  // ── HOME ──
+  async function saveToCloud(note) {
+    if (!auth.currentUser) return;
+    await db.collection('users').doc(auth.currentUser.uid).collection('notes').doc(note.id).set(note, { merge: true });
+  }
+
+  async function deleteFromCloud(id) {
+    if (!auth.currentUser) return;
+    await db.collection('users').doc(auth.currentUser.uid).collection('notes').doc(id).delete();
+  }
+
+  // ═══════════════ HOME ═══════════════
   function renderHome() {
-    let list = [...notes];
-    if (filterLang !== 'all') list = list.filter(n => n.lang === filterLang);
+    let filtered = [...notes];
+    if (filterLang !== 'all') filtered = filtered.filter(n => n.lang === filterLang);
     if (searchTerm.trim()) {
       const q = searchTerm.toLowerCase();
-      list = list.filter(n => (n.title || '').toLowerCase().includes(q) || (n.content || '').toLowerCase().includes(q));
+      filtered = filtered.filter(n => (n.title||'').toLowerCase().includes(q) || (n.content||'').toLowerCase().includes(q));
     }
-    list.sort((a, b) => b.updated - a.updated);
+    filtered.sort((a,b) => b.updated - a.updated);
 
     const grid = $('notesGrid');
-    if (!list.length) {
-      grid.innerHTML = '<div class="empty-state"><div class="big">No notes</div>Tap + to create one.</div>';
-      return;
+    if (filtered.length === 0) {
+      grid.innerHTML = '<div class="empty-notes">No notes yet.<br>Tap + to create one.</div>';
+    } else {
+      grid.innerHTML = filtered.map(n => `
+        <div class="note-card-home" data-id="${n.id}">
+          <div class="title">${esc(n.title || 'Untitled')}</div>
+          <span class="lang">${n.lang||'txt'}</span>
+          <button class="delete-btn" data-del="${n.id}">Delete</button>
+        </div>
+      `).join('');
     }
-    grid.innerHTML = list.map(n => `
-      <div class="note-card" data-id="${n.id}">
-        <div class="nc-title">${esc(n.title || 'Untitled')}</div>
-        <span class="nc-lang">${n.lang || 'txt'}</span>
-        <button class="nc-del" data-del="${n.id}">Delete</button>
-      </div>
-    `).join('');
 
-    grid.querySelectorAll('.note-card').forEach(c => {
-      c.addEventListener('click', e => {
-        if (!e.target.closest('[data-del]')) openEditor(c.dataset.id);
+    grid.querySelectorAll('.note-card-home').forEach(card => {
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('[data-del]')) return;
+        openEditor(card.dataset.id);
       });
     });
-    grid.querySelectorAll('[data-del]').forEach(b => {
-      b.addEventListener('click', e => {
+    grid.querySelectorAll('[data-del]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
         e.stopPropagation();
+        const id = btn.dataset.del;
         if (confirm('Delete this note?')) {
-          notes = notes.filter(n => n.id !== b.dataset.del);
-          cloudDelete(b.dataset.del);
+          notes = notes.filter(n => n.id !== id);
+          deleteFromCloud(id);
           renderHome();
           toast('Deleted');
         }
@@ -530,219 +414,204 @@
     });
   }
 
-  // ── NEW NOTE ──
-  $('homeNewBtn').addEventListener('click', async () => {
-    if (!auth.currentUser) { toast('Not signed in'); return; }
-    const noteData = { title: '', content: '', lang: 'html', updated: Date.now() };
-    try {
-      const ref = await userRef().add(noteData);
-      const note = { id: ref.id, ...noteData };
-      notes.unshift(note);
-      openEditor(note.id);
-    } catch (e) {
-      toast('Error: ' + e.message);
-    }
-  });
-
-  // ── EDITOR ──
+  // ═══════════════ EDITOR ═══════════════
   function openEditor(id) {
+    currentId = id;
     const note = notes.find(n => n.id === id);
     if (!note) return;
-    currentId = id;
     $('noteTitle').value = note.title || '';
-    $('codeTA').value = note.content || '';
+    $('codeTextarea').value = note.content || '';
     $('langPicker').value = note.lang || 'plaintext';
-    showScreen('editor');
-    switchToCode();
-    refreshHL();
+    homeView.style.display = 'none';
+    editorView.classList.add('active');
+    refreshHighlight();
     updateStats();
-    drawLines();
-    resetHistory(note.content || '');
-    setTimeout(() => $('codeTA').focus(), 100);
+    $('codeTextarea').focus();
+  }
+
+  async function openNewNote() {
+    const note = {
+      id: Date.now().toString(36) + Math.random().toString(36).substr(2,7),
+      title: '', content: '', lang: 'html', updated: Date.now()
+    };
+    // Save to Firestore
+    const docRef = await db.collection('users').doc(auth.currentUser.uid).collection('notes').add(note);
+    note.id = docRef.id;
+    notes.unshift(note);
+    openEditor(note.id);
   }
 
   function closeEditor() {
+    // Auto-save before closing
     if (currentId) {
-      const n = notes.find(x => x.id === currentId);
-      if (n) {
-        n.title = $('noteTitle').value.trim();
-        n.content = $('codeTA').value;
-        n.lang = $('langPicker').value;
-        n.updated = Date.now();
-        cloudSave(n);
+      const note = notes.find(n => n.id === currentId);
+      if (note) {
+        note.title = $('noteTitle').value.trim();
+        note.content = $('codeTextarea').value;
+        note.lang = $('langPicker').value;
+        note.updated = Date.now();
+        saveToCloud(note);
       }
     }
     currentId = null;
+    editorView.classList.remove('active');
+    homeView.style.display = 'flex';
     $('noteTitle').value = '';
-    $('codeTA').value = '';
-    $('codeHL').textContent = '';
-    switchToCode();
-    showScreen('home');
+    $('codeTextarea').value = '';
+    $('codeHighlight').textContent = '';
     renderHome();
   }
 
-  function saveNote() {
+  function saveCurrent() {
     if (!currentId) return;
-    const n = notes.find(x => x.id === currentId);
-    if (!n) return;
-    n.title = $('noteTitle').value.trim();
-    n.content = $('codeTA').value;
-    n.lang = $('langPicker').value;
-    n.updated = Date.now();
-    cloudSave(n);
+    const note = notes.find(n => n.id === currentId);
+    if (!note) return;
+    note.title = $('noteTitle').value.trim();
+    note.content = $('codeTextarea').value;
+    note.lang = $('langPicker').value;
+    note.updated = Date.now();
+    saveToCloud(note);
     toast('Saved');
-    closeEditor();
+    renderHome();
   }
 
-  async function deleteNote() {
-    if (!currentId || !confirm('Delete this note?')) return;
-    await cloudDelete(currentId);
+  async function deleteCurrent() {
+    if (!currentId) return;
+    if (!confirm('Delete this note?')) return;
+    await deleteFromCloud(currentId);
     notes = notes.filter(n => n.id !== currentId);
-    currentId = null;
-    showScreen('home');
-    renderHome();
+    closeEditor();
     toast('Deleted');
   }
 
-  // ── UNDO/REDO ──
-  function resetHistory(v) { undoStack = []; redoStack = []; lastVal = v || ''; updateUndoBtns(); }
-  function pushUndo() {
-    const v = $('codeTA').value;
-    if (v === lastVal) return;
-    undoStack.push(lastVal);
-    if (undoStack.length > 100) undoStack.shift();
-    redoStack = [];
-    lastVal = v;
-    updateUndoBtns();
-  }
-  function applyVal(v) {
-    $('codeTA').value = v; lastVal = v;
-    refreshHL(); updateStats(); drawLines(); updateUndoBtns();
-  }
-  function undo() { if (!undoStack.length) return; redoStack.push($('codeTA').value); applyVal(undoStack.pop()); }
-  function redo() { if (!redoStack.length) return; undoStack.push($('codeTA').value); applyVal(redoStack.pop()); }
-  function updateUndoBtns() { $('undoBtn').disabled = !undoStack.length; $('redoBtn').disabled = !redoStack.length; }
-
-  // ── HIGHLIGHT ──
-  function refreshHL() {
-    const code = $('codeTA').value, lang = $('langPicker').value;
+  // ═══════════════ SYNTAX ═══════════════
+  function refreshHighlight() {
+    const code = $('codeTextarea').value;
+    const lang = $('langPicker').value;
     let out;
-    try { out = lang === 'plaintext' ? esc(code) : hljs.highlight(code, { language: lang, ignoreIllegals: true }).value; }
-    catch (e) { out = esc(code); }
-    $('codeHL').innerHTML = out;
+    try {
+      out = lang === 'plaintext' ? esc(code) : hljs.highlight(code, { language: lang, ignoreIllegals: true }).value;
+    } catch(e) { out = esc(code); }
+    $('codeHighlight').innerHTML = out;
     syncScroll();
+    drawLineNumbers();
   }
+
   function syncScroll() {
-    const pre = $('codeHL').parentElement, ta = $('codeTA');
-    if (pre && ta) { pre.scrollTop = ta.scrollTop; pre.scrollLeft = ta.scrollLeft; }
+    const pre = $('codeHighlight').parentElement;
+    pre.scrollTop = $('codeTextarea').scrollTop;
+    pre.scrollLeft = $('codeTextarea').scrollLeft;
   }
-  function drawLines() {
-    const lines = $('codeTA').value.split('\n');
-    $('lineNums').innerHTML = lines.map((_, i) => `<span>${i + 1}</span>`).join('');
-    $('lineNums').scrollTop = $('codeTA').scrollTop;
+
+  function drawLineNumbers() {
+    const lines = $('codeTextarea').value.split('\n');
+    $('lineNums').innerHTML = lines.map((_, i) => `<span>${i+1}</span>`).join('');
+    $('lineNums').scrollTop = $('codeTextarea').scrollTop;
   }
+
+  async function copyCode() {
+    const code = $('codeTextarea').value;
+    if (!code.trim()) { toast('Nothing to copy'); return; }
+    try {
+      await navigator.clipboard.writeText(code);
+      const btn = $('copyBtn');
+      btn.classList.add('copied');
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy';
+      }, 2000);
+      toast('Copied!');
+    } catch(e) { toast('Copy failed'); }
+  }
+
   function updateStats() {
-    const v = $('codeTA').value;
-    $('charCount').textContent = v.length + ' chars';
-    $('lineCount').textContent = 'Ln ' + v.split('\n').length;
+    const code = $('codeTextarea').value;
+    $('charCount').textContent = code.length + ' chars';
+    $('lineCount').textContent = 'Ln ' + code.split('\n').length;
   }
 
-  // ── PREVIEW ──
-  function switchToPreview() {
-    isPreview = true;
-    $('codeStage').style.display = 'none';
-    $('liveFrame').classList.add('on');
-    const code = $('codeTA').value, lang = $('langPicker').value;
-    let html = code;
-    if (lang === 'css') html = '<!DOCTYPE html><html><head><style>' + code + '</style></head><body></body></html>';
-    else if (lang === 'javascript') html = '<!DOCTYPE html><html><body><script>' + code + '<\/script></body></html>';
-    else if (lang === 'html' && !code.includes('<!DOCTYPE')) html = '<!DOCTYPE html><html>' + code + '</html>';
-    $('liveFrame').srcdoc = html;
-  }
-  function switchToCode() {
-    isPreview = false;
-    $('codeStage').style.display = 'flex';
-    $('liveFrame').classList.remove('on');
+  // ═══════════════ HELPERS ═══════════════
+  function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+  function toast(msg) {
+    const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
+    $('toastPanel').appendChild(t);
+    setTimeout(() => t.remove(), 2200);
   }
 
-  // ── TOOLBAR EVENTS ──
+  // ═══════════════ EVENTS ═══════════════
+  $('homeNewBtn').addEventListener('click', openNewNote);
   $('editorBackBtn').addEventListener('click', closeEditor);
-  $('saveBtn').addEventListener('click', saveNote);
-  $('deleteBtn').addEventListener('click', deleteNote);
-  $('undoBtn').addEventListener('click', undo);
-  $('redoBtn').addEventListener('click', redo);
-  $('selAllBtn').addEventListener('click', () => { $('codeTA').focus(); $('codeTA').select(); });
-  $('previewBtn').addEventListener('click', () => isPreview ? switchToCode() : switchToPreview());
-  $('copyBtn').addEventListener('click', async () => {
-    try { await navigator.clipboard.writeText($('codeTA').value); toast('Copied!'); }
-    catch (e) { toast('Copy failed'); }
+  $('saveBtn').addEventListener('click', saveCurrent);
+  $('deleteBtn').addEventListener('click', deleteCurrent);
+  $('copyBtn').addEventListener('click', copyCode);
+
+  $('homeSearch').addEventListener('input', (e) => {
+    searchTerm = e.target.value;
+    renderHome();
   });
 
-  // ── CODE INPUT ──
-  $('codeTA').addEventListener('input', () => {
-    refreshHL(); updateStats(); drawLines();
-    if (currentId) {
-      const n = notes.find(x => x.id === currentId);
-      if (n) { n.content = $('codeTA').value; n.updated = Date.now(); cloudSave(n); }
-    }
-    clearTimeout(window._ud); window._ud = setTimeout(pushUndo, 600);
-  });
-  $('codeTA').addEventListener('scroll', () => { syncScroll(); drawLines(); });
-
-  $('codeTA').addEventListener('keydown', function (e) {
-    if (e.key === 'Tab') {
-      e.preventDefault(); pushUndo();
-      const s = this.selectionStart;
-      this.setRangeText('  ', s, this.selectionEnd, 'end');
-      this.selectionStart = this.selectionEnd = s + 2;
-      refreshHL(); updateStats(); lastVal = this.value;
-      return;
-    }
-    const pairs = { '(': ')', '[': ']', '{': '}', '"': '"', "'": "'", '`': '`' };
-    if (pairs[e.key] && !e.ctrlKey && !e.metaKey && !e.altKey) {
-      e.preventDefault(); pushUndo();
-      const s = this.selectionStart, end = this.selectionEnd;
-      this.setRangeText(e.key + pairs[e.key], s, end, 'end');
-      this.selectionStart = this.selectionEnd = s + 1;
-      refreshHL(); updateStats(); lastVal = this.value;
-    }
-  });
-
-  $('noteTitle').addEventListener('input', () => {
-    if (!currentId) return;
-    const n = notes.find(x => x.id === currentId);
-    if (n) { n.title = $('noteTitle').value; n.updated = Date.now(); cloudSave(n); }
-  });
-
-  $('langPicker').addEventListener('change', () => {
-    refreshHL();
-    if (currentId) {
-      const n = notes.find(x => x.id === currentId);
-      if (n) { n.lang = $('langPicker').value; n.updated = Date.now(); cloudSave(n); }
-    }
-  });
-
-  $('homeSearch').addEventListener('input', e => { searchTerm = e.target.value; renderHome(); });
-
-  document.querySelectorAll('.chip').forEach(chip => {
+  document.querySelectorAll('.filter-chip').forEach(chip => {
     chip.addEventListener('click', () => {
-      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
       chip.classList.add('active');
       filterLang = chip.dataset.lang;
       renderHome();
     });
   });
 
-  // ── KEYBOARD SHORTCUTS ──
-  document.addEventListener('keydown', e => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); if (currentId) saveNote(); }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'n') { e.preventDefault(); $('homeNewBtn').click(); }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) { e.preventDefault(); undo(); }
-    if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) { e.preventDefault(); redo(); }
+  $('noteTitle').addEventListener('input', () => {
+    if (currentId) {
+      const note = notes.find(n => n.id === currentId);
+      if (note) { note.title = $('noteTitle').value.trim(); note.updated = Date.now(); saveToCloud(note); }
+    }
   });
 
+  $('langPicker').addEventListener('change', () => {
+    refreshHighlight();
+    if (currentId) {
+      const note = notes.find(n => n.id === currentId);
+      if (note) { note.lang = $('langPicker').value; note.updated = Date.now(); saveToCloud(note); }
+    }
+  });
+
+  $('codeTextarea').addEventListener('input', () => {
+    refreshHighlight();
+    updateStats();
+    if (currentId) {
+      const note = notes.find(n => n.id === currentId);
+      if (note) { note.content = $('codeTextarea').value; note.updated = Date.now(); saveToCloud(note); }
+    }
+  });
+
+  $('codeTextarea').addEventListener('scroll', () => {
+    syncScroll();
+    drawLineNumbers();
+  });
+
+  // Tab support
+  $('codeTextarea').addEventListener('keydown', e => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const ta = $('codeTextarea');
+      const s = ta.selectionStart;
+      ta.value = ta.value.substring(0, s) + '  ' + ta.value.substring(ta.selectionEnd);
+      ta.selectionStart = ta.selectionEnd = s + 2;
+      refreshHighlight();
+      updateStats();
+    }
+  });
+
+  // Shortcuts
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); saveCurrent(); }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'n') { e.preventDefault(); openNewNote(); }
+  });
+
+  // ═══════════════ INIT ═══════════════
+  // Initial render will happen after auth state changes
+  if (notes.length > 0) renderHome();
 })();
 </script>
-
 </body>
 </html>
