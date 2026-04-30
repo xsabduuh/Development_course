@@ -91,7 +91,8 @@
     .note-card-home .title { font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; }
     .note-card-home .lang {
       font-size: 0.65rem; text-transform: uppercase;
-      color: var(--accent); background: rgba(10,132,255,0.15);
+      color: rgba(10,132,255,0.5);           /* شفاف وخفيف */
+      background: rgba(10,132,255,0.08);      /* خلفية شفافة جداً */
       padding: 2px 8px; border-radius: 4px;
     }
     .note-card-home .delete-btn {
@@ -205,6 +206,9 @@
       color: var(--accent);
       font-weight: 600;
     }
+    .tool-btn.select-all {
+      color: var(--secondary);
+    }
 
     .status-bar {
       padding: 4px 16px; display: flex; justify-content: space-between;
@@ -287,6 +291,10 @@
       <button class="tool-btn copy" id="copyBtn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
         Copy
+      </button>
+      <button class="tool-btn select-all" id="selectAllBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 4v16"/><path d="M16 4v16"/></svg>
+        Select All
       </button>
       <button class="tool-btn undo" id="undoBtn" disabled>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -447,7 +455,7 @@
   }
 
   function openEditor(id) {
-    if (previewVisible) togglePreview(); // إغلاق Preview عند فتح ملاحظة جديدة
+    if (previewVisible) togglePreview();
     currentId = id;
     const note = notes.find(n => n.id === id);
     if (!note) return;
@@ -525,18 +533,15 @@
     toast('🗑 Deleted');
   }
 
-  // Preview: إخفاء الكود وإظهار المعاينة فقط
   function togglePreview() {
     previewVisible = !previewVisible;
     if (previewVisible) {
-      // إخفاء عناصر الكود
       codeTextarea.style.display = 'none';
       codeHighlight.parentElement.style.display = 'none';
       lineNums.style.display = 'none';
       previewPane.classList.add('visible');
       updatePreview();
     } else {
-      // إظهار عناصر الكود
       codeTextarea.style.display = '';
       codeHighlight.parentElement.style.display = '';
       lineNums.style.display = '';
@@ -548,8 +553,7 @@
     clearTimeout(updatePreviewTimer);
     updatePreviewTimer = setTimeout(() => {
       if (!previewVisible) return;
-      const code = codeTextarea.value;
-      previewIframe.srcdoc = code;
+      previewIframe.srcdoc = codeTextarea.value;
     }, 80);
   }
 
@@ -639,6 +643,12 @@
     } catch(e) { toast('Copy failed'); }
   }
 
+  function selectAllCode() {
+    codeTextarea.focus();
+    codeTextarea.select();
+    toast('All code selected (Ctrl+C to copy)');
+  }
+
   function updateStats() {
     const code = codeTextarea.value;
     $('charCount').textContent = code.length + ' chars';
@@ -658,6 +668,7 @@
   $('saveBtn').addEventListener('click', saveCurrent);
   $('deleteBtn').addEventListener('click', deleteCurrent);
   $('copyBtn').addEventListener('click', copyCode);
+  $('selectAllBtn').addEventListener('click', selectAllCode);
   $('undoBtn').addEventListener('click', performUndo);
   $('redoBtn').addEventListener('click', performRedo);
   $('previewBtn').addEventListener('click', togglePreview);
