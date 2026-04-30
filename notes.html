@@ -381,7 +381,7 @@
     } catch(e) { $('loginError').textContent = e.message; }
   });
 
-  // ═══════════════ FIRESTORE ═══════════════
+  // ═══════════════ FIRESTORE (آمن تماماً) ═══════════════
   async function loadNotes() {
     if (!auth.currentUser) return;
     try {
@@ -390,21 +390,21 @@
       notes = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       renderHome();
     } catch (e) {
-      toast('Failed to load notes');
+      toast('⚠️ Failed to load notes from cloud');
       console.error(e);
     }
   }
 
-  // دالة حفظ محمية ضد الأخطاء
+  // حفظ آمن مع تجاهل حقل id الداخلي وضمان عدم إرساله
   async function saveToCloud(note) {
     if (!auth.currentUser) return;
     try {
-      // لا نُرسل المعرف المؤقت (إن وُجد) لنحافظ على المعرف الحقيقي فقط
+      // ننزع حقل id حتى لا نخزنه داخل بيانات المستند
       const { id, ...data } = note;
       await db.collection('users').doc(auth.currentUser.uid)
         .collection('notes').doc(note.id).set(data, { merge: true });
     } catch (e) {
-      toast('Save failed – check connection');
+      toast('❌ Cloud save failed – check connection');
       console.error('Cloud save error:', e);
     }
   }
@@ -415,7 +415,7 @@
       await db.collection('users').doc(auth.currentUser.uid)
         .collection('notes').doc(id).delete();
     } catch (e) {
-      toast('Delete failed');
+      toast('❌ Delete failed');
       console.error(e);
     }
   }
@@ -479,39 +479,36 @@
     $('codeTextarea').focus();
   }
 
+  // 🟢 النقطة الجوهرية: إنشاء ملاحظة بمعرّف ثابت من البداية (لا حاجة للتغيير لاحقاً)
   async function openNewNote() {
-    // 1. إنشاء معرّف مؤقت للمظهر المحلي
-    const tempId = Date.now().toString(36) + Math.random().toString(36).substr(2, 7);
+    // توليد معرّف فريد نستخدمه كمُعرّف المستند في Firestore
+    const fixedId = Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
     const note = {
-      id: tempId,
+      id: fixedId,
       title: '',
       content: '',
       lang: 'html',
       updated: Date.now()
     };
 
-    // 2. إضافة محلية وفتح المحرر فوراً
+    // نضيفها محلياً ونفتح المحرر فوراً
     notes.unshift(note);
-    openEditor(tempId);
+    openEditor(fixedId);
 
-    // 3. إنشاء وثيقة فايرستور (بدون المعرف المؤقت)
+    // ننشئ المستند في Firestore بنفس المعرّف (إذا لم يكن موجوداً)
     try {
       if (!auth.currentUser) return;
-      const docRef = await db.collection('users').doc(auth.currentUser.uid)
-        .collection('notes').add({
-          title: '',
-          content: '',
-          lang: 'html',
-          updated: Date.now()
-        });
-      const realId = docRef.id;
-      // تحديث المعرّف المحلي ليطابق الوثيقة الحقيقية
-      const local = notes.find(n => n.id === tempId);
-      if (local) local.id = realId;
-      if (currentId === tempId) currentId = realId;
+      // استخدم set مع merge لتجنب الكتابة فوق أي بيانات قديمة (غير موجودة أصلاً)
+      await db.collection('users').doc(auth.currentUser.uid)
+        .collection('notes').doc(fixedId).set({
+          title: note.title,
+          content: note.content,
+          lang: note.lang,
+          updated: note.updated
+        }, { merge: true });
     } catch (e) {
-      console.error('Cannot create cloud note:', e);
-      toast('Created locally – sync pending');
+      toast('⚠️ Cloud sync delayed – will retry');
+      console.error('Initial save error:', e);
     }
     renderHome();
   }
@@ -524,7 +521,7 @@
         note.content = $('codeTextarea').value;
         note.lang = $('langPicker').value;
         note.updated = Date.now();
-        saveToCloud(note);
+        saveToCloud(note);  // هذا حفظ معرّف ثابت تماماً
       }
     }
     currentId = null;
@@ -546,7 +543,7 @@
     note.lang = $('langPicker').value;
     note.updated = Date.now();
     saveToCloud(note);
-    toast('Saved');
+    toast('✅ Saved');
     renderHome();
   }
 
@@ -556,7 +553,7 @@
     await deleteFromCloud(currentId);
     notes = notes.filter(n => n.id !== currentId);
     closeEditor();
-    toast('Deleted');
+    toast('🗑 Deleted');
   }
 
   // ═══════════════ UNDO / REDO ═══════════════
@@ -660,7 +657,7 @@
   function toast(msg) {
     const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
     $('toastPanel').appendChild(t);
-    setTimeout(() => t.remove(), 2200);
+    setTimeout(() => t.remove(), 2500);
   }
 
   // ═══════════════ EVENTS ═══════════════
